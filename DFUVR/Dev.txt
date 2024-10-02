@@ -1,0 +1,6 @@
+Popup messages: DaggerFallUI.public void PopupMessage(string text)
+
+
+HealthCamera: Position: (-0.752,0.487,1.533), rotation: (0,0,0), FOV: 23.3, Disable Eye rendering
+CompassCamera: Position:(0.745,0.485,1.509), rotation: (0,0,0), FOV:23.3, Disable Eye rendering
+NotificationCamera: Position:(0,1.294,1.556), rotation: (0,0,0), FOV:27.8, Disable Eye rendering
