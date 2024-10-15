@@ -64,6 +64,19 @@ namespace DFUVR
 
         void Update()
         {
+
+            //foreach (KeyCode kcode in Enum.GetValues(typeof(KeyCode)))
+            //{
+            //    if (Input.GetKey(kcode))
+            //        Plugin.LoggerInstance.LogInfo("KeyCode down: " + kcode);
+            //}
+            //float input = Input.GetAxis("Axis" + Var.debugInt2);
+
+            //Plugin.LoggerInstance.LogInfo("Input:" + input);
+            //Plugin.LoggerInstance.LogInfo("Axis:" + Var.debugInt2);
+            //Debug.Log(Var.heightOffset);
+
+            //if (Input.GetKeyDown(Var.acceptButton)) { Var.debugInt2 += 1; }
             //Plugin.LoggerInstance.LogInfo(wTexture);
             //DaggerfallUI daggerfallUI = GameObject.Find("DaggerfallUI").GetComponent<DaggerfallUI>();
             //FieldInfo directionField = AccessTools.Field(typeof(DaggerfallUI), "customRenderTarget");

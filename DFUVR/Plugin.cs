@@ -557,7 +557,7 @@ namespace DFUVR
             vrparent.transform.localPosition = new Vector3(vrparent.transform.localPosition.x, (float)Var.heightOffset, vrparent.transform.localPosition.z);
             #region Bindings
             InputManager.Instance.SetBinding(Var.lStickButton, Actions.Run, true);
-            InputManager.Instance.SetBinding(KeyCode.UpArrow, InputManager.Actions.ToggleConsole, true);
+            //InputManager.Instance.SetBinding(KeyCode.UpArrow, InputManager.Actions.ToggleConsole, true);
             InputManager.Instance.SetBinding(Var.acceptButton, InputManager.Actions.ActivateCenterObject, true);
             InputManager.Instance.SetBinding(Var.cancelButton, InputManager.Actions.Inventory, true);
             InputManager.Instance.SetBinding(Var.gripButton, InputManager.Actions.RecastSpell, true);
@@ -616,7 +616,7 @@ namespace DFUVR
         {
             AccessTools.Method(typeof(DaggerfallSky), "UpdateSkyRects").Invoke(__instance, null);
             return false;
-            
+
         }
     }
     [HarmonyPatch(typeof(InputManager), "GetUIScrollMovement")]
@@ -639,7 +639,7 @@ namespace DFUVR
         {
             float inputX1 = Input.GetAxis("Axis1");
             float inputY1 = Input.GetAxis("Axis2");
-
+            
             PlayerMotor playerMotor=(PlayerMotor)AccessTools.Field(typeof(LevitateMotor),"playerMotor").GetValue(__instance);
             Camera playerCamera=Var.VRCamera;
             PlayerGroundMotor groundMotor =(PlayerGroundMotor)AccessTools.Field(typeof(LevitateMotor),"groundMotor").GetValue(__instance);
@@ -930,6 +930,13 @@ namespace DFUVR
                     Var.weaponObject.transform.localPosition = new Vector3(0, 0, 0.1f);
                     Var.weaponObject.transform.localRotation = Quaternion.Euler(90, 0, 0);
                 }
+                else if (tempObject == Var.battleaxe)
+                {
+
+                    //Var.weaponObject.transform.localPosition= Vector3.zero;
+                    Var.weaponObject.transform.localPosition = new Vector3(0, 0, 0);
+                    Var.weaponObject.transform.localRotation = Quaternion.Euler(0, -90, 90);
+                }
                 else if (tempObject == Var.staff)
                 {
                     Var.weaponObject.transform.localPosition = Vector3.zero;
@@ -1072,7 +1079,7 @@ namespace DFUVR
                 
                 float inputX = Input.GetAxis("Axis1");
                 float inputY = Input.GetAxis("Axis2");
-
+                
                 if (GameManager.Instance.PlayerEntity.IsParalyzed)
                 {
                     inputX = 0;
@@ -1355,8 +1362,12 @@ namespace DFUVR
 
             Haptics.TriggerHapticFeedback(XRNode.RightHand, 1f);
             Haptics.TriggerHapticFeedback(XRNode.LeftHand, 1f);
+
+            
+
             Var.Initialize();
             
+
 
             //Time.fixedDeltaTime = 1f / 80f;
 

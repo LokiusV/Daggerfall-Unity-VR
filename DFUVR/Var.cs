@@ -23,7 +23,7 @@ namespace DFUVR
         //axis 11: left controller grip
         //axis 12: right controller grip
         public static int activeWindowCount = 0;
-
+        public static int debugInt2 = 0;
         public static bool isFirst = true;
         public static Camera VRCamera;
         public static bool charControllerCalibrated=false;
@@ -36,7 +36,7 @@ namespace DFUVR
 
         public static GameObject sphereObject;
         //Default Bindings
-        public static KeyCode gripButton = KeyCode.Joystick2Button5;
+        public static KeyCode gripButton = KeyCode.JoystickButton5;
         //public static KeyCode gripButton = KeyCode.JoystickButton5;
         public static KeyCode indexButton = KeyCode.Joystick2Button15;
         public static KeyCode rStickButton = KeyCode.JoystickButton9;
@@ -47,7 +47,12 @@ namespace DFUVR
         public static KeyCode left2Button = KeyCode.JoystickButton3;
         public static KeyCode lStickButton = KeyCode.JoystickButton8;
         public static KeyCode lGripButton = KeyCode.JoystickButton4;
-        
+
+        public static string lThumbStickHorizontal = "Axis1";
+        public static string lThumbStickVertical = "Axis2";
+        public static string triggers = "Axis3";
+        public static string rThumbStickHorizontal = "Axis4";
+        public static string rThumbStickVertical = "Axis5";
 
         public static Camera mainCamera;
         public static Camera uiCamera;
@@ -247,20 +252,20 @@ namespace DFUVR
                 string[] lines = fileContent.Split('\n');
                 Debug.Log(lines[2].Trim());
                 //Set the bindings to the default Oculus Touch bindings
-                if (lines[2].Trim() == "Oculus/Meta")
-                {
-                    gripButton = KeyCode.Joystick2Button5;
-                    indexButton = KeyCode.Joystick2Button15;
-                    acceptButton = KeyCode.JoystickButton1;
-                    jumpButton = KeyCode.JoystickButton9;
-                    cancelButton = KeyCode.JoystickButton0;
-                    left1Button = KeyCode.JoystickButton2;
-                    left2Button = KeyCode.JoystickButton3;
-                    Plugin.LoggerInstance.LogInfo("Set bindings for Oculus Touch.");
+                //if (lines[2].Trim() == "Oculus/Meta")
+                //{
+                //    gripButton = KeyCode.Joystick2Button5;
+                //    indexButton = KeyCode.Joystick2Button15;
+                //    acceptButton = KeyCode.JoystickButton1;
+                //    jumpButton = KeyCode.JoystickButton9;
+                //    cancelButton = KeyCode.JoystickButton0;
+                //    left1Button = KeyCode.JoystickButton2;
+                //    left2Button = KeyCode.JoystickButton3;
+                //    Plugin.LoggerInstance.LogInfo("Set bindings for Oculus Touch.");
 
-                }
+                //}
                 //Set the bindings to the default HTC Vive Wand bindings
-                else if (lines[2].Trim() == "Vive Wand")
+                if (lines[2].Trim() == "Vive Wand")
                 {
                     gripButton = KeyCode.Joystick2Button5;
                     indexButton = KeyCode.Joystick2Button15;
@@ -282,6 +287,13 @@ namespace DFUVR
                         acceptButton = (KeyCode)Enum.Parse(typeof(KeyCode), lines2[2].Trim());
                         cancelButton = (KeyCode)Enum.Parse(typeof(KeyCode), lines2[3].Trim());
                         jumpButton = (KeyCode)Enum.Parse(typeof(KeyCode), lines2[4].Trim());
+                        rStickButton = (KeyCode)Enum.Parse(typeof(KeyCode), lines2[5].Trim());
+                        left1Button = (KeyCode)Enum.Parse(typeof(KeyCode),lines2 [6].Trim());
+                        left2Button = (KeyCode)Enum.Parse(typeof(KeyCode), lines2[7].Trim());
+                        lStickButton = (KeyCode)Enum.Parse(typeof(KeyCode), lines2[8].Trim());
+                        lGripButton = (KeyCode)Enum.Parse(typeof(KeyCode), lines2[9].Trim());
+
+
                     }
                     catch (Exception e)//if it doesn't work, set it to emergency default values(height gets set somewhere else)
                     {
