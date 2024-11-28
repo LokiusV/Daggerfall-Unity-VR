@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using UnityEngine;
+using UnityEngine.XR;
 
 namespace DFUVR
 {
@@ -12,13 +13,36 @@ namespace DFUVR
         //positive
         public static bool SnapRight()
         {
-            if (!Var.snapDone && Input.GetAxis("Axis4") >= 0.7f)
+            //if (!Var.snapDone && Input.GetAxis("Axis4") >= 0.7f)
+            //{
+            //    Var.snapDone = true;
+            //    return true;
+
+            //}
+            //if (Var.snapDone && Input.GetAxis("Axis4") <= 0.25f)
+            //{
+            //    Var.snapDone = false;
+            //    return false;
+            //}
+
+            //return false;
+
+            var rightHand = InputDevices.GetDeviceAtXRNode(XRNode.RightHand);
+
+            Vector2 rThumbStick;
+            rightHand.TryGetFeatureValue(UnityEngine.XR.CommonUsages.primary2DAxis, out rThumbStick);
+
+            float inputX = rThumbStick.x;
+            float inputY = rThumbStick.y;
+
+
+            if (!Var.snapDone && inputX >= 0.7f)
             {
                 Var.snapDone = true;
                 return true;
 
             }
-            if (Var.snapDone && Input.GetAxis("Axis4") <= 0.25f)
+            if (Var.snapDone && inputX <= 0.25f)
             {
                 Var.snapDone = false;
                 return false;
@@ -31,18 +55,38 @@ namespace DFUVR
         //negative
         public static bool SnapLeft()
         {
-            if (!Var.snapDone && Input.GetAxis("Axis4") <= -0.7f)
+            var rightHand = InputDevices.GetDeviceAtXRNode(XRNode.RightHand);
+
+            Vector2 rThumbStick;
+            rightHand.TryGetFeatureValue(UnityEngine.XR.CommonUsages.primary2DAxis, out rThumbStick);
+
+            float inputX = rThumbStick.x;
+            float inputY = rThumbStick.y;
+
+            if (!Var.snapDone && inputX <= -0.7f)
             {
                 Var.snapDone = true;
                 return true;
 
             }
-            if (Var.snapDone && Input.GetAxis("Axis4") >= -0.25f)
+            if (Var.snapDone && inputX >= -0.25f)
             {
                 Var.snapDone = false;
                 return false;
             }
             return false;
+            //if (!Var.snapDone && Input.GetAxis("Axis4") <= -0.7f)
+            //{
+            //    Var.snapDone = true;
+            //    return true;
+
+            //}
+            //if (Var.snapDone && Input.GetAxis("Axis4") >= -0.25f)
+            //{
+            //    Var.snapDone = false;
+            //    return false;
+            //}
+            //return false;
 
         }
         public static void Snap()

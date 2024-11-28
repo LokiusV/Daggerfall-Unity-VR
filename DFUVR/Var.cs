@@ -8,6 +8,8 @@ using UnityEngine.UI;
 using DaggerfallWorkshop.AudioSynthesis.Synthesis;
 using DaggerfallWorkshop.Game;
 using System.Globalization;
+using System.Runtime.CompilerServices;
+using System.Linq;
 
 namespace DFUVR
 {
@@ -34,6 +36,8 @@ namespace DFUVR
         public static double heightOffset;
         public static Vector3 sheathOffset;
 
+        
+
         public static GameObject sphereObject;
         //Default Bindings
         public static KeyCode gripButton = KeyCode.JoystickButton5;
@@ -53,6 +57,8 @@ namespace DFUVR
         public static string triggers = "Axis3";
         public static string rThumbStickHorizontal = "Axis4";
         public static string rThumbStickVertical = "Axis5";
+        public static string placeholder=null;
+        public static bool fStartMenu = false;
 
         public static Camera mainCamera;
         public static Camera uiCamera;
@@ -75,7 +81,7 @@ namespace DFUVR
         public static GameObject hammer;
         public static GameObject staff;
         public static GameObject bow;
-
+        public static int connectedJoysticks;
 
 
         public static GameObject keyboard;
@@ -85,6 +91,14 @@ namespace DFUVR
         public static bool started;
 
         public static int debugInt;
+        public static GameObject fSpawnMenu;
+        public static int controllerAmount;
+        public static GameObject cMenu0;
+        public static GameObject mMenu;
+        public static GameObject cMenu1;
+        public static GameObject cMenu2;
+        public static GameObject cMenu3;
+        public static int calibrationInt;
 
         public static bool rTriggerDone;
         public static bool lTriggerDone;
@@ -322,6 +336,21 @@ namespace DFUVR
                     Plugin.LoggerInstance.LogError("Made a fucky wucky while reading the file, oopsie! Error: " + e);
                     targetTimeStep = 1f / 90f;
                 }
+                try
+                {
+                    ReadAxis();
+                }
+                catch
+                {
+                    Plugin.LoggerInstance.LogError("Failed to initialize controller axis. Returning to defaults");
+                    lThumbStickHorizontal = "Axis1";
+                    lThumbStickVertical = "Axis2";
+                    triggers = "Axis3";
+                    rThumbStickHorizontal = "Axis4";
+                    rThumbStickVertical = "Axis5";
+                    placeholder = null;
+
+                }
                 Time.fixedDeltaTime = targetTimeStep;
                 Plugin.LoggerInstance.LogInfo(Time.fixedDeltaTime);
 
@@ -334,8 +363,26 @@ namespace DFUVR
                 float z = float.Parse(sheathVector[2], CultureInfo.InvariantCulture);
                 Plugin.LoggerInstance.LogInfo(x);
                 Var.sheathOffset=new Vector3(x,y,z);
+                bool.TryParse(lines[5], out fStartMenu);
                 Plugin.LoggerInstance.LogInfo("Offsett: "+Var.sheathOffset.ToString());
+                Int32.TryParse(lines[4], out controllerAmount);
 
+                try
+                {
+                    CoroutineRunner.Instance.Invoke(nameof(InternalGetJoystick), 0.3f);
+                    //connectedJoysticks = Input.GetJoystickNames().Count(name => !string.IsNullOrEmpty(name));
+                    //connectedJoysticks = GetConnectedGamepadsCount();
+                    //Plugin.LoggerInstance.LogInfo("Connected Joysticks: "+connectedJoysticks.ToString()+" Previous: "+controllerAmount);
+                    //if (connectedJoysticks != controllerAmount)
+                    //{ 
+                    //    Var.fStartMenu = true;
+                    //}
+                    
+                }
+                catch(Exception e) {
+                    Plugin.LoggerInstance.LogError(e.ToString());
+                }
+                
 
                 //Set the keybindings to the custom bindings specifiec in Bindings.txt
 
@@ -355,9 +402,70 @@ namespace DFUVR
 
             lines[0] = string.Format(CultureInfo.InvariantCulture,"{0}", Var.heightOffset);//Var.heightOffset.ToString();
             lines[3] = string.Format(CultureInfo.InvariantCulture, "{0},{1},{2}", Var.sphereObject.transform.localPosition.x, Var.sphereObject.transform.localPosition.y, Var.sphereObject.transform.localPosition.z);//Var.sphereObject.transform.localPosition.ToString();//Var.sheathOffset.ToString();
+            lines[4] = connectedJoysticks.ToString();
+
             File.WriteAllLines(filePath, lines);
         }
+        public static void SaveAxis()
+        {
+            string filePath = Path.Combine(Paths.PluginPath, "Axis.txt");
+            string[] lines = File.ReadAllLines(filePath);
+
+            lines[0] = string.Format(CultureInfo.InvariantCulture, "Joystick{0}Axis1", Var.lThumbStickHorizontal);
+            lines[1] = string.Format(CultureInfo.InvariantCulture, "Joystick{0}Axis2", Var.lThumbStickVertical);
+            lines[2] = string.Format(CultureInfo.InvariantCulture, "Axis{0}", Var.rThumbStickHorizontal);
+            lines[3] = string.Format(CultureInfo.InvariantCulture, "Axis{0}", Var.rThumbStickVertical);
+            lines[4] = string.Format(CultureInfo.InvariantCulture, "Axis{0}", Var.triggers);
+            File.WriteAllLines(filePath, lines);
+
+        }
+        static void ReadAxis()
+        {
+            //string filePath = Path.Combine(Paths.PluginPath, "Axis.txt");
+            //string[] lines = File.ReadAllLines(filePath);
+
+            //Var.lThumbStickHorizontal = lines[0];
+            //Var.lThumbStickVertical = lines[1];
+            //Var.rThumbStickHorizontal = lines[2];
+            //Var.rThumbStickVertical = lines[3];
+            //Var.triggers = lines[4];
+
+        }
+        static int GetConnectedGamepadsCount()
+        {
+            string[] joystickNames = Input.GetJoystickNames();
+            Plugin.LoggerInstance.LogInfo("joystickNames.Length");
+            int count = 0;
+
+            foreach (string name in joystickNames)
+            {
+                Plugin.LoggerInstance.LogInfo(name);
+                if (!string.IsNullOrEmpty(name))
+                {
+                    count++;
+                }
+            }
+
+            return count;
+        }
+        static void InternalGetJoystick()
+        {
+            connectedJoysticks = GetConnectedGamepadsCount();
+            Plugin.LoggerInstance.LogInfo("Connected Joysticks: " + connectedJoysticks.ToString() + " Previous: " + controllerAmount);
+            if (connectedJoysticks != controllerAmount)
+            {
+                Var.fStartMenu = true;
+            }
+        }
+        //public static IEnumerator WaitForInitialization()
+        //{
+        //    yield return new WaitForEndOfFrame(); // Or WaitForSeconds(0.5f) if needed
+        //    string[] joystickNames = Input.GetJoystickNames();
+        //    Debug.Log("Connected gamepads: " + joystickNames.Length);
+        //}
 
     }
+
+
 
 }

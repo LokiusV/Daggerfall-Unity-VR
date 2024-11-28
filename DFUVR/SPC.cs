@@ -45,17 +45,21 @@ namespace DFUVR
         }
         public void Initialize(LineRenderer line, GraphicRaycaster graphicRaycaster, TrackedPoseDriver tracked)
         {
-            if (Var.isFirst)
+            if (!Var.fStartMenu)
             {
-                wTexture = GameObject.Find("VRUI").GetComponent<UwcWindowTexture>();
-                wTexture.type = WindowTextureType.Window;
-                wTexture.partialWindowTitle = "Daggerfall";
-            }
-            else {
-                //wTexture = GameObject.Find("VRUI").GetComponent<UwcWindowTexture>();
-                windowHeight =Var.windowHeight;
-                windowWidth=Var.windowWidth;
-            
+                if (Var.isFirst)
+                {
+                    wTexture = GameObject.Find("VRUI").GetComponent<UwcWindowTexture>();
+                    wTexture.type = WindowTextureType.Window;
+                    wTexture.partialWindowTitle = "Daggerfall";
+                }
+                else
+                {
+                    //wTexture = GameObject.Find("VRUI").GetComponent<UwcWindowTexture>();
+                    windowHeight = Var.windowHeight;
+                    windowWidth = Var.windowWidth;
+
+                }
             }
             lineRenderer = line;
             trackedPoseDriver = tracked;
@@ -107,65 +111,89 @@ namespace DFUVR
 
                 lineRenderer.SetPosition(0, lineStart);
                 lineRenderer.SetPosition(1, lineEnd);
-                if (Input.GetKeyDown(Var.acceptButton)||Var.rTriggerDone||Var.lTriggerDone)
+                if (Input.GetKeyDown(Var.acceptButton) || Var.rTriggerDone || Var.lTriggerDone)
                 {
-                    if (!Var.isCalibrated)
+                    if (!Var.fStartMenu)
                     {
-                        var result = UwcWindowTexture.RayCast(lineStart, trackedPoseDriver.transform.forward, raycastDistance, -1);
-                        if (result.hit)
+                        if (!Var.isCalibrated)
                         {
-                            //uWindowCapture really needs a proper documentation. I wish I knew sooner that it had a precise raycast function built in before making one myself...
-                            //windowCoord = result.windowCoord;
-                            Vector2 desktopCoord = result.desktopCoord;
-                            SetCursorPos((int)desktopCoord.x, (int)desktopCoord.y);
-                            mouse_event(MOUSEEVENTF_LEFTDOWN, (uint)desktopCoord.x, (uint)desktopCoord.y, 0, 0);
-                            mouse_event(MOUSEEVENTF_LEFTUP, (uint)desktopCoord.x, (uint)desktopCoord.y, 0, 0);
+                            var result = UwcWindowTexture.RayCast(lineStart, trackedPoseDriver.transform.forward, raycastDistance, -1);
+                            if (result.hit)
+                            {
+                                //uWindowCapture really needs a proper documentation. I wish I knew sooner that it had a precise raycast function built in before making one myself...
+                                //windowCoord = result.windowCoord;
+                                Vector2 desktopCoord = result.desktopCoord;
+                                SetCursorPos((int)desktopCoord.x, (int)desktopCoord.y);
+                                mouse_event(MOUSEEVENTF_LEFTDOWN, (uint)desktopCoord.x, (uint)desktopCoord.y, 0, 0);
+                                mouse_event(MOUSEEVENTF_LEFTUP, (uint)desktopCoord.x, (uint)desktopCoord.y, 0, 0);
+                            }
+                        }
+                        else
+                        {
+                            //RaycastHit hit;
+
+                            //if (Physics.Raycast(lineStart, trackedPoseDriver.transform.forward, out hit, raycastDistance))
+                            //{
+                            //    if (hit.collider.gameObject.name == "VRUI")
+                            //    {
+                            //        if (Input.GetKeyDown(Var.acceptButton))
+                            //        {
+                            //            Plugin.LoggerInstance.LogInfo("Raycast Hit: " + hit.point);
+                            //            SimulateMouseClick(hit.point);
+                            //        }
+                            //    }
+                            //    if (Input.GetKeyDown(Var.acceptButton))
+                            //    {
+                            //        if (hit.collider.gameObject.name != "VRUI")
+                            //        { Plugin.LoggerInstance.LogInfo("Hit " + hit.collider.gameObject.name); }
+                            //    }
+                            //}
+                            RaycastHit[] hits = Physics.RaycastAll(lineStart, trackedPoseDriver.transform.forward, raycastDistance);
+
+                            foreach (var hit in hits)
+                            {
+                                Plugin.LoggerInstance.LogInfo("clicked");
+                                if (hit.collider.gameObject.name == "VRUI")
+                                {
+                                    Plugin.LoggerInstance.LogInfo("Raycast Hit: " + hit.point);
+                                    SimulateMouseClick(hit.point);
+                                    break;
+                                }
+
+                                if (hit.collider.gameObject.GetComponent<Button>() != null)
+                                {
+                                    hit.collider.gameObject.GetComponent<Button>().onClick.Invoke();
+                                }
+
+                            }
                         }
                     }
                     else
                     {
-                        //RaycastHit hit;
-
-                        //if (Physics.Raycast(lineStart, trackedPoseDriver.transform.forward, out hit, raycastDistance))
-                        //{
-                        //    if (hit.collider.gameObject.name == "VRUI")
-                        //    {
-                        //        if (Input.GetKeyDown(Var.acceptButton))
-                        //        {
-                        //            Plugin.LoggerInstance.LogInfo("Raycast Hit: " + hit.point);
-                        //            SimulateMouseClick(hit.point);
-                        //        }
-                        //    }
-                        //    if (Input.GetKeyDown(Var.acceptButton))
-                        //    {
-                        //        if (hit.collider.gameObject.name != "VRUI")
-                        //        { Plugin.LoggerInstance.LogInfo("Hit " + hit.collider.gameObject.name); }
-                        //    }
-                        //}
                         RaycastHit[] hits = Physics.RaycastAll(lineStart, trackedPoseDriver.transform.forward, raycastDistance);
 
                         foreach (var hit in hits)
                         {
-                            if (hit.collider.gameObject.name == "VRUI")
-                            {
-                                Plugin.LoggerInstance.LogInfo("Raycast Hit: " + hit.point);
-                                SimulateMouseClick(hit.point);
-                                break;
-                            }
-
-                            if(hit.collider.gameObject.GetComponent<Button>() != null)
+                            Plugin.LoggerInstance.LogInfo("clicked");
+                            if (hit.collider.gameObject.GetComponent<Button>() != null)
                             {
                                 hit.collider.gameObject.GetComponent<Button>().onClick.Invoke();
                             }
-
-                        }
                         }
                     }
+                }
             }
 
 
         }
-
+        //void LateUpdate()
+        //{
+        //    string[] joystickNames = Input.GetJoystickNames();
+        //    foreach (string name in joystickNames)
+        //    {
+        //        Plugin.LoggerInstance.LogInfo("Joystick: " + name);
+        //    }
+        //}
 
 
 

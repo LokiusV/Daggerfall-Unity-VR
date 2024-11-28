@@ -486,7 +486,19 @@ namespace DFUVR
             if (isChanging)
             {
                 //ControllerPatch.flag = false;
-                float input = Input.GetAxis("Axis5");
+                //float input = Input.GetAxis("Axis5");
+                //float input = Input.GetAxis(Var.rThumbStickVertical);
+
+                var rightHand = InputDevices.GetDeviceAtXRNode(XRNode.RightHand);
+
+                Vector2 rThumbStick;
+                rightHand.TryGetFeatureValue(UnityEngine.XR.CommonUsages.primary2DAxis, out rThumbStick);
+
+                float inputX1 = rThumbStick.x;
+                float inputY1 = rThumbStick.y;
+
+                float input = rThumbStick.x;
+
                 Var.heightOffset += input / 100;
                 //Var.sphereObject.transform.localPosition=Vector3.zero;
                 Var.sheathOffset = Var.leftHand.transform.position;
@@ -625,7 +637,16 @@ namespace DFUVR
         [HarmonyPrefix]
         static bool Prefix(InputManager __instance, ref float __result)
         {
-            float vertical = Input.GetAxis("Axis5");
+            //float vertical = Input.GetAxis("Axis5");
+            //float vertical = Input.GetAxis(Var.rThumbStickVertical);
+            var rightHand = InputDevices.GetDeviceAtXRNode(XRNode.RightHand);
+
+            Vector2 lThumbStick;
+            rightHand.TryGetFeatureValue(UnityEngine.XR.CommonUsages.primary2DAxis, out lThumbStick);
+
+            
+            float vertical = lThumbStick.y;
+
             __result = vertical;
             return false;
         }
@@ -637,9 +658,20 @@ namespace DFUVR
         [HarmonyPrefix]
         static void Prefix(LevitateMotor __instance) 
         {
-            float inputX1 = Input.GetAxis("Axis1");
-            float inputY1 = Input.GetAxis("Axis2");
-            
+            //float inputX1 = Input.GetAxis("Axis1");
+            //float inputY1 = Input.GetAxis("Axis2");
+
+            //float inputX1 = Input.GetAxis(Var.lThumbStickHorizontal);
+            //float inputY1 = Input.GetAxis(Var.lThumbStickVertical);
+
+            var leftHand = InputDevices.GetDeviceAtXRNode(XRNode.LeftHand);
+
+            Vector2 lThumbStick;
+            leftHand.TryGetFeatureValue(UnityEngine.XR.CommonUsages.primary2DAxis, out lThumbStick);
+
+            float inputX1=lThumbStick.x;
+            float inputY1=lThumbStick.y;
+
             PlayerMotor playerMotor=(PlayerMotor)AccessTools.Field(typeof(LevitateMotor),"playerMotor").GetValue(__instance);
             Camera playerCamera=Var.VRCamera;
             PlayerGroundMotor groundMotor =(PlayerGroundMotor)AccessTools.Field(typeof(LevitateMotor),"groundMotor").GetValue(__instance);
@@ -1076,10 +1108,21 @@ namespace DFUVR
             
             else
             {
-                
-                float inputX = Input.GetAxis("Axis1");
-                float inputY = Input.GetAxis("Axis2");
-                
+
+                //float inputX = Input.GetAxis("Axis1");
+                //float inputY = Input.GetAxis("Axis2");
+                //float inputX = Input.GetAxis(Var.lThumbStickHorizontal);
+                //float inputY = Input.GetAxis(Var.lThumbStickVertical);
+
+                var leftHand = InputDevices.GetDeviceAtXRNode(XRNode.LeftHand);
+
+                Vector2 lThumbStick;
+                leftHand.TryGetFeatureValue(UnityEngine.XR.CommonUsages.primary2DAxis, out lThumbStick);
+
+                float inputX = lThumbStick.x;
+                float inputY = lThumbStick.y;
+
+
                 if (GameManager.Instance.PlayerEntity.IsParalyzed)
                 {
                     inputX = 0;
@@ -1205,7 +1248,18 @@ namespace DFUVR
             if (!ControllerPatch.isChanging)
             {
                 List<Actions> currentActions = (List<Actions>)AccessTools.Field(typeof(InputManager), "currentActions").GetValue(__instance);
-                float inputY = Input.GetAxis("Axis5");
+                //float inputY = Input.GetAxis("Axis5");
+
+                //float inputY = Input.GetAxis(Var.rThumbStickVertical);
+
+                var rightHand = InputDevices.GetDeviceAtXRNode(XRNode.RightHand);
+
+                Vector2 rThumbStick;
+                rightHand.TryGetFeatureValue(UnityEngine.XR.CommonUsages.primary2DAxis, out rThumbStick);
+
+                float inputX = rThumbStick.x;
+                float inputY = rThumbStick.y;
+
                 if (inputY >= 0.5f)
                 {
                     currentActions.Add(Actions.Jump);
@@ -1363,7 +1417,8 @@ namespace DFUVR
             Haptics.TriggerHapticFeedback(XRNode.RightHand, 1f);
             Haptics.TriggerHapticFeedback(XRNode.LeftHand, 1f);
 
-            
+            //string[] joystickNames = Input.GetJoystickNames();
+            //Plugin.LoggerInstance.LogInfo("Joysticks:"+joystickNames.Length);
 
             Var.Initialize();
             
