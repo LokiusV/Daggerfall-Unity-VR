@@ -30,9 +30,11 @@ using static DaggerfallWorkshop.Game.InputManager;
 using static UnityEngine.GraphicsBuffer;
 using UnityEngine.XR;
 using UnityEngine.XR.Provider;
+using DaggerfallWorkshop.Utility;
 
 namespace DFUVR
 {
+
     
     //initialize UI
     [HarmonyPatch(typeof(DaggerfallUI), "Start")]
@@ -73,6 +75,19 @@ namespace DFUVR
 
         }
     }
+
+    [HarmonyPatch(typeof(DaggerfallDateTime), "ShortTimeString")]
+    public class ShortTimeStringPatch
+    {
+        [HarmonyPrefix]
+        static bool Prefix(DaggerfallDateTime __instance, ref string __result)
+        {
+            __result = string.Format("{0:00}:{1:00} {2:00} {3} 3E{4}", __instance.Hour, __instance.Minute, __instance.Day + 1, __instance.MonthName, __instance.Year);
+            return false;
+
+        }
+    }
+
     //fixes arrow spawn point
     [HarmonyPatch(typeof(DaggerfallMissile), "Start")]
     public class SpawnMissilePatch : MonoBehaviour
@@ -493,6 +508,7 @@ namespace DFUVR
 
                 Vector2 rThumbStick;
                 rightHand.TryGetFeatureValue(UnityEngine.XR.CommonUsages.primary2DAxis, out rThumbStick);
+                
 
                 float inputX1 = rThumbStick.x;
                 float inputY1 = rThumbStick.y;

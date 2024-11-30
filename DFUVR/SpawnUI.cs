@@ -49,7 +49,7 @@ namespace DFUVR
             meshRenderer.material = wMat;
             MeshCollider collider = vrui.AddComponent<MeshCollider>();
             collider.convex = true;
-            if (!Var.fStartMenu)
+            if (true)//!Var.fStartMenu)
             {
                 if (Var.isFirst)
                 {
@@ -142,137 +142,137 @@ namespace DFUVR
 
                 }
             }
-            else
-            {
-                Plugin.LoggerInstance.LogInfo("FirstSpawn.");
-                string fMenuassetBundlePath = Path.Combine(Paths.PluginPath, "AssetBundles/firstspawnmenu");
+            //else
+            //{
+            //    Plugin.LoggerInstance.LogInfo("FirstSpawn.");
+            //    string fMenuassetBundlePath = Path.Combine(Paths.PluginPath, "AssetBundles/firstspawnmenu");
 
-                Plugin.LoggerInstance.LogInfo("1");
-                AssetBundle fMenuassetBundle = AssetBundle.LoadFromFile(fMenuassetBundlePath);
-
-
-                Var.fSpawnMenu = Instantiate(fMenuassetBundle.LoadAsset<GameObject>("FirstSpawnCanvas"));
-
-                GameObject parentObject = new GameObject("CamParent");
-
-                GameObject cam = Camera.main.gameObject;
-                GameObject tracker = new GameObject("Tracker");
-                TrackedPoseDriver trackedPoseDriver = tracker.AddComponent<TrackedPoseDriver>();
-                trackedPoseDriver.SetPoseSource(TrackedPoseDriver.DeviceType.GenericXRDevice, TrackedPoseDriver.TrackedPose.Head);
-                //parentObject.transform.position = cam.transform.position-new Vector3(0,-1.2f,0);
-                //parentObject.transform.position = new Vector3(-33-cam.transform.localPosition.x,-10, -54.41f-cam.transform.localPosition.z);
-                //cam.transform.Rotate(0, -90, 0);
-                cam.transform.parent = parentObject.transform;
-                //Debug.Log(tracker.transform.position.x);
-                //parentObject.transform.position = new Vector3(-33 - cam.transform.localPosition.x, -10, -54.41f - cam.transform.localPosition.z);
-                yield return new WaitForSecondsRealtime(1);
-                //Plugin.LoggerInstance.LogInfo(tracker.transform.position);
-                parentObject.transform.position = new Vector3(-cam.transform.localPosition.x + tracker.transform.localPosition.x, -10, -cam.transform.localPosition.z + tracker.transform.localPosition.z);
-                parentObject.transform.RotateAround(new Vector3(cam.transform.position.x, 0, cam.transform.position.z), Vector3.up, -90f);
-
-                //Var.fSpawnMenu.transform.position = Var.VRCamera.transform.position;
-                //Var.VRCamera.transform.position = new Vector3(0, 0, 0);
-                Var.fSpawnMenu.transform.position= Camera.main.transform.position + new Vector3(0, 0, 2f); 
-                Plugin.LoggerInstance.LogInfo("2");
+            //    Plugin.LoggerInstance.LogInfo("1");
+            //    AssetBundle fMenuassetBundle = AssetBundle.LoadFromFile(fMenuassetBundlePath);
 
 
-                UnityEngine.UI.Button[] buttons = Var.fSpawnMenu.GetComponentsInChildren<UnityEngine.UI.Button>();
+            //    Var.fSpawnMenu = Instantiate(fMenuassetBundle.LoadAsset<GameObject>("FirstSpawnCanvas"));
 
-                foreach (UnityEngine.UI.Button button in buttons)
-                {
-                    BoxCollider boxcollider = button.gameObject.AddComponent<BoxCollider>();
-                    Vector2 buttonSize = button.gameObject.GetComponent<RectTransform>().sizeDelta;
-                    boxcollider.size = new Vector3(buttonSize.x, buttonSize.y, 0.1f);
-                }
-                Plugin.LoggerInstance.LogInfo("3");
-                Var.cMenu0 = GameObject.Find("MainMenu"); //shitty name.It's not the main menu. It's the main menu of the setup menu. will fix later
+            //    GameObject parentObject = new GameObject("CamParent");
 
-                Var.cMenu1 = GameObject.Find("LController");
-                Var.cMenu2 = GameObject.Find("RController");
-                Var.cMenu3 = GameObject.Find("TController");
+            //    GameObject cam = Camera.main.gameObject;
+            //    GameObject tracker = new GameObject("Tracker");
+            //    TrackedPoseDriver trackedPoseDriver = tracker.AddComponent<TrackedPoseDriver>();
+            //    trackedPoseDriver.SetPoseSource(TrackedPoseDriver.DeviceType.GenericXRDevice, TrackedPoseDriver.TrackedPose.Head);
+            //    //parentObject.transform.position = cam.transform.position-new Vector3(0,-1.2f,0);
+            //    //parentObject.transform.position = new Vector3(-33-cam.transform.localPosition.x,-10, -54.41f-cam.transform.localPosition.z);
+            //    //cam.transform.Rotate(0, -90, 0);
+            //    cam.transform.parent = parentObject.transform;
+            //    //Debug.Log(tracker.transform.position.x);
+            //    //parentObject.transform.position = new Vector3(-33 - cam.transform.localPosition.x, -10, -54.41f - cam.transform.localPosition.z);
+            //    yield return new WaitForSecondsRealtime(1);
+            //    //Plugin.LoggerInstance.LogInfo(tracker.transform.position);
+            //    parentObject.transform.position = new Vector3(-cam.transform.localPosition.x + tracker.transform.localPosition.x, -10, -cam.transform.localPosition.z + tracker.transform.localPosition.z);
+            //    parentObject.transform.RotateAround(new Vector3(cam.transform.position.x, 0, cam.transform.position.z), Vector3.up, -90f);
 
-                Var.mMenu = GameObject.Find("Monitor");
-                Plugin.LoggerInstance.LogInfo("4");
-                GameObject.Find("LCube").AddComponent<CubeController>();
-                GameObject.Find("RCube").AddComponent<CubeController>();
-                GameObject.Find("TCube").AddComponent<CubeController>();
-                Plugin.LoggerInstance.LogInfo("5");
-                Toggle CToggle = GameObject.Find("CSetupToggle").GetComponent<Toggle>();
-                CToggle.interactable = false;
+            //    //Var.fSpawnMenu.transform.position = Var.VRCamera.transform.position;
+            //    //Var.VRCamera.transform.position = new Vector3(0, 0, 0);
+            //    Var.fSpawnMenu.transform.position= Camera.main.transform.position + new Vector3(0, 0, 2f); 
+            //    Plugin.LoggerInstance.LogInfo("2");
 
-                if(Var.connectedJoysticks == Var.controllerAmount)
-                {
-                    CToggle.isOn = true;
-                }
-                else
-                {
-                    CToggle.isOn= false;
-                }
-                Plugin.LoggerInstance.LogInfo("6");
-                //Main Menu "finished Setup" button
-                GameObject.Find("DoneButton").GetComponent<UnityEngine.UI.Button>().interactable = true;
-                Plugin.LoggerInstance.LogInfo("7");
+
+            //    UnityEngine.UI.Button[] buttons = Var.fSpawnMenu.GetComponentsInChildren<UnityEngine.UI.Button>();
+
+            //    foreach (UnityEngine.UI.Button button in buttons)
+            //    {
+            //        BoxCollider boxcollider = button.gameObject.AddComponent<BoxCollider>();
+            //        Vector2 buttonSize = button.gameObject.GetComponent<RectTransform>().sizeDelta;
+            //        boxcollider.size = new Vector3(buttonSize.x, buttonSize.y, 0.1f);
+            //    }
+            //    Plugin.LoggerInstance.LogInfo("3");
+            //    Var.cMenu0 = GameObject.Find("MainMenu"); //shitty name.It's not the main menu. It's the main menu of the setup menu. will fix later
+
+            //    Var.cMenu1 = GameObject.Find("LController");
+            //    Var.cMenu2 = GameObject.Find("RController");
+            //    Var.cMenu3 = GameObject.Find("TController");
+
+            //    Var.mMenu = GameObject.Find("Monitor");
+            //    Plugin.LoggerInstance.LogInfo("4");
+            //    GameObject.Find("LCube").AddComponent<CubeController>();
+            //    GameObject.Find("RCube").AddComponent<CubeController>();
+            //    GameObject.Find("TCube").AddComponent<CubeController>();
+            //    Plugin.LoggerInstance.LogInfo("5");
+            //    Toggle CToggle = GameObject.Find("CSetupToggle").GetComponent<Toggle>();
+            //    CToggle.interactable = false;
+
+            //    if(Var.connectedJoysticks == Var.controllerAmount)
+            //    {
+            //        CToggle.isOn = true;
+            //    }
+            //    else
+            //    {
+            //        CToggle.isOn= false;
+            //    }
+            //    Plugin.LoggerInstance.LogInfo("6");
+            //    //Main Menu "finished Setup" button
+            //    GameObject.Find("DoneButton").GetComponent<UnityEngine.UI.Button>().interactable = true;
+            //    Plugin.LoggerInstance.LogInfo("7");
                 
-                GameObject.Find("DoneButton").GetComponent<UnityEngine.UI.Button>().onClick.AddListener(ButtonHandler.Done);
+            //    GameObject.Find("DoneButton").GetComponent<UnityEngine.UI.Button>().onClick.AddListener(ButtonHandler.Done);
                  
-                Plugin.LoggerInstance.LogInfo("7.5");
-                //Next Step buttons
+            //    Plugin.LoggerInstance.LogInfo("7.5");
+            //    //Next Step buttons
                 
-                    GameObject.Find("CSetupButton").GetComponent<UnityEngine.UI.Button>().onClick.AddListener(() => ButtonHandler.MenuTransition(Var.cMenu0, Var.cMenu1, false, false, ref Var.placeholder));
-                Plugin.LoggerInstance.LogInfo("7.6");
-                GameObject.Find("MSetupButton").GetComponent<UnityEngine.UI.Button>().onClick.AddListener(() => ButtonHandler.MenuTransition(Var.cMenu0, Var.mMenu, false, false, ref Var.placeholder));
-                Plugin.LoggerInstance.LogInfo("7.7");
-                GameObject.Find("ClDoneButton").GetComponent<UnityEngine.UI.Button>().onClick.AddListener(() => ButtonHandler.MenuTransition(Var.cMenu1, Var.cMenu2, false, false, ref Var.lThumbStickHorizontal, ref Var.lThumbStickVertical));
-                Plugin.LoggerInstance.LogInfo("7.8");
-                GameObject.Find("CrDoneButton").GetComponent<UnityEngine.UI.Button>().onClick.AddListener(() => ButtonHandler.MenuTransition(Var.cMenu2, Var.cMenu3, false, false, ref Var.rThumbStickHorizontal, ref Var.rThumbStickVertical));
-                Plugin.LoggerInstance.LogInfo("7.9");
-                GameObject.Find("TDoneButton").GetComponent<UnityEngine.UI.Button>().onClick.AddListener(() => ButtonHandler.MenuTransition(Var.cMenu3, Var.cMenu0, true, false, ref Var.triggers));
-                Plugin.LoggerInstance.LogInfo("8.0");
-                GameObject.Find("MDoneButton").GetComponent<UnityEngine.UI.Button>().onClick.AddListener(() => ButtonHandler.MenuTransition(Var.mMenu, Var.cMenu0, false, true, ref Var.placeholder));
-                Plugin.LoggerInstance.LogInfo("8");
-                GameObject.Find("MQuitButton").GetComponent<UnityEngine.UI.Button>().onClick.AddListener(Application.Quit);
-                Plugin.LoggerInstance.LogInfo("9");
-                    //Setting up next and previous axis selection
-                    //left
-                GameObject.Find("NlAxisButton").GetComponent<UnityEngine.UI.Button>().onClick.AddListener(ButtonHandler.nextInt);
-                Plugin.LoggerInstance.LogInfo("9.1");
-                GameObject.Find("PlAxisButton").GetComponent<UnityEngine.UI.Button>().onClick.AddListener(ButtonHandler.prevInt);
-                Plugin.LoggerInstance.LogInfo("9.2");
-                //right
-                GameObject.Find("NrAxisButton").GetComponent<UnityEngine.UI.Button>().onClick.AddListener(ButtonHandler.nextInt);
-                GameObject.Find("PrAxisButton").GetComponent<UnityEngine.UI.Button>().onClick.AddListener(ButtonHandler.prevInt);
+            //        GameObject.Find("CSetupButton").GetComponent<UnityEngine.UI.Button>().onClick.AddListener(() => ButtonHandler.MenuTransition(Var.cMenu0, Var.cMenu1, false, false, ref Var.placeholder));
+            //    Plugin.LoggerInstance.LogInfo("7.6");
+            //    GameObject.Find("MSetupButton").GetComponent<UnityEngine.UI.Button>().onClick.AddListener(() => ButtonHandler.MenuTransition(Var.cMenu0, Var.mMenu, false, false, ref Var.placeholder));
+            //    Plugin.LoggerInstance.LogInfo("7.7");
+            //    GameObject.Find("ClDoneButton").GetComponent<UnityEngine.UI.Button>().onClick.AddListener(() => ButtonHandler.MenuTransition(Var.cMenu1, Var.cMenu2, false, false, ref Var.lThumbStickHorizontal, ref Var.lThumbStickVertical));
+            //    Plugin.LoggerInstance.LogInfo("7.8");
+            //    GameObject.Find("CrDoneButton").GetComponent<UnityEngine.UI.Button>().onClick.AddListener(() => ButtonHandler.MenuTransition(Var.cMenu2, Var.cMenu3, false, false, ref Var.rThumbStickHorizontal, ref Var.rThumbStickVertical));
+            //    Plugin.LoggerInstance.LogInfo("7.9");
+            //    GameObject.Find("TDoneButton").GetComponent<UnityEngine.UI.Button>().onClick.AddListener(() => ButtonHandler.MenuTransition(Var.cMenu3, Var.cMenu0, true, false, ref Var.triggers));
+            //    Plugin.LoggerInstance.LogInfo("8.0");
+            //    GameObject.Find("MDoneButton").GetComponent<UnityEngine.UI.Button>().onClick.AddListener(() => ButtonHandler.MenuTransition(Var.mMenu, Var.cMenu0, false, true, ref Var.placeholder));
+            //    Plugin.LoggerInstance.LogInfo("8");
+            //    GameObject.Find("MQuitButton").GetComponent<UnityEngine.UI.Button>().onClick.AddListener(Application.Quit);
+            //    Plugin.LoggerInstance.LogInfo("9");
+            //        //Setting up next and previous axis selection
+            //        //left
+            //    GameObject.Find("NlAxisButton").GetComponent<UnityEngine.UI.Button>().onClick.AddListener(ButtonHandler.nextInt);
+            //    Plugin.LoggerInstance.LogInfo("9.1");
+            //    GameObject.Find("PlAxisButton").GetComponent<UnityEngine.UI.Button>().onClick.AddListener(ButtonHandler.prevInt);
+            //    Plugin.LoggerInstance.LogInfo("9.2");
+            //    //right
+            //    GameObject.Find("NrAxisButton").GetComponent<UnityEngine.UI.Button>().onClick.AddListener(ButtonHandler.nextInt);
+            //    GameObject.Find("PrAxisButton").GetComponent<UnityEngine.UI.Button>().onClick.AddListener(ButtonHandler.prevInt);
                 
-                Plugin.LoggerInstance.LogInfo("10");
-                //trigger
-                try
-                {
-                    GameObject.Find("NtAxisButton").GetComponent<UnityEngine.UI.Button>().onClick.AddListener(ButtonHandler.nextInt);
-                    GameObject.Find("PtAxisButton").GetComponent<UnityEngine.UI.Button>().onClick.AddListener(ButtonHandler.nextInt);
-                }
-                catch {
-                    Plugin.LoggerInstance.LogError("You forgot to include the newer version of the assetbundle because you went to get some food while it was exporting.");
+            //    Plugin.LoggerInstance.LogInfo("10");
+            //    //trigger
+            //    try
+            //    {
+            //        GameObject.Find("NtAxisButton").GetComponent<UnityEngine.UI.Button>().onClick.AddListener(ButtonHandler.nextInt);
+            //        GameObject.Find("PtAxisButton").GetComponent<UnityEngine.UI.Button>().onClick.AddListener(ButtonHandler.nextInt);
+            //    }
+            //    catch {
+            //        Plugin.LoggerInstance.LogError("You forgot to include the newer version of the assetbundle because you went to get some food while it was exporting.");
                 
-                }
-                Plugin.LoggerInstance.LogInfo("11");
-                Var.cMenu1.SetActive(false);
-                Plugin.LoggerInstance.LogInfo("12");
-                Var.cMenu2.SetActive(false);
-                Plugin.LoggerInstance.LogInfo("13");
-                try
-                {
-                    Var.cMenu3.SetActive(false);
-                }
-                catch(Exception e){
-                    Plugin.LoggerInstance.LogError(e.ToString()+Var.cMenu3.name);
+            //    }
+            //    Plugin.LoggerInstance.LogInfo("11");
+            //    Var.cMenu1.SetActive(false);
+            //    Plugin.LoggerInstance.LogInfo("12");
+            //    Var.cMenu2.SetActive(false);
+            //    Plugin.LoggerInstance.LogInfo("13");
+            //    try
+            //    {
+            //        Var.cMenu3.SetActive(false);
+            //    }
+            //    catch(Exception e){
+            //        Plugin.LoggerInstance.LogError(e.ToString()+Var.cMenu3.name);
                 
-                }
-                Plugin.LoggerInstance.LogInfo("14");
-                Var.mMenu.SetActive(false);
-                Plugin.LoggerInstance.LogInfo("15");
-                fMenuassetBundle.Unload(false);
-                Plugin.LoggerInstance.LogInfo("16");
+            //    }
+            //    Plugin.LoggerInstance.LogInfo("14");
+            //    Var.mMenu.SetActive(false);
+            //    Plugin.LoggerInstance.LogInfo("15");
+            //    fMenuassetBundle.Unload(false);
+            //    Plugin.LoggerInstance.LogInfo("16");
 
-            }
+            //}
 
 
 

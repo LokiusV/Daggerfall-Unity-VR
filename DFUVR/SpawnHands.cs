@@ -78,7 +78,19 @@ namespace DFUVR
 
             Var.body.AddComponent<SheathController>();
             assetBundle.Unload(false);
+            try
+            {
+                string watchBundlePath = Path.Combine(pluginFolderPath, "AssetBundles/watchandfonts");
 
+                AssetBundle watchBundle = AssetBundle.LoadFromFile(watchBundlePath);
+
+                GameObject watch = Instantiate(watchBundle.LoadAsset<GameObject>("Watch"));
+                watch.AddComponent<WatchController>();
+
+                watchBundle.Unload(false);
+                watch.transform.SetParent(Var.leftHand.transform, false);
+            }
+            catch (Exception ex) { Plugin.LoggerInstance.LogError(ex.ToString()); }
         }
     }
 }

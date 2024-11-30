@@ -74,6 +74,14 @@
     <Reference Include="UnityEngine.SpatialTracking">
       <HintPath>..\..\..\..\Downloads\dfu_windows_64bit-v1.1.1\DaggerfallUnity_Data\Managed\UnityEngine.SpatialTracking.dll</HintPath>
     </Reference>
+    <Reference Include="UnityEngine.TextCoreModule, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\..\Downloads\dfu_windows_64bit-v1.1.1\DaggerfallUnity_Data\Managed\UnityEngine.TextCoreModule.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEngine.TextRenderingModule, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\..\Downloads\dfu_windows_64bit-v1.1.1\DaggerfallUnity_Data\Managed\UnityEngine.TextRenderingModule.dll</HintPath>
+    </Reference>
     <Reference Include="UnityEngine.UI">
       <HintPath>..\..\..\..\Downloads\dfu_windows_64bit-v1.1.1\DaggerfallUnity_Data\Managed\UnityEngine.UI.dll</HintPath>
     </Reference>
@@ -117,6 +125,7 @@
     <Compile Include="sTx.cs" />
     <Compile Include="TriggerProvider.cs" />
     <Compile Include="Var.cs" />
+    <Compile Include="WatchController.cs" />
     <Compile Include="WeaponCollision.cs" />
   </ItemGroup>
   <ItemGroup>
