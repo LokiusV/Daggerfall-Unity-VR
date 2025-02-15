@@ -120,6 +120,8 @@ namespace DFUVR
             Collider handCollider = Var.rightHand.GetComponent<Collider>();
             Collider arrowCollider = goModel.GetComponent<Collider>();
 
+            //TODO: put all the colliders in a list and for through them instead of this massive block
+
             Physics.IgnoreCollision(handCollider, arrowCollider);
             Physics.IgnoreCollision(GameObject.Find("PlayerAdvanced").GetComponent<Collider>(),arrowCollider);
             Physics.IgnoreCollision(handCollider, __instance.GetComponent<Collider>());
@@ -134,6 +136,7 @@ namespace DFUVR
             Physics.IgnoreCollision(Var.hammer.GetComponent<Collider>(), arrowCollider);
             Physics.IgnoreCollision(Var.flail.GetComponent<Collider>(), arrowCollider);
             Physics.IgnoreCollision(Var.elseA.GetComponent<Collider>(), arrowCollider);
+            Physics.IgnoreCollision(Var.meleeHandR.GetComponent<Collider>(), arrowCollider);
 
             //Plugin.LoggerInstance.LogInfo("Bowed");
             //Var.debugSphere = GameObject.CreatePrimitive(PrimitiveType.Sphere);
@@ -497,13 +500,17 @@ namespace DFUVR
             //    Plugin.LoggerInstance.LogInfo("Sent");
             //}
 
-            //height calibration
+            //Calibration Mode
             if (isChanging)
             {
                 //ControllerPatch.flag = false;
                 //float input = Input.GetAxis("Axis5");
                 //float input = Input.GetAxis(Var.rThumbStickVertical);
-
+                if (Input.GetKeyDown(Var.acceptButton))
+                {
+                    Var.skyboxToggle = !Var.skyboxToggle;
+                    Plugin.LoggerInstance.LogInfo(Var.skyboxToggle);
+                }
                 var rightHand = InputDevices.GetDeviceAtXRNode(XRNode.RightHand);
 
                 Vector2 rThumbStick;
@@ -532,6 +539,7 @@ namespace DFUVR
 
 
             }
+            
             //we don't want to open the pause menu when the user just wants to recalibrate
             if (flag) { InputManager.Instance.SetBinding(KeyCode.Escape, Actions.Escape, true); }
             else if (!flag) { InputManager.Instance.SetBinding(Var.left1Button, Actions.Escape, true); }
@@ -547,12 +555,41 @@ namespace DFUVR
             }
             if ((Input.GetKeyUp(Var.left1Button) || Input.GetKeyUp(Var.left2Button)) && flag)
             {
-                Debug.Log("canceled");
+                //Debug.Log("canceled");
                 flag = false;
                 isChanging = false;
                 Var.SaveHeight();
             }
 
+            if (Var.isNotOculus)
+            {
+                var leftHand = InputDevices.GetDeviceAtXRNode(XRNode.LeftHand);
+
+                bool primaryPressed;
+                bool secondaryPressed;
+                leftHand.TryGetFeatureValue(UnityEngine.XR.CommonUsages.secondaryButton, out primaryPressed);
+                leftHand.TryGetFeatureValue(UnityEngine.XR.CommonUsages.secondaryButton, out secondaryPressed);
+
+                if (primaryPressed)
+                {
+                    flag = true;
+                    Var.debugInt += 1;
+
+                }
+                if (secondaryPressed && flag)
+                {
+                    isChanging = true;
+                }
+                if ((!primaryPressed || !secondaryPressed) && flag) 
+                {
+                    //Debug.Log("canceled");
+                    flag = false;
+                    isChanging = false;
+                    Var.SaveHeight();
+
+                }
+
+            }
             //snap turning
             SnapTurnProvider.Snap();
 
@@ -560,7 +597,7 @@ namespace DFUVR
             GameObject exterior = GameObject.Find("Exterior");
 
             //this atleast creates a sense of day and night
-            if (exterior != null)
+            if (exterior != null )//&& Var.skyboxToggle)
             {
                 //Plugin.LoggerInstance.LogInfo(exterior.activeSelf);
                 Var.VRCamera.clearFlags = CameraClearFlags.Nothing;
@@ -584,12 +621,26 @@ namespace DFUVR
             GameObject vrparent = GameObject.Find("VRParent");
             vrparent.transform.localPosition = new Vector3(vrparent.transform.localPosition.x, (float)Var.heightOffset, vrparent.transform.localPosition.z);
             #region Bindings
-            InputManager.Instance.SetBinding(Var.lStickButton, Actions.Run, true);
-            //InputManager.Instance.SetBinding(KeyCode.UpArrow, InputManager.Actions.ToggleConsole, true);
-            InputManager.Instance.SetBinding(Var.acceptButton, InputManager.Actions.ActivateCenterObject, true);
-            InputManager.Instance.SetBinding(Var.cancelButton, InputManager.Actions.Inventory, true);
-            InputManager.Instance.SetBinding(Var.gripButton, InputManager.Actions.RecastSpell, true);
-            InputManager.Instance.SetBinding(Var.rStickButton, InputManager.Actions.CastSpell, true);
+            if (!Var.isNotOculus)
+            {
+                InputManager.Instance.SetBinding(Var.lStickButton, Actions.Run, true);
+                //InputManager.Instance.SetBinding(Var.acceptButton, Actions.AutoRun, true);
+                //InputManager.Instance.SetBinding(KeyCode.UpArrow, InputManager.Actions.ToggleConsole, true);
+                InputManager.Instance.SetBinding(Var.acceptButton, InputManager.Actions.ActivateCenterObject, true);
+                InputManager.Instance.SetBinding(Var.cancelButton, InputManager.Actions.Inventory, true);
+                //InputManager.Instance.SetBinding(Var.gripButton, InputManager.Actions.RecastSpell, true);
+                InputManager.Instance.SetBinding(Var.rStickButton, InputManager.Actions.CastSpell, true);
+            }
+            else
+            {
+                InputManager.Instance.SetBinding(KeyCode.Quote, Actions.Run, true);
+                //InputManager.Instance.SetBinding(KeyCode.UpArrow, InputManager.Actions.ToggleConsole, true);
+                InputManager.Instance.SetBinding(KeyCode.Quote, InputManager.Actions.ActivateCenterObject, true);
+                InputManager.Instance.SetBinding(KeyCode.BackQuote, InputManager.Actions.Inventory, true);
+                //InputManager.Instance.SetBinding(Var.gripButton, InputManager.Actions.RecastSpell, true);
+                InputManager.Instance.SetBinding(KeyCode.DoubleQuote, InputManager.Actions.CastSpell, true);
+
+            }
             #endregion
             Var.sword.SetActive(true);
             Var.dagger.SetActive(true);
@@ -642,8 +693,15 @@ namespace DFUVR
         [HarmonyPrefix]
         static bool Prefix(DaggerfallSky __instance)
         {
-            AccessTools.Method(typeof(DaggerfallSky), "UpdateSkyRects").Invoke(__instance, null);
-            return false;
+            if (Var.skyboxToggle)
+            {
+                AccessTools.Method(typeof(DaggerfallSky), "UpdateSkyRects").Invoke(__instance, null);
+                return false;
+            }
+            else
+            {
+                return true;
+            }
 
         }
     }
@@ -779,6 +837,24 @@ namespace DFUVR
 
             
             __result = aimPosition;
+        }
+    }
+
+    [HarmonyPatch(typeof(DaggerfallMissile), "GetEntityTargetInTouchRange")]
+    public class TouchSpellPatch
+    {
+        [HarmonyPrefix]
+        static bool Prefix(DaggerfallMissile __instance, ref DaggerfallEntityBehaviour __result)
+        {
+            RaycastHit hit;
+
+            Ray ray = new Ray(Var.rightHand.transform.position,Var.rightHand.transform.forward);
+            if (Physics.SphereCast(ray, 0.25f, out hit, 3.0f))
+                __result= hit.transform.GetComponent<DaggerfallEntityBehaviour>();
+            else
+                __result= null;
+
+            return false;
         }
     }
 
@@ -944,7 +1020,11 @@ namespace DFUVR
                     //Plugin.LoggerInstance.LogInfo("Staff");
                     tempObject=Var.staff;
                 }
-                
+                else if (__instance.ScreenWeapon.WeaponType == WeaponTypes.Melee)
+                {
+                    tempObject = Var.meleeHandR;
+                }
+
                 else
                 {
                     //Plugin.LoggerInstance.LogInfo("We're here");
@@ -994,6 +1074,12 @@ namespace DFUVR
                 {
                     Var.weaponObject.transform.localPosition = Vector3.zero;
                     Var.weaponObject.transform.localRotation = Quaternion.Euler(270, 90, 0);
+                }
+                else if (tempObject == Var.meleeHandR)
+                {
+                    Var.weaponObject.transform.localPosition = new Vector3(0,0,-0.05f);
+
+                    Var.weaponObject.transform.localRotation = Quaternion.Euler(20, 10, 270);
                 }
                     //else if(tempObject==Var.)
 
@@ -1276,12 +1362,12 @@ namespace DFUVR
                 float inputX = rThumbStick.x;
                 float inputY = rThumbStick.y;
 
-                if (inputY >= 0.5f)
+                if (inputY >= 0.8f)
                 {
                     currentActions.Add(Actions.Jump);
 
                 }
-                else if (inputY <= -0.5f)
+                else if (inputY <= -0.8f)
                 {
                     //currentActions.Add(Actions.Sneak);
                     currentActions.Add(Actions.Crouch);
@@ -1311,11 +1397,24 @@ namespace DFUVR
                     //
                     //
                 }
-                if (Input.GetKeyDown(Var.gripButton)&&!ControllerPatch.flag) 
-                { 
+                //if (Input.GetKeyDown(Var.gripButton)&&!ControllerPatch.flag) 
+                //{ 
+                //    currentActions.Add(Actions.ActivateCenterObject);
+
+                //}
+                bool gripButton;
+                rightHand.TryGetFeatureValue(CommonUsages.gripButton, out gripButton);
+                if (gripButton && !ControllerPatch.flag)
+                {
                     currentActions.Add(Actions.ActivateCenterObject);
-                
+                    //currentActions.Add(Actions.);
+
                 }
+                //if(Input.GetKeyDown(Var.acceptButton) && !ControllerPatch.flag)
+                //{
+                //    currentActions.Add(Actions.CharacterSheet);
+                //}
+
                 //if (Input.GetKeyDown(Var.lGripButton) && !ControllerPatch.flag)
                 //{
                 //    currentActions.Add(Actions.SwitchHand);
@@ -1346,6 +1445,71 @@ namespace DFUVR
                     if (Var.rTriggerDone)
                     {
                         currentActions.Add(Actions.AutoMap);
+
+                    }
+
+                    var leftHand = InputDevices.GetDeviceAtXRNode(XRNode.LeftHand);
+
+                    bool leftTrigger;
+                    leftHand.TryGetFeatureValue(UnityEngine.XR.CommonUsages.triggerButton, out leftTrigger);
+
+                    if (leftTrigger)
+                    {
+                        currentActions.Add(Actions.CharacterSheet);
+                    }
+
+                }
+                if (Var.isNotOculus)
+                {
+                    bool acceptButton;
+                    bool cancelButton;
+                    bool primaryButton;
+                    bool secondaryButton;
+
+                    var leftHand = InputDevices.GetDeviceAtXRNode(XRNode.LeftHand);
+                    leftHand.TryGetFeatureValue(CommonUsages.primaryButton, out primaryButton);
+                    leftHand.TryGetFeatureValue(CommonUsages.secondaryButton, out secondaryButton);
+                    //bool lGripButton;
+
+                    rightHand.TryGetFeatureValue(CommonUsages.primaryButton, out acceptButton);
+                    rightHand.TryGetFeatureValue(CommonUsages.secondaryButton, out cancelButton);
+                    //rightHand.TryGetFeatureValue(CommonUsages.gripButton, out gripButton);
+
+                    if (ControllerPatch.flag)
+                    {
+
+                        if (acceptButton)
+                        {
+                            currentActions.Add(Actions.TravelMap);
+                        }
+                        else if (cancelButton)
+                        {
+                            currentActions.Add(Actions.LogBook);
+                        }
+                        else if (gripButton)
+                        {
+                            currentActions.Add(Actions.Rest);
+                        }
+
+
+                    }
+                    else
+                    {
+                        //if (gripButton)
+                        //{
+                        //    currentActions.Add(Actions.ActivateCenterObject);
+                        //}
+                        if (!ControllerPatch.isChanging)
+                        {
+                            if (cancelButton && !ControllerPatch.flag)
+                            {
+                                currentActions.Add(Actions.Inventory);
+                            }
+                            if (secondaryButton && !ControllerPatch.flag) 
+                            {
+                                currentActions.Add(Actions.Escape);
+                            }
+                        }
 
                     }
                 }

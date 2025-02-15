@@ -52,6 +52,8 @@ namespace DFUVR
         public static KeyCode lStickButton = KeyCode.JoystickButton8;
         public static KeyCode lGripButton = KeyCode.JoystickButton4;
 
+        public static bool isNotOculus=false;
+
         public static string lThumbStickHorizontal = "Axis1";
         public static string lThumbStickVertical = "Axis2";
         public static string triggers = "Axis3";
@@ -81,6 +83,8 @@ namespace DFUVR
         public static GameObject hammer;
         public static GameObject staff;
         public static GameObject bow;
+        public static GameObject meleeHandR;
+
         public static int connectedJoysticks;
 
 
@@ -108,6 +112,8 @@ namespace DFUVR
 
         public static GameObject playerGameObject;
         public static CharacterController characterController=null;
+
+        public static volatile bool skyboxToggle = true;
         
         public static void InitModels()
         {
@@ -169,7 +175,7 @@ namespace DFUVR
             Var.characterController=GameObject.Find("PlayerAdvanced").GetComponent<CharacterController>();
 
 
-            sword.SetActive(false);
+            //sword.SetActive(false);
             dagger.SetActive(false);
             battleaxe.SetActive(false);
             elseA.SetActive(false);
@@ -179,6 +185,25 @@ namespace DFUVR
             bow.SetActive(false);
             staff.SetActive(false);
 
+            string handBundlePath = Path.Combine(Paths.PluginPath, "AssetBundles/hands");
+
+
+            AssetBundle handBundle = AssetBundle.LoadFromFile(handBundlePath);
+
+            meleeHandR = Instantiate(handBundle.LoadAsset<GameObject>("rHandClosed"));
+            meleeHandR.GetComponent<SphereCollider>().isTrigger = true;
+            
+            meleeHandR.AddComponent<WeaponCollision>();
+            try
+            {
+                meleeHandR.transform.GetChild(2).GetComponent<SkinnedMeshRenderer>().material = sword.GetComponent<MeshRenderer>().material;
+            }
+            catch (Exception e)
+            {
+                Plugin.LoggerInstance.LogError(e);
+            }
+            meleeHandR.SetActive(false);
+            sword.SetActive(false);
             InitKeyboard();
 
         }
@@ -289,31 +314,47 @@ namespace DFUVR
                     Plugin.LoggerInstance.LogInfo("Set bindings for HTC Vive Wands or Pimax Sword Controllers");
 
                 }
-                else if (lines[2].Trim() == "Custom")
+                else if (lines[2].Trim() == "Other")
                 {
-                    string filePath2 = Path.Combine(Paths.PluginPath, "Bindings.txt");
-                    try //to read the Bindings.txt file
-                    {
-                        string fileContent2 = FileReader.ReadFromFile(filePath2);
-                        string[] lines2 = fileContent2.Split('\n');
-                        gripButton = (KeyCode)Enum.Parse(typeof(KeyCode), lines2[0].Trim());
-                        indexButton = (KeyCode)Enum.Parse(typeof(KeyCode), lines2[1].Trim());
-                        acceptButton = (KeyCode)Enum.Parse(typeof(KeyCode), lines2[2].Trim());
-                        cancelButton = (KeyCode)Enum.Parse(typeof(KeyCode), lines2[3].Trim());
-                        jumpButton = (KeyCode)Enum.Parse(typeof(KeyCode), lines2[4].Trim());
-                        rStickButton = (KeyCode)Enum.Parse(typeof(KeyCode), lines2[5].Trim());
-                        left1Button = (KeyCode)Enum.Parse(typeof(KeyCode),lines2 [6].Trim());
-                        left2Button = (KeyCode)Enum.Parse(typeof(KeyCode), lines2[7].Trim());
-                        lStickButton = (KeyCode)Enum.Parse(typeof(KeyCode), lines2[8].Trim());
-                        lGripButton = (KeyCode)Enum.Parse(typeof(KeyCode), lines2[9].Trim());
+                    isNotOculus = true;
+
+                    gripButton = KeyCode.Quote;
+                    indexButton = KeyCode.Quote;
+                    acceptButton = KeyCode.Quote;
+                    cancelButton = KeyCode.Quote;
+                    jumpButton = KeyCode.Quote;
+                    rStickButton = KeyCode.Quote;
+                    left1Button = KeyCode.Quote;
+                    left2Button = KeyCode.Quote;
+                    lStickButton = KeyCode.Quote;
+                    lGripButton = KeyCode.Quote;
+
+                    Plugin.LoggerInstance.LogInfo(gripButton.ToString());
 
 
-                    }
-                    catch (Exception e)//if it doesn't work, set it to emergency default values(height gets set somewhere else)
-                    {
-                        Plugin.LoggerInstance.LogError("Error: "+e.Message);
-                        return;
-                    }
+                    //string filePath2 = Path.Combine(Paths.PluginPath, "Bindings.txt");
+                    //try //to read the Bindings.txt file
+                    //{
+                    //    string fileContent2 = FileReader.ReadFromFile(filePath2);
+                    //    string[] lines2 = fileContent2.Split('\n');
+                    //    gripButton = (KeyCode)Enum.Parse(typeof(KeyCode), lines2[0].Trim());
+                    //    indexButton = (KeyCode)Enum.Parse(typeof(KeyCode), lines2[1].Trim());
+                    //    acceptButton = (KeyCode)Enum.Parse(typeof(KeyCode), lines2[2].Trim());
+                    //    cancelButton = (KeyCode)Enum.Parse(typeof(KeyCode), lines2[3].Trim());
+                    //    jumpButton = (KeyCode)Enum.Parse(typeof(KeyCode), lines2[4].Trim());
+                    //    rStickButton = (KeyCode)Enum.Parse(typeof(KeyCode), lines2[5].Trim());
+                    //    left1Button = (KeyCode)Enum.Parse(typeof(KeyCode),lines2 [6].Trim());
+                    //    left2Button = (KeyCode)Enum.Parse(typeof(KeyCode), lines2[7].Trim());
+                    //    lStickButton = (KeyCode)Enum.Parse(typeof(KeyCode), lines2[8].Trim());
+                    //    lGripButton = (KeyCode)Enum.Parse(typeof(KeyCode), lines2[9].Trim());
+
+
+                    //}
+                    //catch (Exception e)//if it doesn't work, set it to emergency default values(height gets set somewhere else)
+                    //{
+                    //    Plugin.LoggerInstance.LogError("Error: "+e.Message);
+                    //    return;
+                    //}
 
                 }
 

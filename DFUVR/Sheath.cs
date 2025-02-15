@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using UnityEngine;
 using BepInEx;
 using DaggerfallWorkshop.Game;
+using UnityEngine.XR;
 
 
 namespace DFUVR
@@ -70,6 +71,21 @@ namespace DFUVR
 
         void Update()
         {
+            if (Var.isNotOculus)
+            {
+                bool gripButton;
+                var rightHand = InputDevices.GetDeviceAtXRNode(XRNode.RightHand);
+                rightHand.TryGetFeatureValue(CommonUsages.gripButton, out gripButton);
+                //rightHand.TryGetFeatureValue(CommonUsages.secondaryButton, out secondaryButton);
+
+                if (gripButton) { gripFlag = true; }
+                if(!gripButton) { gripFlag= false; alreadyGripped = false; }
+                if ((gripFlag && SheathCollision.flag) && !alreadyGripped)
+                {
+                    alreadyGripped = true;
+                    GameObject.Find("PlayerAdvanced").GetComponent<WeaponManager>().ToggleSheath();
+                }
+            }
             if (Input.GetKeyDown(Var.gripButton))
             {
                 gripFlag = true;
