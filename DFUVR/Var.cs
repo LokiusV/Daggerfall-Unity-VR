@@ -69,6 +69,7 @@ namespace DFUVR
         public static Camera handCam;
         public static GameObject body;
         public static WeaponManager weaponManager;
+        public static ClimbingMotor climbingMotor;
         public static GameObject VRParent;
         public static GameObject debugSphere;
 
@@ -255,22 +256,37 @@ namespace DFUVR
             int numKeys = 10;
             for (int i = 0; i < numKeys; i++)
             {
+                
+                Plugin.LoggerInstance.LogInfo("started Button " + i.ToString());
                 GameObject clonedKey = Instantiate(keysParent.GetChild(i).gameObject);
-
+                //clonedKey.transform.SetSiblingIndex(i);
                 RectTransform originalKeyRect = keysParent.GetChild(i).GetComponent<RectTransform>();
                 RectTransform clonedKeyRect = clonedKey.GetComponent<RectTransform>();
 
                 Vector3 newPositio = originalKeyRect.localPosition;
                 newPositio.y += (originalKeyRect.sizeDelta.y + 10);
-                clonedKeyRect.localPosition = newPositio;
 
+                clonedKeyRect.localPosition = newPositio;
+                
+                clonedKeyRect.ForceUpdateRectTransforms();
                 string number = (i + 1).ToString();
                 if (i == 9) number = "0";
-                clonedKey.name = "D"+number;
+                clonedKey.name = "D" + number;
                 clonedKey.GetComponentInChildren<Text>().text = number;
+                //Plugin.LoggerInstance.LogInfo($"Before Parenting {clonedKey.name}: {clonedKeyRect.anchoredPosition}");
                 clonedKey.transform.SetParent(keysParent, false);
+                //Plugin.LoggerInstance.LogInfo($"After Parenting {clonedKey.name}: {clonedKeyRect.anchoredPosition}");
+                //clonedKey.transform.SetSiblingIndex(i);
+
                 clonedKey.SetActive(true);
+                //LayoutRebuilder.ForceRebuildLayoutImmediate(keysParent.GetComponent<RectTransform>());
+                Plugin.LoggerInstance.LogInfo("finished Button " + i.ToString());
             }
+            //for (int i = 0; i < keysParent.childCount; i++)
+            //{
+            //    Plugin.LoggerInstance.LogInfo($"{i}: {keysParent.GetChild(i).name}");
+            //}
+
             //GameObject vrui = GameObject.Find("VRUI");
 
             assetBundle.Unload(false);

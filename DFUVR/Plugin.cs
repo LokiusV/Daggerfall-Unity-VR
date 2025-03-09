@@ -31,6 +31,7 @@ using static UnityEngine.GraphicsBuffer;
 using UnityEngine.XR;
 using UnityEngine.XR.Provider;
 using DaggerfallWorkshop.Utility;
+using DaggerfallWorkshop.Game.MagicAndEffects.MagicEffects;
 
 namespace DFUVR
 {
@@ -154,7 +155,7 @@ namespace DFUVR
     //    [HarmonyPrefix]
     //    static void Prefix(DaggerfallMissile __instance)
     //    {
-            
+
 
     //    }
     //}
@@ -205,7 +206,63 @@ namespace DFUVR
     //        //Var.debugSphere.transform.position = __instance.GetComponent<Collider>().transform.position;//__instance.transform.position;
     //    }
     //}
+    //[HarmonyPatch(typeof(DaggerfallAction), "UserInputHandler")]
+    //public class HideAfterInputPatch : MonoBehaviour
+    //{
+    //    [HarmonyPostfix]
+    //    static void Postfix(UserInterfaceManager __instance)
+    //    {
+    //        Var.activeWindowCount--;
+    //        //Plugin.LoggerInstance.LogInfo(Var.activeWindowCount);
+    //        if (Var.activeWindowCount < 2)
+    //        {
+    //            //Plugin.LoggerInstance.LogInfo("Exited Window");
+    //            GameObject vrui = GameObject.Find("VRUI");
+    //            GameObject laserPointer = GameObject.Find("LaserPointer");
+    //            GameObject idleParent;
+    //            if (GameObject.Find("IdleParent") == null)
+    //            {
+    //                idleParent = new GameObject("IdleParent");
+    //                idleParent.transform.position = Vector3.zero;
 
+    //                //This is the HUD
+    //                idleParent.AddComponent<HUDSpawner>();
+    //            }
+    //            else
+    //            {
+    //                idleParent = GameObject.Find("IdleParent");
+
+    //            }
+
+    //            vrui.transform.SetParent(idleParent.transform);
+    //            laserPointer.transform.SetParent(idleParent.transform);
+    //            vrui.transform.localPosition = Vector3.zero;
+    //            vrui.transform.localRotation = Quaternion.identity;
+    //            laserPointer.transform.localPosition = Vector3.zero;
+    //        }
+
+    //    }
+
+    //}
+    //[HarmonyPatch(typeof(DaggerfallAction), "ShowTextWithInput")]
+    //public class InputNotifPatch : MonoBehaviour
+    //{
+    //    [HarmonyPostfix]
+    //    static void Postfix(UserInterfaceManager __instance)
+    //    {
+    //        //Plugin.LoggerInstance.LogInfo("Entered Window");
+    //        GameObject vrui = GameObject.Find("VRUI");
+    //        GameObject laserPointer = GameObject.Find("LaserPointer");
+    //        GameObject vrParent = GameObject.Find("VRParent");
+    //        vrui.transform.SetParent(vrParent.transform);
+    //        laserPointer.transform.SetParent(vrParent.transform);
+    //        CoroutineRunner.Instance.StartRoutine(PushPatch.Waiter1());
+    //        //laserPointer.transform.localPosition = Vector3.zero;
+    //        Var.activeWindowCount++;
+
+    //    }
+
+    //}
     //shows UI, recalibrates its position and repositions the player so that enemies can actually hit it
     [HarmonyPatch(typeof(UserInterfaceManager), "PushWindow")]
     public class PushPatch : MonoBehaviour
@@ -242,7 +299,7 @@ namespace DFUVR
         //    vrui.transform.localPosition = vrui.transform.parent.InverseTransformPoint(uiPositionInFront);
         //    vrui.transform.rotation = Quaternion.LookRotation(vrui.transform.position - vrCameraTransform.position);
         //}
-        static IEnumerator Waiter1()
+        public static IEnumerator Waiter1()
         {
             GameObject vrui = GameObject.Find("VRUI");
             //delay is strictly necessary.
@@ -375,8 +432,9 @@ namespace DFUVR
             Ray ray = new Ray(vrCameraTransform.position, vrui.transform.position - vrCameraTransform.position);
             RaycastHit hit;
 
-            
-            if (Physics.Raycast(ray, out hit))
+            int layerMask = ~LayerMask.GetMask("Automap");
+
+            if (Physics.Raycast(ray, out hit, Mathf.Infinity, layerMask))
             {
                 
                 if (hit.transform != vrui.transform)
@@ -626,9 +684,10 @@ namespace DFUVR
                 InputManager.Instance.SetBinding(Var.lStickButton, Actions.Run, true);
                 //InputManager.Instance.SetBinding(Var.acceptButton, Actions.AutoRun, true);
                 //InputManager.Instance.SetBinding(KeyCode.UpArrow, InputManager.Actions.ToggleConsole, true);
-                InputManager.Instance.SetBinding(Var.acceptButton, InputManager.Actions.ActivateCenterObject, true);
+                //InputManager.Instance.SetBinding(Var.acceptButton, InputManager.Actions.ActivateCenterObject, true);
                 InputManager.Instance.SetBinding(Var.cancelButton, InputManager.Actions.Inventory, true);
                 //InputManager.Instance.SetBinding(Var.gripButton, InputManager.Actions.RecastSpell, true);
+                InputManager.Instance.SetBinding(Var.acceptButton, InputManager.Actions.RecastSpell, true);
                 InputManager.Instance.SetBinding(Var.rStickButton, InputManager.Actions.CastSpell, true);
             }
             else
@@ -875,7 +934,13 @@ namespace DFUVR
         }
     
     }
-
+    //Sets reference for later use
+    [HarmonyPatch(typeof(ClimbingMotor), "Start")]
+    public class ClimbingMotorStartPatch
+    {
+        [HarmonyPostfix]
+        static void Postfix(ClimbingMotor __instance) { Var.climbingMotor = __instance; }
+    }
     //Sets reference for later use
     [HarmonyPatch(typeof(WeaponManager), "Start")]
     public class WeaponManagerStartPatch
@@ -1043,6 +1108,13 @@ namespace DFUVR
 
                     Var.weaponObject.transform.localPosition = Vector3.zero;
                     Var.weaponObject.transform.localRotation = Quaternion.identity;
+
+                }
+                if (tempObject == Var.hammer)
+                {
+
+                    Var.weaponObject.transform.localPosition = Vector3.zero;
+                    Var.weaponObject.transform.localRotation = Quaternion.Euler(0,0,90);
 
                 }
                 else if (tempObject == Var.dagger)
@@ -1324,7 +1396,329 @@ namespace DFUVR
 
         }
     }
+    //[HarmonyPatch(typeof(ClimbingMotor), "GetClimbedWallInfo")]
+    //public static class Patch_GetClimbedWallInfo
+    //{
+    //    static void Postfix(ClimbingMotor __instance)
+    //    {
+    //        if (Var.VRCamera != null)
+    //        {
+    //            // Override myLedgeDirection only if it's zero (i.e., no wall detected)
+    //            Vector3 currentDirection = (Vector3)AccessTools.Field(typeof(ClimbingMotor), "myLedgeDirection").GetValue(__instance);
+    //            if (currentDirection == Vector3.zero)
+    //            {
+    //                AccessTools.Field(typeof(ClimbingMotor), "myLedgeDirection")
+    //                    .SetValue(__instance, Var.VRCamera.transform.forward);
+    //            }
+    //        }
+    //    }
+    //}
 
+
+    [HarmonyPatch(typeof(ClimbingMotor), "ClimbingCheck")]
+    public class climbingCheckPatch : MonoBehaviour
+    {
+        //[HarmonyPostfix]
+        //static void Postfix(ClimbingMotor __instance)
+        //{
+        //    // Get all private instance fields of type bool
+        //    var boolFields = typeof(ClimbingMotor)
+        //        .GetFields(BindingFlags.Instance | BindingFlags.NonPublic)
+        //        .Where(field => field.FieldType == typeof(bool));
+
+        //    foreach (var field in boolFields)
+        //    {
+        //        bool value = (bool)field.GetValue(__instance);
+        //        Plugin.LoggerInstance.LogInfo($"{field.Name}: {value}");
+        //    }
+        //}
+        [HarmonyPrefix]
+        static bool Prefix(ClimbingMotor __instance)
+        {
+            try
+            {
+                bool isStanding = Var.VRCamera.transform.position.y > 1.5f;
+                //Vector3 raycastOffset = Var.VRCamera.transform.position - new Vector3(0, isStanding ? 0 : 1, 0);
+                //Vector3 raycastOffset = Var.VRCamera.transform.position - new Vector3(0, 1, 0);
+                AccessTools.Field(typeof(ClimbingMotor), "myLedgeDirection").SetValue(__instance, Var.VRCamera.transform.forward);
+                bool lGripButton;
+                var leftHand = InputDevices.GetDeviceAtXRNode(XRNode.LeftHand);
+                leftHand.TryGetFeatureValue(CommonUsages.gripButton, out lGripButton);
+                //Plugin.LoggerInstance.LogInfo("entered patch");
+                //AccessTools.Field(typeof(ClimbingMotor), "startClimbHorizontalTolerance").SetValue(__instance,1000f);
+                ////Plugin.LoggerInstance.LogInfo(__instance.IsClimbing);
+                CharacterController controller = (CharacterController)AccessTools.Field(typeof(ClimbingMotor), "controller").GetValue(__instance);
+                PlayerMoveScanner moveScanner = (PlayerMoveScanner)AccessTools.Field(typeof(ClimbingMotor), "moveScanner").GetValue(__instance);
+                PlayerMotor playerMotor = (PlayerMotor)AccessTools.Field(typeof(ClimbingMotor), "playerMotor").GetValue(__instance);
+                Vector2 lastHorizontalPosition = (Vector2)AccessTools.Field(typeof(ClimbingMotor), "lastHorizontalPosition").GetValue(__instance);
+                float startClimbHorizontalTolerance = (float)AccessTools.Field(typeof(ClimbingMotor), "startClimbHorizontalTolerance").GetValue(__instance);
+                RappelMotor rappelMotor = (RappelMotor)AccessTools.Field(typeof(ClimbingMotor), "rappelMotor").GetValue(__instance);
+                //////bool touchingSides = (controller.collisionFlags & CollisionFlags.Sides) != 0;
+                //////Plugin.LoggerInstance.LogInfo($"touchingSides: {touchingSides}");
+                //////Plugin.LoggerInstance.LogInfo(InputManager.Instance.HasAction(Actions.MoveForwards));
+                ////Plugin.LoggerInstance.LogInfo((Vector2.Distance(lastHorizontalPosition, new Vector2(controller.transform.position.x, controller.transform.position.z))));
+                ////Plugin.LoggerInstance.LogInfo(new Vector2(controller.transform.position.x, controller.transform.position.z));
+                ////Plugin.LoggerInstance.LogError((Vector2.Distance(lastHorizontalPosition, new Vector2(controller.transform.position.x, controller.transform.position.z))) < startClimbHorizontalTolerance);
+                //Plugin.LoggerInstance.LogInfo(Physics.Raycast(controller.transform.position, Vector3.down, controller.height / 2 + 0.12f));
+                bool isClimbing = (bool)AccessTools.Field(typeof(ClimbingMotor), "isClimbing").GetValue(__instance);
+                bool isSlipping = (bool)AccessTools.Field(typeof(ClimbingMotor), "isSlipping").GetValue(__instance);
+                AcrobatMotor acrobatMotor = (AcrobatMotor)AccessTools.Field(typeof(ClimbingMotor), "acrobatMotor").GetValue(__instance);
+                bool advancedClimbingOn = DaggerfallUnity.Settings.AdvancedClimbing;
+                bool releasedFromCeiling = (bool)AccessTools.Field(typeof(ClimbingMotor), "releasedFromCeiling").GetValue(__instance);
+                // true if we should try climbing wall and are airborne
+                bool airborneGraspWall = (!isClimbing && !isSlipping && acrobatMotor.Falling);
+                bool inputBack = InputManager.Instance.HasAction(InputManager.Actions.MoveBackwards);
+                bool inputForward = lGripButton;//InputManager.Instance.HasAction(InputManager.Actions.MoveForwards);
+                LevitateMotor levitateMotor = (LevitateMotor)AccessTools.Field(typeof(ClimbingMotor), "levitateMotor").GetValue(__instance);
+                Vector3 wallDirection = (Vector3)AccessTools.Field(typeof(ClimbingMotor), "wallDirection").GetValue(__instance);
+                //inputForward = true;
+
+                // boolean that means ground directly below us is too close for climbing or rappelling
+                bool tooCloseToGroundForClimb = (((isClimbing && (inputBack || isSlipping)) || airborneGraspWall)
+                    // short circuit evaluate the raycast, also prevents bug where you could teleport across town
+                    && Physics.Raycast(controller.transform.position, Vector3.down, controller.height / 2 + 0.12f));
+
+                AccessTools.Method(typeof(ClimbingMotor), "CalcFrequencyAndToleranceOfWallChecks").Invoke(__instance, new object[] { airborneGraspWall });
+                //CalcFrequencyAndToleranceOfWallChecks(airborneGraspWall);
+
+                bool inputAbortCondition;
+                if (advancedClimbingOn)
+                {
+                    inputAbortCondition = (InputManager.Instance.HasAction(InputManager.Actions.Crouch)
+                                          || InputManager.Instance.HasAction(InputManager.Actions.Jump));
+                }
+                else
+                    inputAbortCondition = !inputForward;
+
+                // reset for next use
+                //WallEject = false;
+                AccessTools.Property(typeof(ClimbingMotor), "WallEject").SetValue(__instance, false);
+
+                if (releasedFromCeiling)
+                {
+                    AccessTools.Method(typeof(ClimbingMotor), "MoveForwardIfNotClimbing").Invoke(__instance, null);
+                    //MoveForwardIfNotClimbing();
+                }
+                if ((playerMotor.CollisionFlags & CollisionFlags.Sides) != 0)
+                {
+                    AccessTools.Field(typeof(ClimbingMotor), "releasedFromCeiling").SetValue(__instance, false);
+                    releasedFromCeiling = false;
+                }
+
+                bool horizontallyStationary = Vector2.Distance(lastHorizontalPosition, new Vector2(controller.transform.position.x, controller.transform.position.z)) < startClimbHorizontalTolerance;
+                //bool touchingSides = (playerMotor.CollisionFlags & CollisionFlags.Sides) != 0;
+                bool touchingSides = (Physics.Raycast(Var.VRCamera.transform.position,Var.VRCamera.transform.forward,0.5f));
+                bool touchingGround = (playerMotor.CollisionFlags & CollisionFlags.Below) != 0;
+                //bool touchingAbove = (playerMotor.CollisionFlags & CollisionFlags.Above) != 0;
+                bool slippedToGround = isSlipping && touchingGround;
+                bool nonOrthogonalStart = !isClimbing && inputForward && !horizontallyStationary;
+                //bool forwardStationaryNearCeiling = inputForward && hangingMotor.IsWithinHangingDistance && horizontallyStationary;
+                bool pushingFaceAgainstWallNearCeiling = false;//hangingMotor.IsHanging && !isClimbing && touchingSides && forwardStationaryNearCeiling;
+                bool climbingOrForwardOrGrasping = (isClimbing || inputForward || airborneGraspWall);
+                bool hangTouchNonVertical = false;//hangingMotor.IsHanging && touchingSides && Physics.Raycast(controller.transform.position, controller.transform.forward, out hit, 0.40f) && Mathf.Abs(hit.normal.y) > 0.06f;
+                AccessTools.Property(typeof(ClimbingMotor), "WallEject").SetValue(__instance, (inputBack && !moveScanner.HitSomethingInFront && moveScanner.FrontUnderCeiling != null));
+                //ClimbQuitMoveUnderToHang = (inputBack && !moveScanner.HitSomethingInFront && moveScanner.FrontUnderCeiling != null);
+
+                // Allow climbing slight overhangs when capsule hits above but upwards test rays have clear space overhead
+                // Works by gently bumping player capsule away from wall at point of contact so they can acquire new vertical climb position
+                // Provided angle not too extreme then player will keep climbing upwards or downwards
+                // Allows player to climb up gently angled positions like the coffin tunnel in Scourg Barrow and up over shallow eaves
+                if (isClimbing && (playerMotor.CollisionFlags & CollisionFlags.Above) == CollisionFlags.Above)
+                {
+                    //Vector3 frontTestPosition = controller.transform.position + wallDirection * controller.radius * 0.9f;
+                    //Vector3 backTestPosition = controller.transform.position - wallDirection * controller.radius * 0.1f;
+                    Vector3 frontTestPosition = Var.VRCamera.transform.position + wallDirection * controller.radius * 0.9f;
+                    Vector3 backTestPosition = Var.VRCamera.transform.position - wallDirection * controller.radius * 0.1f;
+                    //Debug.DrawLine(frontTestPosition, frontTestPosition + Vector3.up * 2, Color.red);
+                    //Debug.DrawLine(backTestPosition, backTestPosition + Vector3.up * 2, Color.red);
+
+                    // Test close to front of head for backward sloping wall like Scourg Barrow and bump a little backwards
+                    // Then slightly further back for short overhangs like eaves and bump more backwards and a little upwards
+                    // Height of raycast test is extended to help ensure there is clear space above not just an angled ceiling
+                    //if (!Physics.Raycast(frontTestPosition, Vector3.up, controller.height / 2 + 0.3f))
+                    //    controller.transform.position += -wallDirection * 0.1f;
+                    //else if (!Physics.Raycast(backTestPosition, Vector3.up, controller.height / 2 + 0.5f))
+                    //    controller.transform.position += -wallDirection * 0.4f + Vector3.up * 0.3f;
+                    if (!Physics.Raycast(frontTestPosition, Vector3.up, controller.height / 2 + 0.3f))
+                        Var.VRCamera.transform.position += -wallDirection * 0.1f;
+                    else if (!Physics.Raycast(backTestPosition, Vector3.up, controller.height / 2 + 0.5f))
+                        Var.VRCamera.transform.position += -wallDirection * 0.4f + Vector3.up * 0.3f;
+                }
+
+                // Handle recently restoring from save game where climbing active
+                if (isClimbing && (bool)AccessTools.Field(typeof(ClimbingMotor), "isClimbing").GetValue(__instance) && !touchingSides)
+                {
+                    touchingSides = true;
+                    //Debug.Log("Forced touchingSides...");
+                }
+                else
+                    AccessTools.Field(typeof(ClimbingMotor), "isClimbing").SetValue(__instance, false);
+                //touchingSidesRestoreForce = false;
+
+                // Should we reset climbing starter timers?
+                AccessTools.Field(typeof(ClimbingMotor), "wasClimbing").SetValue(__instance, isClimbing);
+                //wasClimbing = isClimbing;
+                //if (InputManager.Instance.HasAction(Actions.MoveForwards))
+                //{
+                //    Plugin.LoggerInstance.LogInfo("not pushing face and abort cond:" + (!pushingFaceAgainstWallNearCeiling && inputAbortCondition));
+                //    Plugin.LoggerInstance.LogInfo("__instance.ClimbQuitMoveUnderToHang" + __instance.ClimbQuitMoveUnderToHang);
+                //    Plugin.LoggerInstance.LogInfo("!climbingOrForwardOrGrasping" + !climbingOrForwardOrGrasping);
+                //    Plugin.LoggerInstance.LogInfo("!touchingSides && !releasedFromCeiling" + (!touchingSides && !releasedFromCeiling));
+                //    Plugin.LoggerInstance.LogInfo("levitateMotor.IsLevitating" + (levitateMotor.IsLevitating));
+                //    Plugin.LoggerInstance.LogInfo("playerMotor.IsRiding" + (playerMotor.IsRiding));
+                //    Plugin.LoggerInstance.LogInfo("slippedToGround " + (slippedToGround));
+                //    Plugin.LoggerInstance.LogInfo("nonOrthogonalStart " + (nonOrthogonalStart));
+                //    Plugin.LoggerInstance.LogInfo("hangTouchNonVertical " + (hangTouchNonVertical));
+                //}
+                if (!(Physics.Raycast(Var.VRCamera.transform.position-new Vector3(0,1,0), Var.VRCamera.transform.forward, 0.5f)))
+                {
+                    __instance.StopClimbing();
+                    releasedFromCeiling = false;
+
+
+                }
+                if ((!pushingFaceAgainstWallNearCeiling)
+                    &&
+                    (inputAbortCondition
+                    || __instance.ClimbQuitMoveUnderToHang
+                    || !climbingOrForwardOrGrasping
+                    || !touchingSides && !releasedFromCeiling
+                    || !touchingSides
+                    || levitateMotor.IsLevitating
+                    || playerMotor.IsRiding
+                    || slippedToGround
+                    // quit climbing if climbing down and ground is really close, prevents teleportation bug
+                    //|| tooCloseToGroundForClimb
+                    // don't do horizontal position check if already climbing
+                    //|| nonOrthogonalStart
+                    // if we're hanging, and touching sides with a wall that isn't mostly vertical
+                    || hangTouchNonVertical))
+                {
+                    //Plugin.LoggerInstance.LogInfo("Never even started.");
+                    if (isClimbing && inputAbortCondition && advancedClimbingOn)
+                        AccessTools.Property(typeof(ClimbingMotor), "WallEject").SetValue(__instance, true);
+
+                    __instance.StopClimbing();
+                    releasedFromCeiling = false;
+                    // Reset position for horizontal distance check and timer to wait for climbing start
+                    lastHorizontalPosition = new Vector2(controller.transform.position.x, controller.transform.position.z);
+                }
+
+                else // countdown climbing events
+                {
+                    // countdown to climbing start
+                    if ((float)AccessTools.Field(typeof(ClimbingMotor), "climbingStartTimer").GetValue(__instance) <= (playerMotor.systemTimerUpdatesDivisor * (float)AccessTools.Field(typeof(ClimbingMotor), "startClimbSkillCheckFrequency").GetValue(__instance)))
+                    {
+                        float current = (float)AccessTools.Field(typeof(ClimbingMotor), "climbingStartTimer").GetValue(__instance);
+                        AccessTools.Field(typeof(ClimbingMotor), "climbingStartTimer").SetValue(__instance, current + Time.deltaTime);
+                        //climbingStartTimer += Time.deltaTime;
+                    }
+                    //if (InputManager.Instance.HasAction(InputManager.Actions.MoveForwards)) { Plugin.LoggerInstance.LogInfo("MF"); isClimbing = true; }
+
+                    //if (InputManager.Instance.HasAction(InputManager.Actions.MoveForwards)) {  }
+                    //// Begin Climbing
+                    //else 
+                    if (!isClimbing)
+                    {
+                        //if (hangingMotor.IsHanging)
+                        //{   // grab wall from ceiling
+                        //    overrideSkillCheck = true;
+                        //    releasedFromCeiling = true;
+                        //}
+
+                        // automatic success if not falling
+                        if ((!airborneGraspWall /*&& !hangingMotor.IsHanging*/) || releasedFromCeiling)
+                        {
+                            if (__instance.ClimbingSkillCheck(70))
+                                AccessTools.Method(typeof(ClimbingMotor), "StartClimbing").Invoke(__instance, null);
+                        } // skill check to see if we catch the wall 
+                        else if (__instance.ClimbingSkillCheck(70))
+                            AccessTools.Method(typeof(ClimbingMotor), "StartClimbing").Invoke(__instance, null);
+                        else
+                            AccessTools.Field(typeof(ClimbingMotor), "climbingStartTimer").SetValue(__instance, 0);
+                    }
+
+                    if (isClimbing)
+                    {
+                        float result;
+                        if (isSlipping)
+                        {
+
+                            result = (float)AccessTools.Field(typeof(ClimbingMotor), "regainHoldSkillCheckFrequency").GetValue(__instance);
+                        }
+                        else
+                        {
+                            result = 15f;
+                        }
+                        // countdown to climb update, Faster updates if slipping
+                        if ((float)AccessTools.Field(typeof(ClimbingMotor), "climbingContinueTimer").GetValue(__instance) <= (playerMotor.systemTimerUpdatesDivisor * (result)))
+                        {
+                            float current = (float)AccessTools.Field(typeof(ClimbingMotor), "climbingContinueTimer").GetValue(__instance);
+                            AccessTools.Field(typeof(ClimbingMotor), "climbingContinueTimer").SetValue(__instance, current + Time.deltaTime);
+                            //climbingContinueTimer += Time.deltaTime;
+                        }
+
+                        else
+                        {
+                            AccessTools.Field(typeof(ClimbingMotor), "climbingContinueTimer").SetValue(__instance, 0);
+                            //climbingContinueTimer = 0;
+
+                            // don't allow slipping if not moving.
+                            //if (!InputManager.Instance.HasAction(InputManager.Actions.MoveForwards)
+                            //        && !InputManager.Instance.HasAction(InputManager.Actions.MoveBackwards)
+                            //        && !InputManager.Instance.HasAction(InputManager.Actions.MoveLeft)
+                            //        && !InputManager.Instance.HasAction(InputManager.Actions.MoveRight))
+                            //    isSlipping = false;
+                            if (!lGripButton)
+                                isSlipping = false;
+                            // it's harder to regain hold while slipping than it is to continue climbing with a good hold on wall
+                            else if (isSlipping)
+                                isSlipping = !__instance.ClimbingSkillCheck(20);
+                            else
+                                isSlipping = !__instance.ClimbingSkillCheck(50);
+                        }
+                    }
+
+                }
+
+                // Climbing Cycle
+                if (isClimbing)
+                {
+                    // evalate the ledge direction
+                    AccessTools.Method(typeof(ClimbingMotor), "GetClimbedWallInfo").Invoke(__instance, null);
+                    //GetClimbedWallInfo();
+                    AccessTools.Method(typeof(ClimbingMotor), "ClimbMovement").Invoke(__instance, null);
+                    //ClimbMovement();
+
+                    // both variables represent similar situations, but different context
+                    acrobatMotor.Falling = isSlipping;
+                }
+                else if (!rappelMotor.IsRappelling)
+                {
+                    isSlipping = false;
+                    AccessTools.Field(typeof(ClimbingMotor), "overrideSkillCheck").SetValue(__instance, false);
+                    AccessTools.Field(typeof(ClimbingMotor), "atOutsideCorner").SetValue(__instance, false);
+                    AccessTools.Field(typeof(ClimbingMotor), "atInsideCorner").SetValue(__instance, false);
+                    AccessTools.Field(typeof(ClimbingMotor), "showClimbingModeMessage").SetValue(__instance, true);
+                    AccessTools.Field(typeof(ClimbingMotor), "moveDirection").SetValue(__instance, Vector3.zero);
+                    //overrideSkillCheck = false;
+                    //atOutsideCorner = false;
+                    //atInsideCorner = false;
+                    //showClimbingModeMessage = true;
+                    //moveDirection = Vector3.zero;
+                    // deletes locally and saves myLedgeDirection to variable in class
+                    Vector3 myLedgeDirection = (Vector3)AccessTools.Field(typeof(ClimbingMotor), "myLedgeDirection").GetValue(__instance);
+                    //if (myLedgeDirection != Vector3.zero)
+                    //    moveScanner.CutAndPasteVectorToDetached(ref myLedgeDirection);
+                }
+                //Plugin.LoggerInstance.LogInfo(__instance.IsClimbing);
+                return false;
+            }
+            catch (Exception e) { Plugin.LoggerInstance.LogError(e); return true; }
+
+
+        }
+    }
     //we don't want mouse controls
     [HarmonyPatch(typeof(PlayerMouseLook), "Update")]
     public class MousePatch : MonoBehaviour
@@ -1361,41 +1755,65 @@ namespace DFUVR
 
                 float inputX = rThumbStick.x;
                 float inputY = rThumbStick.y;
-
-                if (inputY >= 0.8f)
+                if (!Var.climbingMotor.IsClimbing)
                 {
-                    currentActions.Add(Actions.Jump);
+                    if (inputY >= 0.8f)
+                    {
+                        currentActions.Add(Actions.Jump);
 
+                    }
+                    else if (inputY <= -0.8f)
+                    {
+                        //currentActions.Add(Actions.Sneak);
+                        currentActions.Add(Actions.Crouch);
+                        PlayerMotor playerMotor = null;
+                        try
+                        {
+                            playerMotor = GameObject.Find("PlayerAdvanced").GetComponent<PlayerMotor>();//Var.playerGameObject.GetComponent<PlayerMotor>();
+
+                        }
+                        catch { Plugin.LoggerInstance.LogError("PlayerMotorNotFound"); }
+                        //if (playerMotor != null)
+                        //{
+                        //    Plugin.LoggerInstance.LogInfo(Var.playerGameObject.GetComponent<PlayerMotor>().IsCrouching);
+                        //}
+                        //else { Plugin.LoggerInstance.LogInfo("What the fuck is a player"); }
+                        if (playerMotor.IsCrouching == true)
+                        {
+                            currentActions.Add(Actions.StealMode);
+
+                        }
+                        else
+                        {
+                            currentActions.Add(Actions.GrabMode);
+
+                        }
+                        //isCrouching=!isCrouching;
+                        //
+                        //
+                    }
                 }
-                else if (inputY <= -0.8f)
+                else
                 {
-                    //currentActions.Add(Actions.Sneak);
-                    currentActions.Add(Actions.Crouch);
-                    PlayerMotor playerMotor = null;
-                    try
+                    if (inputY >= 0.5f)
                     {
-                        playerMotor = GameObject.Find("PlayerAdvanced").GetComponent<PlayerMotor>();//Var.playerGameObject.GetComponent<PlayerMotor>();
-                        
+                        currentActions.Add(Actions.MoveForwards);
                     }
-                    catch { Plugin.LoggerInstance.LogError("PlayerMotorNotFound"); }
-                    //if (playerMotor != null)
-                    //{
-                    //    Plugin.LoggerInstance.LogInfo(Var.playerGameObject.GetComponent<PlayerMotor>().IsCrouching);
-                    //}
-                    //else { Plugin.LoggerInstance.LogInfo("What the fuck is a player"); }
-                    if (playerMotor.IsCrouching==true)
+                    else if (inputY <= -0.5f)
                     {
-                        currentActions.Add(Actions.StealMode);
+                        currentActions.Add(Actions.MoveBackwards);
+                    }
 
-                    }
-                    else
+                    if (inputX >= 0.5f)
                     {
-                        currentActions.Add(Actions.GrabMode);
-
+                        currentActions.Add(Actions.MoveRight);
                     }
-                    //isCrouching=!isCrouching;
-                    //
-                    //
+                    if (inputX <= -0.5f)
+                    {
+                        currentActions.Add(Actions.MoveLeft);
+                    }
+
+
                 }
                 //if (Input.GetKeyDown(Var.gripButton)&&!ControllerPatch.flag) 
                 //{ 
@@ -1404,11 +1822,15 @@ namespace DFUVR
                 //}
                 bool gripButton;
                 rightHand.TryGetFeatureValue(CommonUsages.gripButton, out gripButton);
-                if (gripButton && !ControllerPatch.flag)
+                if (gripButton && !ControllerPatch.flag&&!Var.climbingMotor.IsClimbing)
                 {
                     currentActions.Add(Actions.ActivateCenterObject);
                     //currentActions.Add(Actions.);
 
+                }
+                else if (gripButton && !ControllerPatch.flag && Var.climbingMotor.IsClimbing)
+                {
+                    currentActions.Add(Actions.Jump);
                 }
                 //if(Input.GetKeyDown(Var.acceptButton) && !ControllerPatch.flag)
                 //{
@@ -1423,7 +1845,7 @@ namespace DFUVR
                 //    GameObject.Find("PlayerAdvanced").GetComponent<WeaponManager>().ToggleSheath();
                 //    GameObject.Find("PlayerAdvanced").GetComponent<WeaponManager>().ToggleSheath();
                 //}
-
+                var leftHand = InputDevices.GetDeviceAtXRNode(XRNode.LeftHand);
                 if (ControllerPatch.flag)
                 {
                     if (Input.GetKeyDown(Var.acceptButton))
@@ -1448,7 +1870,7 @@ namespace DFUVR
 
                     }
 
-                    var leftHand = InputDevices.GetDeviceAtXRNode(XRNode.LeftHand);
+                    //var leftHand = InputDevices.GetDeviceAtXRNode(XRNode.LeftHand);
 
                     bool leftTrigger;
                     leftHand.TryGetFeatureValue(UnityEngine.XR.CommonUsages.triggerButton, out leftTrigger);
@@ -1459,6 +1881,31 @@ namespace DFUVR
                     }
 
                 }
+
+                //bool lGripButton;
+                ////var leftHand = InputDevices.GetDeviceAtXRNode(XRNode.LeftHand);
+                //leftHand.TryGetFeatureValue(CommonUsages.gripButton, out lGripButton);
+                //if (lGripButton && !ControllerPatch.flag)
+                //{
+
+                //    //currentActions.Add(Actions.ActivateCenterObject);
+                //    //if (!Var.climbingMotor.IsClimbing)
+                //    //{
+                //    //    Var.climbingMotor.ClimbingCheck();
+                //    //}
+                //    //if (!Var.climbingMotor.IsClimbing)
+                //    //{
+                //    //    currentActions.Add(Actions.MoveForwards);
+                //    //}
+                //    //else { currentActions.Add(Actions.MoveBackwards); }
+                //    //Plugin.LoggerInstance.LogInfo("climbing");
+                //    //currentActions.Add(Actions.);
+                //    currentActions.Add(Actions.MoveForwards);
+
+                //}
+
+
+
                 if (Var.isNotOculus)
                 {
                     bool acceptButton;
@@ -1466,7 +1913,7 @@ namespace DFUVR
                     bool primaryButton;
                     bool secondaryButton;
 
-                    var leftHand = InputDevices.GetDeviceAtXRNode(XRNode.LeftHand);
+                    //var leftHand = InputDevices.GetDeviceAtXRNode(XRNode.LeftHand);
                     leftHand.TryGetFeatureValue(CommonUsages.primaryButton, out primaryButton);
                     leftHand.TryGetFeatureValue(CommonUsages.secondaryButton, out secondaryButton);
                     //bool lGripButton;
@@ -1506,6 +1953,10 @@ namespace DFUVR
                                 currentActions.Add(Actions.Inventory);
                             }
                             if (secondaryButton && !ControllerPatch.flag) 
+                            {
+                                currentActions.Add(Actions.Escape);
+                            }
+                            if (primaryButton && !ControllerPatch.flag)
                             {
                                 currentActions.Add(Actions.Escape);
                             }
@@ -1580,7 +2031,7 @@ namespace DFUVR
         }
     }
     //Initialize the plugin
-    [BepInPlugin("com.Lokius.DFUVR", "DFUVR", "0.5.0")]
+    [BepInPlugin("com.Lokius.DFUVR", "DFUVR", "0.5.5")]
     public class Plugin:BaseUnityPlugin
     {
         public static ManualLogSource LoggerInstance;
