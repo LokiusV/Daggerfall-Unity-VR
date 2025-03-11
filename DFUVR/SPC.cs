@@ -179,6 +179,14 @@ namespace DFUVR
                             {
                                 hit.collider.gameObject.GetComponent<Button>().onClick.Invoke();
                             }
+                            else if (hit.collider.gameObject.GetComponent<Dropdown>() != null)
+                            {
+                                Dropdown dropdown = hit.collider.gameObject.GetComponent<Dropdown>();
+
+
+                                dropdown.value = (dropdown.value + 1) % dropdown.options.Count; 
+                                dropdown.RefreshShownValue();
+                            }
                         }
                     }
                 }

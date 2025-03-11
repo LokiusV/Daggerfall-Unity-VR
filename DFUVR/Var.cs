@@ -103,6 +103,7 @@ namespace DFUVR
         public static GameObject cMenu1;
         public static GameObject cMenu2;
         public static GameObject cMenu3;
+        public static GameObject fSpawnDoneButton;
         public static int calibrationInt;
 
         public static bool rTriggerDone;
@@ -422,23 +423,23 @@ namespace DFUVR
                 Var.sheathOffset=new Vector3(x,y,z);
                 bool.TryParse(lines[5], out fStartMenu);
                 Plugin.LoggerInstance.LogInfo("Offsett: "+Var.sheathOffset.ToString());
-                Int32.TryParse(lines[4], out controllerAmount);
+                //Int32.TryParse(lines[4], out controllerAmount);
 
-                try
-                {
-                    CoroutineRunner.Instance.Invoke(nameof(InternalGetJoystick), 0.3f);
-                    //connectedJoysticks = Input.GetJoystickNames().Count(name => !string.IsNullOrEmpty(name));
-                    //connectedJoysticks = GetConnectedGamepadsCount();
-                    //Plugin.LoggerInstance.LogInfo("Connected Joysticks: "+connectedJoysticks.ToString()+" Previous: "+controllerAmount);
-                    //if (connectedJoysticks != controllerAmount)
-                    //{ 
-                    //    Var.fStartMenu = true;
-                    //}
+                //try
+                //{
+                //    CoroutineRunner.Instance.Invoke(nameof(InternalGetJoystick), 0.3f);
+                //    //connectedJoysticks = Input.GetJoystickNames().Count(name => !string.IsNullOrEmpty(name));
+                //    //connectedJoysticks = GetConnectedGamepadsCount();
+                //    //Plugin.LoggerInstance.LogInfo("Connected Joysticks: "+connectedJoysticks.ToString()+" Previous: "+controllerAmount);
+                //    //if (connectedJoysticks != controllerAmount)
+                //    //{ 
+                //    //    Var.fStartMenu = true;
+                //    //}
                     
-                }
-                catch(Exception e) {
-                    Plugin.LoggerInstance.LogError(e.ToString());
-                }
+                //}
+                //catch(Exception e) {
+                //    Plugin.LoggerInstance.LogError(e.ToString());
+                //}
                 
 
                 //Set the keybindings to the custom bindings specifiec in Bindings.txt
@@ -505,15 +506,15 @@ namespace DFUVR
 
             return count;
         }
-        static void InternalGetJoystick()
-        {
-            connectedJoysticks = GetConnectedGamepadsCount();
-            Plugin.LoggerInstance.LogInfo("Connected Joysticks: " + connectedJoysticks.ToString() + " Previous: " + controllerAmount);
-            if (connectedJoysticks != controllerAmount)
-            {
-                Var.fStartMenu = true;
-            }
-        }
+        //static void InternalGetJoystick()
+        //{
+        //    connectedJoysticks = GetConnectedGamepadsCount();
+        //    Plugin.LoggerInstance.LogInfo("Connected Joysticks: " + connectedJoysticks.ToString() + " Previous: " + controllerAmount);
+        //    if (connectedJoysticks != controllerAmount)
+        //    {
+        //        Var.fStartMenu = true;
+        //    }
+        //}
         //public static IEnumerator WaitForInitialization()
         //{
         //    yield return new WaitForEndOfFrame(); // Or WaitForSeconds(0.5f) if needed
