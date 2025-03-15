@@ -12,7 +12,7 @@ There is currently no left handed mode.
 - A 1080p monitor or higher
 - (Obviously) A VR headset and a PCVR compatible computer
 - SteamVR installed
-- Daggerfall installed
+- [Daggerfall DOS](https://store.steampowered.com/app/1812390/The_Elder_Scrolls_II_Daggerfall/) installed
 
 
 #### Step 0:
