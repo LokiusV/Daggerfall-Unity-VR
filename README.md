@@ -1,7 +1,7 @@
 # Daggerfall-Unity-VR/
  DFUVR is a VR mod for the open source recreation of the classic 1996 RPG Daggerfall in the Unity engine [Daggerfall Unity](https://github.com/Interkarma/daggerfall-unity)
 
-# This project is currently in early access. 
+## This project is currently in early access. 
 Bugs are to be expected. If you find any, please either create an issue directly here on GitHub or in the Daggerfall Unity VR category on the Flat2VR discord server. This is a hobby project of mine, so please don't expect me to immediately fix them.
 There is currently no left handed mode.
 
