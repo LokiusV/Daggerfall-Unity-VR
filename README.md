@@ -60,35 +60,33 @@ The same goes for the keyboard. It just emulates a keyboard press, so having any
 # Building DFUVR from source:
 ## You do not need to build the mod from source to play it. Please just follow the installation instructions above. It's only necessary to build it if you want to change something in the mod!
 
-### You'll need:
+#### You'll need:
 - BepInEx v. 5.4-> please follow the [BepInEx installation instructions](https://docs.bepinex.dev/articles/user_guide/installation/index.html)
 - Visual Studio 2022
 
-### Step 0:
+#### Step 0:
 
 Backup your Daggerfall Unity installation, including all configuration files(bindings, settings, etc.).
 
-### Step 1:
+#### Step 1:
 open the project in Visual Studio 2022 and fix any missing assembly references(if any)
 
-### Step 2:
+#### Step 2:
 Compile the mod
 
-### Step 3:
+#### Step 3:
 move the now newly created "DFUVR.dll"(located under (yourLocationToTheRepo)/DFUVR/bin/Debug) to (YourGameInstallationRootDirectory)/BepInEx/plugins
 
-### Step4
+#### Step4
 move everything from (yourLocationToTheRepo)/DFUVR/GameFolderFiles to (YourGameInstallationRootDirectory)
 
-### Step 5:
+#### Step 5:
 Adjust settings.txt to your liking-> First line is your height(this can be left at zero and then later calibrated in-game); Second line should be your VR headsets current refresh rate; Third line is your Controller profile(currently only Oculus/Meta Touch controllers are supported); Fourth line is the offsett of the Sheath. Just leave that at the default value for now and calibrate it in-game
 
-### Step 6:
+#### Step 6:
 Enjoy!(Or if something doesn't work, create a GitHub issue because I probably forgot a step)
 
-Currently known issues:
+### Currently known issues:
  - UI is only visible when monitor resolution is set to 1920x1080
  - The VR laser-pointer is not very precise when clicking on the outer edges of the UI
- - Climbing does not work
- - the UI occasionally spawns directly in the face of the user
 
