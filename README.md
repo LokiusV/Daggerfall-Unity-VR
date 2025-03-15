@@ -46,7 +46,7 @@ Start a new game or load a save. Afterwards go into calibration mode to set your
 ## You do not need to build the mod from source to play it. Please just follow the installation instructions above. It's only necessary to build it if you want to change something in the mod!
 
 ### You'll need:
-- BepInEx v. 5.4-> please follow the BepInEx installation instructions ( https://docs.bepinex.dev/articles/user_guide/installation/index.html )
+- BepInEx v. 5.4-> please follow the [BepInEx installation instructions] ( https://docs.bepinex.dev/articles/user_guide/installation/index.html )
 - Visual Studio 2022
 
 ### Step 0:
