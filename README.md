@@ -35,10 +35,10 @@ Go through the initial setup menu. Under "Controller type", pick "Oculus/Meta" i
 Start a new game or load a save. Afterwards go into calibration mode to set your height and the position of the scabbard. You can adjust your height by moving the right controller thumbstick up/down.
 
 # Controller bindings:
-## Currently, only Oculus/Meta Touch, Pico 4 controllers and Vive wands are supported. Other controllers may work, but I can't guarantee it.
-##Touch/Pico Controllers:
+### Currently, only Oculus/Meta Touch, Pico 4 controllers and Vive wands are supported. Other controllers may work, but I can't guarantee it.
+#### Touch/Pico Controllers:
 ![Oculus Touch bindings](https://github.com/LokiusV/Daggerfall-Unity-VR/blob/main/docs/TouchControllers_DFUVR_Bindings_fin.webp?raw=true)
-##HTC Vive Wands:
+#### HTC Vive Wands:
 ![HTC Vive wand bindings](https://github.com/LokiusV/Daggerfall-Unity-VR/blob/main/docs/Wands_DFUVR_bindings.webp?raw=true)
 
 
