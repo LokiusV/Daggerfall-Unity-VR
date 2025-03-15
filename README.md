@@ -6,6 +6,15 @@ Bugs are to be expected. If you find any, please either create an issue directly
 There is currently no left handed mode.
 
 ## Installation
+
+#### You'll need:
+- A working Daggerfall Unity installation
+- A 1080p monitor or higher
+- (Obviously) A VR headset and a PCVR compatible computer
+- SteamVR installed
+- Daggerfall installed
+
+
 #### Step 0:
 Start Daggerfall Unity atleast once and go through its installation process. 
 
