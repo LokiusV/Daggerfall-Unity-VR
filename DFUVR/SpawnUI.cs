@@ -216,14 +216,16 @@ namespace DFUVR
 
                     Toggle HToggle = GameObject.Find("HSetupToggle").GetComponent<Toggle>();
                     HToggle.interactable = false;
-
                     HToggle.isOn = false;
+                    Toggle MToggle = GameObject.Find("MSetupToggle").GetComponent<Toggle>();
+                    MToggle.interactable = false;
+                    MToggle.isOn = false;
                     //Main Menu "finished Setup" button
                     //GameObject.Find("DoneButton").GetComponent<UnityEngine.UI.Button>().interactable = true;
 
                     Var.fSpawnDoneButton = GameObject.Find("DoneButton");
                     GameObject.Find("DoneButton").GetComponent<UnityEngine.UI.Button>().onClick.AddListener(ButtonHandler.Done);
-
+                    Var.fSpawnDoneButton.GetComponent<UnityEngine.UI.Button>().interactable = false;
 
                     //Next Step buttons
 
@@ -349,13 +351,13 @@ namespace DFUVR
                 lineRenderer.endWidth = 0.01f;
                 lineRenderer.positionCount = 2;
 
-                //removed because I don't have the willpower to mess with layers right now
+                
                 Material newMaterial = new Material(Shader.Find("Sprites/Default"));
                 newMaterial.SetFloat("_Mode", 1);
 
-                newMaterial.color = Color.white;
+                newMaterial.color = Color.grey;
 
-
+                //actually, the material less magenta is a pretty good choice for this
                 //lineRenderer.material = newMaterial;
 
 

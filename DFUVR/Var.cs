@@ -116,7 +116,7 @@ namespace DFUVR
         public static CharacterController characterController=null;
 
         public static volatile bool skyboxToggle = true;
-        
+        //Load weapon and other models from the Asset bundles
         public static void InitModels()
         {
             string assetBundlePath = Path.Combine(Paths.PluginPath, "AssetBundles/weapons");
@@ -209,7 +209,7 @@ namespace DFUVR
             InitKeyboard();
 
         }
-
+        //Loads the keyboard from the AssetBundle, sets actions, creates new keys. 
         public static void InitKeyboard()
         {
             string assetBundlePath = Path.Combine(Paths.PluginPath, "AssetBundles/keyboard");
@@ -252,7 +252,7 @@ namespace DFUVR
             keyboard.AddComponent<KeyboardController>();
 
 
-
+            //The numbers get placed out of order on the keyboard... why?!?!
             Transform keysParent = keyboard.transform.GetChild(0).GetChild(0);
             int numKeys = 10;
             for (int i = 0; i < numKeys; i++)
@@ -294,7 +294,7 @@ namespace DFUVR
             keyboard.SetActive(false);
 
         }
-        //Sets up the correct bindings
+        //Initializes player height, bindings, sheath position, initial spawn menu and headset refresh rate 
         public static void Initialize()
         {
             started = false;
@@ -308,6 +308,7 @@ namespace DFUVR
                 string[] lines = fileContent.Split('\n');
                 Debug.Log(lines[2].Trim());
                 //Set the bindings to the default Oculus Touch bindings
+                //This is not necessary. The default values are already set up for the Touch Controllers 
                 //if (lines[2].Trim() == "Oculus/Meta")
                 //{
                 //    gripButton = KeyCode.Joystick2Button5;
@@ -321,16 +322,23 @@ namespace DFUVR
 
                 //}
                 //Set the bindings to the default HTC Vive Wand bindings
-                if (lines[2].Trim() == "Vive Wand")
+                if (lines[2].Trim() == "HTC Vive Wands")
                 {
-                    gripButton = KeyCode.Joystick2Button5;
-                    indexButton = KeyCode.Joystick2Button15;
-                    acceptButton = KeyCode.Joystick2Button15;
-                    jumpButton = KeyCode.JoystickButton17;
-                    cancelButton = KeyCode.Joystick2Button5;
-                    Plugin.LoggerInstance.LogInfo("Set bindings for HTC Vive Wands or Pimax Sword Controllers");
+                    left2Button = KeyCode.JoystickButton4;
+                    left1Button = KeyCode.JoystickButton2;
+                    gripButton = KeyCode.JoystickButton5;
+                    indexButton = KeyCode.JoystickButton15;
+                    acceptButton = KeyCode.JoystickButton0;
+
+                    jumpButton = KeyCode.JoystickButton9;
+                    rStickButton = KeyCode.JoystickButton9;
+                    lStickButton = KeyCode.JoystickButton8;
+                    cancelButton = KeyCode.JoystickButton0;
+                    lGripButton = KeyCode.Quote;
+                    //lGripButton = KeyCode.JoystickButton4;
 
                 }
+                //FOr everything else, we try to let Unity figure it out. Doesn't work very well though and manual controller profiles are necessary for a playable experience
                 else if (lines[2].Trim() == "Other")
                 {
                     isNotOculus = true;
@@ -349,35 +357,10 @@ namespace DFUVR
                     Plugin.LoggerInstance.LogInfo(gripButton.ToString());
 
 
-                    //string filePath2 = Path.Combine(Paths.PluginPath, "Bindings.txt");
-                    //try //to read the Bindings.txt file
-                    //{
-                    //    string fileContent2 = FileReader.ReadFromFile(filePath2);
-                    //    string[] lines2 = fileContent2.Split('\n');
-                    //    gripButton = (KeyCode)Enum.Parse(typeof(KeyCode), lines2[0].Trim());
-                    //    indexButton = (KeyCode)Enum.Parse(typeof(KeyCode), lines2[1].Trim());
-                    //    acceptButton = (KeyCode)Enum.Parse(typeof(KeyCode), lines2[2].Trim());
-                    //    cancelButton = (KeyCode)Enum.Parse(typeof(KeyCode), lines2[3].Trim());
-                    //    jumpButton = (KeyCode)Enum.Parse(typeof(KeyCode), lines2[4].Trim());
-                    //    rStickButton = (KeyCode)Enum.Parse(typeof(KeyCode), lines2[5].Trim());
-                    //    left1Button = (KeyCode)Enum.Parse(typeof(KeyCode),lines2 [6].Trim());
-                    //    left2Button = (KeyCode)Enum.Parse(typeof(KeyCode), lines2[7].Trim());
-                    //    lStickButton = (KeyCode)Enum.Parse(typeof(KeyCode), lines2[8].Trim());
-                    //    lGripButton = (KeyCode)Enum.Parse(typeof(KeyCode), lines2[9].Trim());
-
-
-                    //}
-                    //catch (Exception e)//if it doesn't work, set it to emergency default values(height gets set somewhere else)
-                    //{
-                    //    Plugin.LoggerInstance.LogError("Error: "+e.Message);
-                    //    return;
-                    //}
-
                 }
-
-                //Screen.SetResolution(1920, 1080, true);
+                //set the refresh rate of the game to the refresh rate specified in settings.txt
                 float targetTimeStep;
-                try //to read the Settings.txt file
+                try 
                 {
                     fileContent = FileReader.ReadFromFile(filePath);
                     //lines = fileContent.Split('\n');
@@ -389,17 +372,19 @@ namespace DFUVR
                     Plugin.LoggerInstance.LogInfo(targetTimeStep);
 
                 }
-                catch (Exception e)//if it doesn't work, set it to emergency default values(height gets set somewhere else)
+                catch (Exception e)//if it doesn't work, set it to an emergency default value
                 {
                     Plugin.LoggerInstance.LogError("Made a fucky wucky while reading the file, oopsie! Error: " + e);
                     targetTimeStep = 1f / 90f;
                 }
                 try
                 {
+                    //deprecated. Should remove all occurences of ReadAxis when I have time.
                     ReadAxis();
                 }
                 catch
                 {
+                    //deprecated. Was used for the old Unity Input system, however I have since switched to the Unity XR input system for the Joysticks/Touchpads
                     Plugin.LoggerInstance.LogError("Failed to initialize controller axis. Returning to defaults");
                     lThumbStickHorizontal = "Axis1";
                     lThumbStickVertical = "Axis2";
@@ -413,7 +398,6 @@ namespace DFUVR
                 Plugin.LoggerInstance.LogInfo(Time.fixedDeltaTime);
 
                 string rawLine3 = lines[3].Trim();
-                //rawLine3=rawLine3.Substring(1, rawLine3.Length - 2);
                 Plugin.LoggerInstance.LogInfo(rawLine3);
                 string[] sheathVector = rawLine3.Split(',');
                 float x = float.Parse(sheathVector[0], CultureInfo.InvariantCulture);
@@ -423,36 +407,17 @@ namespace DFUVR
                 Var.sheathOffset=new Vector3(x,y,z);
                 bool.TryParse(lines[5], out fStartMenu);
                 Plugin.LoggerInstance.LogInfo("Offsett: "+Var.sheathOffset.ToString());
-                //Int32.TryParse(lines[4], out controllerAmount);
-
-                //try
-                //{
-                //    CoroutineRunner.Instance.Invoke(nameof(InternalGetJoystick), 0.3f);
-                //    //connectedJoysticks = Input.GetJoystickNames().Count(name => !string.IsNullOrEmpty(name));
-                //    //connectedJoysticks = GetConnectedGamepadsCount();
-                //    //Plugin.LoggerInstance.LogInfo("Connected Joysticks: "+connectedJoysticks.ToString()+" Previous: "+controllerAmount);
-                //    //if (connectedJoysticks != controllerAmount)
-                //    //{ 
-                //    //    Var.fStartMenu = true;
-                //    //}
-                    
-                //}
-                //catch(Exception e) {
-                //    Plugin.LoggerInstance.LogError(e.ToString());
-                //}
                 
-
-                //Set the keybindings to the custom bindings specifiec in Bindings.txt
 
 
             }
-            catch (Exception e)//if it doesn't work, set it to emergency default values(height gets set somewhere else)
+            catch (Exception e)
             {
                 Plugin.LoggerInstance.LogError("Error: "+e.Message);
                 return;
             }
         }
-        
+        //THis saves the players height in Settings.txt. Gets called after exiting calibration mode
         public static void SaveHeight()
         {
             string filePath = Path.Combine(Paths.PluginPath, "Settings.txt");
@@ -464,6 +429,7 @@ namespace DFUVR
 
             File.WriteAllLines(filePath, lines);
         }
+        //deprecated. Ignore.
         public static void SaveAxis()
         {
             string filePath = Path.Combine(Paths.PluginPath, "Axis.txt");
@@ -477,6 +443,7 @@ namespace DFUVR
             File.WriteAllLines(filePath, lines);
 
         }
+        //deprecated. Ignore.
         static void ReadAxis()
         {
             //string filePath = Path.Combine(Paths.PluginPath, "Axis.txt");
@@ -489,6 +456,7 @@ namespace DFUVR
             //Var.triggers = lines[4];
 
         }
+        //Gets all connected Gamepads. Deprecated.
         static int GetConnectedGamepadsCount()
         {
             string[] joystickNames = Input.GetJoystickNames();

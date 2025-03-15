@@ -76,7 +76,7 @@ namespace DFUVR
 
         }
     }
-
+    //This adjusts the time to be properly formatted on the watch.
     [HarmonyPatch(typeof(DaggerfallDateTime), "ShortTimeString")]
     public class ShortTimeStringPatch
     {
@@ -89,7 +89,7 @@ namespace DFUVR
         }
     }
 
-    //fixes arrow spawn point
+    //fixes arrow colliding with the Weapon models.
     [HarmonyPatch(typeof(DaggerfallMissile), "Start")]
     public class SpawnMissilePatch : MonoBehaviour
     {
@@ -263,7 +263,7 @@ namespace DFUVR
     //    }
 
     //}
-    //shows UI, recalibrates its position and repositions the player so that enemies can actually hit it
+    //shows UI, recalibrates its position and repositions the player so that enemies can actually hit them
     [HarmonyPatch(typeof(UserInterfaceManager), "PushWindow")]
     public class PushPatch : MonoBehaviour
     {
@@ -426,6 +426,7 @@ namespace DFUVR
 
 
         }
+        //This prevents the UI from spawning inside of an object.
         static void FixObstruction(GameObject vrui)
         {
             Transform vrCameraTransform = Var.VRCamera.transform;
@@ -508,6 +509,7 @@ namespace DFUVR
         }
 
     }
+    //handles most vr input, calibration mode and fixes some necessary settings.
     [HarmonyPatch(typeof(InputManager), "Update")]
     public class ControllerPatch : MonoBehaviour
     {
@@ -578,7 +580,7 @@ namespace DFUVR
                 float inputX1 = rThumbStick.x;
                 float inputY1 = rThumbStick.y;
 
-                float input = rThumbStick.x;
+                float input = rThumbStick.y;
 
                 Var.heightOffset += input / 100;
                 //Var.sphereObject.transform.localPosition=Vector3.zero;
