@@ -41,6 +41,12 @@ Start a new game or load a save. Afterwards go into calibration mode to set your
 #### HTC Vive Wands:
 ![HTC Vive wand bindings](https://github.com/LokiusV/Daggerfall-Unity-VR/blob/main/docs/Wands_DFUVR_bindings.webp?raw=true)
 
+# Important tips
+- PLEASE ALWAYS KEEP YOUR GAME WINDOW IN FOCUS!!!!
+After spending way too much time even getting the UI to show up, I got lazy and took the easy way of interacting with the ui, by just simply making the laser click your actual mouse cursor on your monitor. This is not only the reason why the pointer precision gets worse the closer you get to the edges of the UI but also why you should always keep the game window focused in order not to accidentally click on anything you don't want to click on.
+The same goes for the keyboard. It just emulates a keyboard press, so having any other application(like discord) in focus, even just on your second monitor, will press it in that application
+- It's best to do the Daggerfall Unity first setup and the creation of a new character on flat screen. Not that it's not possible to do in VR but it can feel a bit awkward
+
 
 # Building DFUVR from source:
 ## You do not need to build the mod from source to play it. Please just follow the installation instructions above. It's only necessary to build it if you want to change something in the mod!
