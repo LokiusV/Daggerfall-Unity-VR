@@ -90,3 +90,11 @@ Enjoy!(Or if something doesn't work, create a GitHub issue because I probably fo
  - UI is only visible when monitor resolution is set to 1920x1080
  - The VR laser-pointer is not very precise when clicking on the outer edges of the UI
 
+## Additional Assets used
+I have used the following Unity Asset Store Standard License Assets as weapon models for this project:
+- https://assetstore.unity.com/packages/3d/props/weapons/ukit-medieval-hammer-free-97625
+- https://assetstore.unity.com/packages/3d/props/weapons/fantasy-staff-lite-54999
+- https://assetstore.unity.com/packages/3d/long-sword-with-sheath-67467
+- https://assetstore.unity.com/packages/3d/props/weapons/steel-dagger-pbr-86188 
+- https://assetstore.unity.com/packages/3d/props/weapons/low-poly-weapons-71680
+
