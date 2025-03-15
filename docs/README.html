@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>README</title>
+    
+    <style>
+        img {
+            width: 100%;
+            max-width: 600px;
+        }
+    </style>
+</head>
+<body>
+    <div class="readme">
+
+        <h1>Daggerfall-Unity-VR/</h1>
+        <p>DFUVR is a VR mod for the open source recreation of the classic 1996 RPG Daggerfall in the Unity engine <a href="https://github.com/Interkarma/daggerfall-unity">Daggerfall Unity</a></p>
+
+        <h3>
+            This project is currently in early access.
+            Bugs are to be expected. If you find any, please either create an issue directly here on GitHub or in the Daggerfall Unity VR category on the Flat2VR discord server. This is a hobby project of mine, so please don't expect me to immediately fix them.
+            There is currently no left handed mode.
+        </h3>
+
+        <h2>Installation</h2>
+
+        <h3>You'll need:</h3>
+        <ul>
+            <li> A working <a href="https://github.com/Interkarma/daggerfall-unity">Daggerfall Unity</a> installation</li>
+            <li>
+                A 1080p monitor or higher
+            </li>
+            <li>
+                (Obviously) A VR headset and a PCVR compatible computer
+            </li>
+            <li>
+                <a href="https://store.steampowered.com/app/250820/SteamVR/">SteamVR</a> installed
+            </li>
+            <li>
+                <a href="https://store.steampowered.com/app/1812390/The_Elder_Scrolls_II_Daggerfall/">Daggerfall DOS</a> installed
+            </li>
+        </ul>
+
+
+        <h4> Step 0:</h4>
+        <p>Start Daggerfall Unity atleast once and go through its installation process.</p>
+
+        <p>
+            If you have previously played Daggerfall Unity, please backup your KeyBinds.txt and Settings.ini(preferably the whole folder) located under
+            %USERPROFILE%\AppData\LocalLow\Daggerfall Workshop\Daggerfall Unity\
+        </p>
+
+        <p>
+            The mod WILL irreversibly override your key bindings if you don't!
+        </p>
+
+        <p>
+            Additionally, I'd recommend to try this mod first without any other additional mods installed.
+        </p>
+
+        <h4> Step 1:</h4>
+        <p>
+            Download the latest release and unzip all of the folder's content into your Daggerfall Unity root folder
+        </p>
+
+        <h4> Step 2:</h4>
+        <p>
+            Set all of your connected monitors to 1920x1080. Failing to do so will make the in-game UI unusuable, with it outright not rendering in most cases.
+        </p>
+
+        <h4> Step 3:</h4>
+        <p>
+            Start SteamVR.
+        </p>
+
+        <h4> Step 4:</h4>
+        <p>
+            Start Daggerfall Unity.
+        </p>
+
+        <h4> Step 5:</h4>
+        <p>
+            Go through the initial setup menu. Under "Controller type", pick "Oculus/Meta" if you use oculus touch controllers or pico 4 controllers. If you use Vive wands, pick "HTC Vive Wands". For any other controllers pick "other". Please note, that other controllers/such as the index knuckles) are currently not fully supported.
+        </p>
+        <h4> Step 6: </h4>
+        <p>
+            Start a new game or load a save. Afterwards go into calibration mode to set your height and the position of the scabbard. You can adjust your height by moving the right controller thumbstick up/down.
+        </p>
+        <h2> Controller bindings:</h2>
+        <h3>Currently, only Oculus/Meta Touch, Pico 4 controllers and Vive wands are supported. Other controllers may work, but I can't guarantee it.</h3>
+        <h4> Touch/Pico Controllers:</h4>
+        <img src="https://github.com/LokiusV/Daggerfall-Unity-VR/blob/main/docs/TouchControllers_DFUVR_Bindings_fin.webp?raw=true" , alt="Touch Controller schematics" />
+        <h4> HTC Vive Wands:</h4>
+        <img src="https://github.com/LokiusV/Daggerfall-Unity-VR/blob/main/docs/Wands_DFUVR_bindings.webp?raw=true" , alt="Wands schematics" />
+        <h2> Important tips</h2>
+        <ul>
+            <li>
+                PLEASE ALWAYS KEEP YOUR GAME WINDOW IN FOCUS!!!!
+                After spending way too much time even getting the UI to show up, I got lazy and took the easy way of interacting with the ui, by just simply making the laser click your actual mouse cursor on your monitor. This is not only the reason why the pointer precision gets worse the closer you get to the edges of the UI but also why you should always keep the game window focused in order not to accidentally click on anything you don't want to click on.
+                The same goes for the keyboard. It just emulates a keyboard press, so having any other application(like discord) in focus, even just on your second monitor, will press it in that application
+            </li>
+            <li>
+                It's best to do the Daggerfall Unity first setup and the creation of a new character on flat screen. Not that it's not possible to do in VR but it can feel a bit awkward
+            </li>
+        </ul>
+        <h1> Building DFUVR from source:</h1>
+        <h2>
+            You do not need to build the mod from source to play it. Please just follow the installation instructions above. It's only necessary to build it if you want to change something in the mod!
+        </h2>
+        <h4> You'll need:</h4>
+        <ul>
+            <li>  BepInEx v. 5.4-> please follow the [BepInEx installation instructions](https://docs.bepinex.dev/articles/user_guide/installation/index.html)</li>
+            Visual Studio 2022
+        </ul>
+
+        <h4> Step 0:</h4>
+
+        <p>Backup your Daggerfall Unity installation, including all configuration files(bindings, settings, etc.).</p>
+
+        <h4> Step 1:</h4>
+        <p>
+            open the project in Visual Studio 2022 and fix any missing assembly references(if any)
+        </p>
+        <h4> Step 2:</h4>
+        <p>
+            Compile the mod
+        </p>
+
+        <h4> Step 3:</h4>
+        <p>
+            move the now newly created "DFUVR.dll"(located under (yourLocationToTheRepo)/DFUVR/bin/Debug) to (YourGameInstallationRootDirectory)/BepInEx/plugins
+        </p>
+        <h4> Step4:</h4>
+        <p>
+            move everything from (yourLocationToTheRepo)/DFUVR/GameFolderFiles to (YourGameInstallationRootDirectory)
+        </p>
+        <h4> Step 5:</h4>
+        <p>
+            Adjust settings.txt to your liking-> First line is your height(this can be left at zero and then later calibrated in-game); Second line should be your VR headsets current refresh rate; Third line is your Controller profile(currently only Oculus/Meta Touch controllers are supported); Fourth line is the offsett of the Sheath. Just leave that at the default value for now and calibrate it in-game
+        </p>
+        <h4> Step 6:</h4>
+        <p>
+            Enjoy!(Or if something doesn't work, create a GitHub issue because I probably forgot a step)
+        </p>
+            <h3> Currently known issues:</h3>
+        <ul>
+
+            <li>UI is only visible when monitor resolution is set to 1920x1080</li>
+            <li>The VR laser-pointer is not very precise when clicking on the outer edges of the UI</li>
+            </ul>
+
+</div>
+    </body>
+</html>
