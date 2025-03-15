@@ -1,12 +1,12 @@
 # Daggerfall-Unity-VR/
  DFUVR is a VR mod for the open source recreation of the classic 1996 RPG Daggerfall in the Unity engine [Daggerfall Unity](https://github.com/Interkarma/daggerfall-unity)
 
-## This project is currently in early access. 
+### This project is currently in early access. 
 Bugs are to be expected. If you find any, please either create an issue directly here on GitHub or in the Daggerfall Unity VR category on the Flat2VR discord server. This is a hobby project of mine, so please don't expect me to immediately fix them.
 There is currently no left handed mode.
 
-# Installation
-### Step 0:
+## Installation
+#### Step 0:
 Start Daggerfall Unity atleast once and go through its installation process. 
 
 If you have previously played Daggerfall Unity, please backup your KeyBinds.txt and Settings.ini(preferably the whole folder) located under 
@@ -16,32 +16,32 @@ The mod WILL irreversibly override your key bindings if you don't!
 
 Additionally, I'd recommend to try this mod first without any other additional mods installed.
 
-### Step 1:
+#### Step 1:
 Download the latest release and unzip all of the folder's content into your Daggerfall Unity root folder
 
-### Step 2:
+#### Step 2:
 Set all of your connected monitors to 1920x1080. Failing to do so will make the in-game UI unusuable, with it outright not rendering in most cases.
 
-### Step 3:
+#### Step 3:
 Start SteamVR.
 
-### Step 4: 
+#### Step 4: 
 Start Daggerfall Unity.
 
-### Step 5: 
+#### Step 5: 
 Go through the initial setup menu. Under "Controller type", pick "Oculus/Meta" if you use oculus touch controllers or pico 4 controllers. If you use Vive wands, pick "HTC Vive Wands". For any other controllers pick "other". Please note, that other controllers/such as the index knuckles) are currently not fully supported.
 
-### Step 6:
+#### Step 6:
 Start a new game or load a save. Afterwards go into calibration mode to set your height and the position of the scabbard. You can adjust your height by moving the right controller thumbstick up/down.
 
-# Controller bindings:
+## Controller bindings:
 ### Currently, only Oculus/Meta Touch, Pico 4 controllers and Vive wands are supported. Other controllers may work, but I can't guarantee it.
 #### Touch/Pico Controllers:
 ![Oculus Touch bindings](https://github.com/LokiusV/Daggerfall-Unity-VR/blob/main/docs/TouchControllers_DFUVR_Bindings_fin.webp?raw=true)
 #### HTC Vive Wands:
 ![HTC Vive wand bindings](https://github.com/LokiusV/Daggerfall-Unity-VR/blob/main/docs/Wands_DFUVR_bindings.webp?raw=true)
 
-# Important tips
+## Important tips
 - PLEASE ALWAYS KEEP YOUR GAME WINDOW IN FOCUS!!!!
 After spending way too much time even getting the UI to show up, I got lazy and took the easy way of interacting with the ui, by just simply making the laser click your actual mouse cursor on your monitor. This is not only the reason why the pointer precision gets worse the closer you get to the edges of the UI but also why you should always keep the game window focused in order not to accidentally click on anything you don't want to click on.
 The same goes for the keyboard. It just emulates a keyboard press, so having any other application(like discord) in focus, even just on your second monitor, will press it in that application
