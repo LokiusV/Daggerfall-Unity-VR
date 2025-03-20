@@ -12,7 +12,7 @@ There is currently no left handed mode.
 #### You'll need:
 - A working [Daggerfall Unity](https://github.com/Interkarma/daggerfall-unity) installation
 - A 1080p monitor or higher
-- (Obviously) A VR headset and a PCVR compatible computer
+- (Obviously) A VR headset and a SteamVR compatible computer
 - [SteamVR](https://store.steampowered.com/app/250820/SteamVR/) installed
 - [Daggerfall DOS](https://store.steampowered.com/app/1812390/The_Elder_Scrolls_II_Daggerfall/) installed
 
