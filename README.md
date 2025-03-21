@@ -42,6 +42,9 @@ Start Daggerfall Unity.
 #### Step 5: 
 Go through the initial setup menu. Under "Controller type", pick "Oculus/Meta" if you use oculus touch controllers or pico 4 controllers. If you use Vive wands, pick "HTC Vive Wands". For any other controllers pick "other". Please note, that other controllers/such as the index knuckles) are currently not fully supported.
 
+#### Step 5.5:
+Restart the game
+
 #### Step 6:
 Start a new game or load a save. Afterwards go into calibration mode to set your height and the position of the scabbard. You can adjust your height by moving the right controller thumbstick up/down.
 
