@@ -101,7 +101,7 @@ All my beta testers! Including but not limited to:
 - WurmVR
 - lewisviper
 - slogvapes
-  
+- Martin  
 ## Additional Assets used
 I have used the following Unity Asset Store Standard License Assets as weapon models for this project:
 - https://assetstore.unity.com/packages/3d/props/weapons/ukit-medieval-hammer-free-97625
