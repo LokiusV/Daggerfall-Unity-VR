@@ -283,7 +283,8 @@ namespace DFUVR
             GameObject vrParent = GameObject.Find("VRParent");
             vrui.transform.SetParent(vrParent.transform);
             laserPointer.transform.SetParent(vrParent.transform);
-            CoroutineRunner.Instance.StartRoutine(Waiter1());
+            if( Var.activeWindowCount < 2) {
+                CoroutineRunner.Instance.StartRoutine(Waiter1()); }
             //laserPointer.transform.localPosition = Vector3.zero;
             Var.activeWindowCount++;
 
@@ -1087,7 +1088,7 @@ namespace DFUVR
                     //Plugin.LoggerInstance.LogInfo("Staff");
                     tempObject=Var.staff;
                 }
-                else if (__instance.ScreenWeapon.WeaponType == WeaponTypes.Melee)
+                else if (__instance.ScreenWeapon.WeaponType == WeaponTypes.Melee||__instance.ScreenWeapon.WeaponType == WeaponTypes.Werecreature)
                 {
                     tempObject = Var.meleeHandR;
                 }
@@ -1914,14 +1915,21 @@ namespace DFUVR
                     bool cancelButton;
                     bool primaryButton;
                     bool secondaryButton;
-
+                    bool lThumbstickClick;
+                    bool rThumbstickClick;
+                    bool lGrip;
+                    bool leftTrigger;
                     //var leftHand = InputDevices.GetDeviceAtXRNode(XRNode.LeftHand);
                     leftHand.TryGetFeatureValue(CommonUsages.primaryButton, out primaryButton);
                     leftHand.TryGetFeatureValue(CommonUsages.secondaryButton, out secondaryButton);
+                    leftHand.TryGetFeatureValue(CommonUsages.primary2DAxisClick, out lThumbstickClick);
+                    leftHand.TryGetFeatureValue(CommonUsages.gripButton, out lGrip);
+                    leftHand.TryGetFeatureValue(UnityEngine.XR.CommonUsages.triggerButton, out leftTrigger);
                     //bool lGripButton;
 
                     rightHand.TryGetFeatureValue(CommonUsages.primaryButton, out acceptButton);
                     rightHand.TryGetFeatureValue(CommonUsages.secondaryButton, out cancelButton);
+                    rightHand.TryGetFeatureValue(CommonUsages.primary2DAxisClick, out rThumbstickClick);
                     //rightHand.TryGetFeatureValue(CommonUsages.gripButton, out gripButton);
 
                     if (ControllerPatch.flag)
@@ -1939,6 +1947,15 @@ namespace DFUVR
                         {
                             currentActions.Add(Actions.Rest);
                         }
+                        else if (lGrip)
+                        {
+                            currentActions.Add(Actions.Transport);
+                        }
+                        else if (leftTrigger) { 
+                            currentActions.Add(Actions.CharacterSheet); 
+                        }
+
+
 
 
                     }
@@ -1961,6 +1978,10 @@ namespace DFUVR
                             if (primaryButton && !ControllerPatch.flag)
                             {
                                 currentActions.Add(Actions.Escape);
+                            }
+                            if(rThumbstickClick && !ControllerPatch.flag)
+                            {
+                                currentActions.Add(Actions.CastSpell);
                             }
                         }
 
@@ -2033,7 +2054,7 @@ namespace DFUVR
         }
     }
     //Initialize the plugin
-    [BepInPlugin("com.Lokius.DFUVR", "DFUVR", "0.5.5")]
+    [BepInPlugin("com.Lokius.DFUVR", "DFUVR", "0.9.1")]
     public class Plugin:BaseUnityPlugin
     {
         public static ManualLogSource LoggerInstance;
