@@ -5,7 +5,7 @@
 ### This project is currently in early access. 
 Bugs are to be expected. If you find any, please either create an issue directly here on GitHub or in the Daggerfall Unity VR category on the [Flat2VR discord server](http://flat2vr.com/). This is a hobby project of mine, so please don't expect me to immediately fix them.
 There is currently no left handed mode.
-###Please read through this README carefully before installing and playing!
+### Please read through this README carefully before installing and playing!
 ## Installation
 
 #### You'll need:
