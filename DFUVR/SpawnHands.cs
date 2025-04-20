@@ -40,6 +40,10 @@ namespace DFUVR
             Var.rightHand.AddComponent<HandLabel>().rightHand=true;
             Var.leftHand.AddComponent<HandLabel>().rightHand = false;
 
+            if (Var.leftHanded) {
+                Var.rightHand.GetComponent<HandLabel>().rightHand = false;
+                Var.leftHand.GetComponent<HandLabel>().rightHand = true;
+            }
             
             //Rigidbody rHandBody=Var.rightHand.AddComponent<Rigidbody>();
             //Rigidbody lHandBody = Var.leftHand.AddComponent<Rigidbody>();
@@ -70,7 +74,9 @@ namespace DFUVR
             lHand.transform.localPosition = new Vector3(0, 0, 0);
             lHand.transform.Rotate(0, 180, 0);
 
-            Var.handCam=Var.rightHand.AddComponent<Camera>();
+
+            if (Var.leftHanded) { Var.handCam = Var.leftHand.AddComponent<Camera>(); }
+            else { Var.handCam = Var.rightHand.AddComponent<Camera>(); }
             Var.handCam.stereoTargetEye=StereoTargetEyeMask.None;
             //Var.weaponObject = new GameObject("weapon");
             Var.body = new GameObject("Body");

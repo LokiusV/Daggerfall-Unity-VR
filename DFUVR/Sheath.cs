@@ -75,6 +75,7 @@ namespace DFUVR
             {
                 bool gripButton;
                 var rightHand = InputDevices.GetDeviceAtXRNode(XRNode.RightHand);
+                if (Var.leftHanded) { rightHand = InputDevices.GetDeviceAtXRNode(XRNode.RightHand); }
                 rightHand.TryGetFeatureValue(CommonUsages.gripButton, out gripButton);
                 //rightHand.TryGetFeatureValue(CommonUsages.secondaryButton, out secondaryButton);
 

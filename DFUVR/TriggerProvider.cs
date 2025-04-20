@@ -39,7 +39,7 @@ namespace DFUVR
             //Var.rTriggerDone = false;
             //return false;
             var rightHand = InputDevices.GetDeviceAtXRNode(XRNode.RightHand);
-
+            if (Var.leftHanded) { rightHand = InputDevices.GetDeviceAtXRNode(XRNode.LeftHand); }
             float triggerPressed;
             rightHand.TryGetFeatureValue(UnityEngine.XR.CommonUsages.trigger, out triggerPressed);
 

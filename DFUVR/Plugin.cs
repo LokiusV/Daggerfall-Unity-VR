@@ -1756,7 +1756,7 @@ namespace DFUVR
 
                 //float inputY = Input.GetAxis(Var.rThumbStickVertical);
                 var rightHand = InputDevices.GetDeviceAtXRNode(XRNode.RightHand);
-                if (Var.leftHanded) { rightHand = InputDevices.GetDeviceAtXRNode(XRNode.LeftHand); }
+                //if (Var.leftHanded) { rightHand = InputDevices.GetDeviceAtXRNode(XRNode.LeftHand); }
                 
 
                 Vector2 rThumbStick;
@@ -1831,11 +1831,11 @@ namespace DFUVR
 
                 //}
                 var leftHand = InputDevices.GetDeviceAtXRNode(XRNode.LeftHand); ;
-                if (Var.leftHanded) { leftHand = InputDevices.GetDeviceAtXRNode(XRNode.RightHand); }
-                else
-                {
-                    leftHand = InputDevices.GetDeviceAtXRNode(XRNode.LeftHand);
-                }
+                //if (Var.leftHanded) { leftHand = InputDevices.GetDeviceAtXRNode(XRNode.RightHand); }
+                //else
+                //{
+                    //leftHand = InputDevices.GetDeviceAtXRNode(XRNode.LeftHand);
+                //}
                 bool gripButton;
                 if (Var.leftHanded) { leftHand.TryGetFeatureValue(CommonUsages.gripButton, out gripButton); }
                 else

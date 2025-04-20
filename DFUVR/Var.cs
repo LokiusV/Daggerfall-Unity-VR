@@ -310,6 +310,7 @@ namespace DFUVR
                 string fileContent = FileReader.ReadFromFile(filePath);
                 string[] lines = fileContent.Split('\n');
                 Debug.Log(lines[2].Trim());
+                bool.TryParse(lines[6], out leftHanded);
                 //Set the bindings to the default Oculus Touch bindings
                 //This is not necessary. The default values are already set up for the Touch Controllers 
                 if (lines[2].Trim() == "Oculus/Meta")
@@ -418,7 +419,7 @@ namespace DFUVR
                 Plugin.LoggerInstance.LogInfo(x);
                 Var.sheathOffset=new Vector3(x,y,z);
                 bool.TryParse(lines[5], out fStartMenu);
-                bool.TryParse(lines[6],out leftHanded);
+                //bool.TryParse(lines[6],out leftHanded);
                 Plugin.LoggerInstance.LogInfo("Offsett: "+Var.sheathOffset.ToString());
                 
 
