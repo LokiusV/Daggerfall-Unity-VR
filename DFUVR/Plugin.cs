@@ -1105,7 +1105,12 @@ namespace DFUVR
                 Hands.lHand.SetActive(false);
                 Var.weaponObject = Instantiate(tempObject);
                 Var.weaponObject.GetComponent<Collider>().enabled = true;
-                Var.weaponObject.transform.SetParent(Var.rightHand.transform);
+                //Var.weaponObject.transform.SetParent(Var.rightHand.transform);
+                if (Var.leftHanded) { Var.weaponObject.transform.SetParent(Var.leftHand.transform); }
+                else
+                {
+                    Var.weaponObject.transform.SetParent(Var.rightHand.transform);
+                }
                 if (tempObject == Var.sword)
                 {
 
@@ -1750,12 +1755,13 @@ namespace DFUVR
                 //float inputY = Input.GetAxis("Axis5");
 
                 //float inputY = Input.GetAxis(Var.rThumbStickVertical);
-
                 var rightHand = InputDevices.GetDeviceAtXRNode(XRNode.RightHand);
+                if (Var.leftHanded) { rightHand = InputDevices.GetDeviceAtXRNode(XRNode.LeftHand); }
+                
 
                 Vector2 rThumbStick;
                 rightHand.TryGetFeatureValue(UnityEngine.XR.CommonUsages.primary2DAxis, out rThumbStick);
-
+                
                 float inputX = rThumbStick.x;
                 float inputY = rThumbStick.y;
                 if (!Var.climbingMotor.IsClimbing)
@@ -1765,7 +1771,7 @@ namespace DFUVR
                         currentActions.Add(Actions.Jump);
 
                     }
-                    else if (inputY <= -0.8f)
+                    else if (inputY <= -0.8f && !(Time.time - Var.lastCrouchTime < Var.crouchCooldown))
                     {
                         //currentActions.Add(Actions.Sneak);
                         currentActions.Add(Actions.Crouch);
@@ -1791,6 +1797,7 @@ namespace DFUVR
                             currentActions.Add(Actions.GrabMode);
 
                         }
+                        Var.lastCrouchTime = Time.time;
                         //isCrouching=!isCrouching;
                         //
                         //
@@ -1823,8 +1830,18 @@ namespace DFUVR
                 //    currentActions.Add(Actions.ActivateCenterObject);
 
                 //}
+                var leftHand = InputDevices.GetDeviceAtXRNode(XRNode.LeftHand); ;
+                if (Var.leftHanded) { leftHand = InputDevices.GetDeviceAtXRNode(XRNode.RightHand); }
+                else
+                {
+                    leftHand = InputDevices.GetDeviceAtXRNode(XRNode.LeftHand);
+                }
                 bool gripButton;
-                rightHand.TryGetFeatureValue(CommonUsages.gripButton, out gripButton);
+                if (Var.leftHanded) { leftHand.TryGetFeatureValue(CommonUsages.gripButton, out gripButton); }
+                else
+                {  
+                    rightHand.TryGetFeatureValue(CommonUsages.gripButton, out gripButton);
+                }
                 if (gripButton && !ControllerPatch.flag&&!Var.climbingMotor.IsClimbing)
                 {
                     currentActions.Add(Actions.ActivateCenterObject);
@@ -1848,7 +1865,7 @@ namespace DFUVR
                 //    GameObject.Find("PlayerAdvanced").GetComponent<WeaponManager>().ToggleSheath();
                 //    GameObject.Find("PlayerAdvanced").GetComponent<WeaponManager>().ToggleSheath();
                 //}
-                var leftHand = InputDevices.GetDeviceAtXRNode(XRNode.LeftHand);
+                //var leftHand = InputDevices.GetDeviceAtXRNode(XRNode.LeftHand);
                 if (ControllerPatch.flag)
                 {
                     if (Input.GetKeyDown(Var.acceptButton))
@@ -2053,6 +2070,16 @@ namespace DFUVR
             }
         }
     }
+    //[HarmonyPatch(typeof(Application),nameof(Application.Quit))]
+    //public class ResetMonPatch
+    //{
+    //    [HarmonyPrefix]
+    //    static void ResetRes(Application __instance)
+    //    {
+
+    //    }
+    //}
+
     //Initialize the plugin
     [BepInPlugin("com.Lokius.DFUVR", "DFUVR", "0.9.1")]
     public class Plugin:BaseUnityPlugin
@@ -2060,6 +2087,7 @@ namespace DFUVR
         public static ManualLogSource LoggerInstance;
         void Awake()
         {
+
             Harmony harmony = new Harmony("com.Lokius.DFUVR");
             harmony.PatchAll();
             LoggerInstance = Logger;
@@ -2071,6 +2099,9 @@ namespace DFUVR
             Haptics.TriggerHapticFeedback(XRNode.RightHand, 1f);
             Haptics.TriggerHapticFeedback(XRNode.LeftHand, 1f);
 
+            //GameObject resSetter = new GameObject("ResSetter");
+            //resSetter.AddComponent<DisplayManager>();
+            //DontDestroyOnLoad(resSetter);
             //string[] joystickNames = Input.GetJoystickNames();
             //Plugin.LoggerInstance.LogInfo("Joysticks:"+joystickNames.Length);
 

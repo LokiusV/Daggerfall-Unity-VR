@@ -127,6 +127,7 @@
     <Compile Include="Var.cs" />
     <Compile Include="WatchController.cs" />
     <Compile Include="WeaponCollision.cs" />
+    <Compile Include="WinAPIMonitor.cs" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="Dev.txt" />

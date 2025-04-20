@@ -365,6 +365,9 @@ namespace DFUVR
 
                 TrackedPoseDriver trackedPoseDriver = emptyObject.AddComponent<TrackedPoseDriver>();
                 trackedPoseDriver.SetPoseSource(TrackedPoseDriver.DeviceType.GenericXRController, TrackedPoseDriver.TrackedPose.RightPose);
+
+                if (Var.leftHanded) { trackedPoseDriver.SetPoseSource(TrackedPoseDriver.DeviceType.GenericXRController, TrackedPoseDriver.TrackedPose.LeftPose); }
+
                 SPC spcScript = emptyObject.AddComponent<SPC>();
                 spcScript.Initialize(lineRenderer, raycaster, trackedPoseDriver);
             }

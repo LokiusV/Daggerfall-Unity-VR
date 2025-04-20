@@ -36,6 +36,7 @@ namespace DFUVR
         public static double heightOffset;
         public static Vector3 sheathOffset;
 
+        public static bool leftHanded;
         
 
         public static GameObject sphereObject;
@@ -111,6 +112,8 @@ namespace DFUVR
         public static bool snapDone;
         public static float lastSnapTime;
         public static float snapCooldown = 0.45f;
+        public static float crouchCooldown = 0.45f;
+        public static float lastCrouchTime;
 
         public static GameObject playerGameObject;
         public static CharacterController characterController=null;
@@ -309,18 +312,27 @@ namespace DFUVR
                 Debug.Log(lines[2].Trim());
                 //Set the bindings to the default Oculus Touch bindings
                 //This is not necessary. The default values are already set up for the Touch Controllers 
-                //if (lines[2].Trim() == "Oculus/Meta")
-                //{
-                //    gripButton = KeyCode.Joystick2Button5;
-                //    indexButton = KeyCode.Joystick2Button15;
-                //    acceptButton = KeyCode.JoystickButton1;
-                //    jumpButton = KeyCode.JoystickButton9;
-                //    cancelButton = KeyCode.JoystickButton0;
-                //    left1Button = KeyCode.JoystickButton2;
-                //    left2Button = KeyCode.JoystickButton3;
-                //    Plugin.LoggerInstance.LogInfo("Set bindings for Oculus Touch.");
+                if (lines[2].Trim() == "Oculus/Meta")
+                {
+                    if (Var.leftHanded)
+                    {
+                        gripButton = KeyCode.JoystickButton4;
 
-                //}
+                    }
+                    else
+                    {
+                        gripButton = KeyCode.JoystickButton5;
+                    }
+                    //    gripButton = KeyCode.Joystick2Button5;
+                    //    indexButton = KeyCode.Joystick2Button15;
+                    //    acceptButton = KeyCode.JoystickButton1;
+                    //    jumpButton = KeyCode.JoystickButton9;
+                    //    cancelButton = KeyCode.JoystickButton0;
+                    //    left1Button = KeyCode.JoystickButton2;
+                    //    left2Button = KeyCode.JoystickButton3;
+                    //    Plugin.LoggerInstance.LogInfo("Set bindings for Oculus Touch.");
+
+                }
                 //Set the bindings to the default HTC Vive Wand bindings
                 if (lines[2].Trim() == "HTC Vive Wands")
                 {
@@ -406,6 +418,7 @@ namespace DFUVR
                 Plugin.LoggerInstance.LogInfo(x);
                 Var.sheathOffset=new Vector3(x,y,z);
                 bool.TryParse(lines[5], out fStartMenu);
+                bool.TryParse(lines[6],out leftHanded);
                 Plugin.LoggerInstance.LogInfo("Offsett: "+Var.sheathOffset.ToString());
                 
 
