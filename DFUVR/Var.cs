@@ -106,6 +106,7 @@ namespace DFUVR
         public static GameObject cMenu3;
         public static GameObject fSpawnDoneButton;
         public static int calibrationInt;
+        public static bool smoothTurn;
 
         public static bool rTriggerDone;
         public static bool lTriggerDone;
@@ -421,7 +422,9 @@ namespace DFUVR
                 bool.TryParse(lines[5], out fStartMenu);
                 //bool.TryParse(lines[6],out leftHanded);
                 Plugin.LoggerInstance.LogInfo("Offsett: "+Var.sheathOffset.ToString());
-                
+                if (lines[7] == "smooth") { Var.smoothTurn = true; }
+
+
 
 
             }
