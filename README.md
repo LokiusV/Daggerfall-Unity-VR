@@ -27,7 +27,7 @@ The mod WILL irreversibly override your key bindings if you don't!
 Additionally, I'd recommend to try this mod first without any other additional mods installed.
 
 #### Step 1:
-Download the latest release and unzip all of the folder's content into your Daggerfall Unity root folder
+Download the latest release and unzip all of the folder's content into your Daggerfall Unity installation folder
 
 #### Step 2:
 Set all of your connected monitors to 1920x1080. Failing to do so will make the in-game UI unusuable, with it outright not rendering in most cases.
