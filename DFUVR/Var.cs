@@ -105,8 +105,11 @@ namespace DFUVR
         public static GameObject cMenu2;
         public static GameObject cMenu3;
         public static GameObject fSpawnDoneButton;
+        public static Text turnOptionsText;
+        public static Text handOptionsText;
         public static int calibrationInt;
         public static bool smoothTurn;
+        public static bool noTurn;
 
         public static bool rTriggerDone;
         public static bool lTriggerDone;
@@ -311,9 +314,13 @@ namespace DFUVR
                 string fileContent = FileReader.ReadFromFile(filePath);
                 string[] lines = fileContent.Split('\n');
                 Debug.Log(lines[2].Trim());
-                bool.TryParse(lines[6], out leftHanded);
+                //using only a bool makes the settings file too hard to understand for most people
+                //bool.TryParse(lines[6], out leftHanded);
+                if (lines[6].Trim() == "left") { Var.leftHanded = true; }
+
                 //Set the bindings to the default Oculus Touch bindings
-                //This is not necessary. The default values are already set up for the Touch Controllers 
+                //This is not necessary. The default values are already set up for the Touch Controllers
+                //only if the player ist left handed, change the grip buttons
                 if (lines[2].Trim() == "Oculus/Meta")
                 {
                     if (Var.leftHanded)
@@ -422,8 +429,9 @@ namespace DFUVR
                 bool.TryParse(lines[5], out fStartMenu);
                 //bool.TryParse(lines[6],out leftHanded);
                 Plugin.LoggerInstance.LogInfo("Offsett: "+Var.sheathOffset.ToString());
-                if (lines[7] == "smooth") { Var.smoothTurn = true; }
-
+                if (lines[7].Trim() == "smooth") { Var.smoothTurn = true;}
+                Plugin.LoggerInstance.LogInfo("Smooth turn: "+Var.smoothTurn);
+                if (lines[7].Trim() == "none") { Var.noTurn = true; }
 
 
 

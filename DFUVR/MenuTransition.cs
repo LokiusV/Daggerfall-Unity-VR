@@ -16,6 +16,8 @@ namespace DFUVR
     {
         public static string cType;
         public static string refresh_rate;
+        public static string turnStyle;
+        public static string dominantHand;
         public static void MenuTransition(GameObject currentMenu, GameObject nextMenu, bool mainMenuC, bool mainMenuM)
         {
             currentMenu.SetActive(false);
@@ -38,6 +40,34 @@ namespace DFUVR
                 }
             }
 
+        }
+        public static void turnCycleAction()
+        {
+            switch (Var.turnOptionsText.text)
+            {
+                case "snap":
+                    Var.turnOptionsText.text = "smooth";
+                    break;
+                case "smooth":
+                    Var.turnOptionsText.text = "none";
+                    break;
+                case "none":
+                    Var.turnOptionsText.text = "snap";
+                    break;
+            }
+                
+        }
+        public static void handCycleAction()
+        {
+            switch (Var.handOptionsText.text)
+            {
+                case "right":
+                    Var.handOptionsText.text = "left";
+                    break;
+                case "left":
+                    Var.handOptionsText.text = "right";
+                    break;
+            }
         }
         //public static void MenuTransition(GameObject currentMenu, GameObject nextMenu, bool mainMenuC, bool mainMenuM, ref string value1, ref string value2)
         //{
@@ -73,10 +103,14 @@ namespace DFUVR
             {
                 cType = GameObject.Find("CLabel").GetComponent<Text>().text;
                 refresh_rate = GameObject.Find("HzLabel").GetComponent<Text>().text;
+                turnStyle = Var.turnOptionsText.text;
+                dominantHand = Var.handOptionsText.text;
                 string filePath = Path.Combine(Paths.PluginPath, "Settings.txt");
                 string[] lines = File.ReadAllLines(filePath);
                 lines[2] = string.Format(CultureInfo.InvariantCulture, cType);
                 lines[1] = string.Format(CultureInfo.InvariantCulture, refresh_rate);
+                lines[6] = string.Format(CultureInfo.InvariantCulture, dominantHand);
+                lines[7] = string.Format(CultureInfo.InvariantCulture, turnStyle);
                 File.WriteAllLines(filePath, lines);
                 MenuTransition(currentMenu, nextMenu, mainMenuC, mainMenuM);
             }

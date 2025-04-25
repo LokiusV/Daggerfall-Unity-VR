@@ -161,8 +161,8 @@ namespace DFUVR
                     AssetBundle fMenuassetBundle = AssetBundle.LoadFromFile(fMenuassetBundlePath);
 
 
-                    Var.fSpawnMenu = Instantiate(fMenuassetBundle.LoadAsset<GameObject>("FirstSpawnCanvas_New"));
-
+                //Var.fSpawnMenu = Instantiate(fMenuassetBundle.LoadAsset<GameObject>("FirstSpawnCanvas_New"));
+                    Var.fSpawnMenu = Instantiate(fMenuassetBundle.LoadAsset<GameObject>("FirstSpawnCanvas_V3"));
                     GameObject parentObject = new GameObject("CamParent");
 
                     GameObject cam = Camera.main.gameObject;
@@ -238,6 +238,15 @@ namespace DFUVR
                     GameObject.Find("MDoneButton").GetComponent<UnityEngine.UI.Button>().onClick.AddListener(() => ButtonHandler.MenuTransition(Var.mMenu, Var.cMenu0, false, true));
 
                     GameObject.Find("MQuitButton").GetComponent<UnityEngine.UI.Button>().onClick.AddListener(Application.Quit);
+
+                    GameObject turnOptionsButton = GameObject.Find("tOptionsButton");
+                    GameObject handOptionsButton = GameObject.Find("handOptionsButton");
+                    
+                    Var.turnOptionsText = turnOptionsButton.transform.GetChild(0).GetComponent<Text>();
+                    Var.handOptionsText = handOptionsButton.transform.GetChild(0).GetComponent<Text>();
+
+                    turnOptionsButton.GetComponent<UnityEngine.UI.Button>().onClick.AddListener(() => ButtonHandler.turnCycleAction());
+                    handOptionsButton.GetComponent<UnityEngine.UI.Button>().onClick.AddListener(() => ButtonHandler.handCycleAction());
 
                     //Setting up next and previous axis selection
                     //left

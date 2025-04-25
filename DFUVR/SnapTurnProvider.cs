@@ -91,91 +91,95 @@ namespace DFUVR
         }
         public static void Snap()
         {
-            if (!Var.smoothTurn)
+            if (!Var.noTurn)
             {
-                if (SnapRight())
+                if (!Var.smoothTurn)
                 {
-                    if (!(Time.time - Var.lastSnapTime < Var.snapCooldown))
+                    if (SnapRight())
                     {
-                        try
+                        if (!(Time.time - Var.lastSnapTime < Var.snapCooldown))
                         {
-                            Var.characterController.gameObject.transform.Rotate(0, 45, 0);
-                            //GameObject.Find("VRParent").transform.Rotate(0, 45, 0);
-                            Var.lastSnapTime = Time.time;
-
-                            //experimental sheath fix:
-                            BodyRotationController bodyRotationController = Var.characterController.GetComponent<BodyRotationController>();
-                            if (bodyRotationController != null)
+                            try
                             {
-                                bodyRotationController.ResetLastRotationY();
+                                Var.characterController.gameObject.transform.Rotate(0, 45, 0);
+                                //GameObject.Find("VRParent").transform.Rotate(0, 45, 0);
+                                Var.lastSnapTime = Time.time;
+
+                                //experimental sheath fix:
+                                BodyRotationController bodyRotationController = Var.characterController.GetComponent<BodyRotationController>();
+                                if (bodyRotationController != null)
+                                {
+                                    bodyRotationController.ResetLastRotationY();
+                                }
                             }
+                            catch (Exception e) { Debug.LogException(e); }
                         }
-                        catch (Exception e) { Debug.LogException(e); }
+                    }
+                    if (SnapLeft())
+                    {
+                        if (!(Time.time - Var.lastSnapTime < Var.snapCooldown))
+                        {
+                            try
+                            {
+                                Var.characterController.gameObject.transform.Rotate(0, -45, 0);
+                                //GameObject.Find("VRParent").transform.Rotate(0, -45, 0);
+                                Var.lastSnapTime = Time.time;
+                                //experimental sheath fix:
+                                BodyRotationController bodyRotationController = Var.characterController.GetComponent<BodyRotationController>();
+                                if (bodyRotationController != null)
+                                {
+                                    bodyRotationController.ResetLastRotationY();
+                                }
+                            }
+                            catch (Exception e) { Debug.LogException(e); }
+                        }
                     }
                 }
-                if (SnapLeft())
+                else
                 {
-                    if (!(Time.time - Var.lastSnapTime < Var.snapCooldown))
+                    Var.snapCooldown = 0.0005f;
+                    if (SnapRight())
                     {
-                        try
+                        if (!(Time.time - Var.lastSnapTime < Var.snapCooldown))
                         {
-                            Var.characterController.gameObject.transform.Rotate(0, -45, 0);
-                            //GameObject.Find("VRParent").transform.Rotate(0, -45, 0);
-                            Var.lastSnapTime = Time.time;
-                            //experimental sheath fix:
-                            BodyRotationController bodyRotationController = Var.characterController.GetComponent<BodyRotationController>();
-                            if (bodyRotationController != null)
+                            try
                             {
-                                bodyRotationController.ResetLastRotationY();
-                            }
-                        }
-                        catch (Exception e) { Debug.LogException(e); }
-                    }
-                }
-            }
-            else {
-                Var.snapCooldown = 0.0005f;
-                if (SnapRight())
-                {
-                    if (!(Time.time - Var.lastSnapTime < Var.snapCooldown))
-                    {
-                        try
-                        {
-                            Var.characterController.gameObject.transform.Rotate(0, 2, 0);
-                            //GameObject.Find("VRParent").transform.Rotate(0, 45, 0);
-                            Var.lastSnapTime = Time.time;
+                                Var.characterController.gameObject.transform.Rotate(0, 2, 0);
+                                //GameObject.Find("VRParent").transform.Rotate(0, 45, 0);
+                                Var.lastSnapTime = Time.time;
 
-                            //experimental sheath fix:
-                            BodyRotationController bodyRotationController = Var.characterController.GetComponent<BodyRotationController>();
-                            if (bodyRotationController != null)
-                            {
-                                bodyRotationController.ResetLastRotationY();
+                                //experimental sheath fix:
+                                BodyRotationController bodyRotationController = Var.characterController.GetComponent<BodyRotationController>();
+                                if (bodyRotationController != null)
+                                {
+                                    bodyRotationController.ResetLastRotationY();
+                                }
                             }
+                            catch (Exception e) { Debug.LogException(e); }
                         }
-                        catch (Exception e) { Debug.LogException(e); }
                     }
-                }
-                if (SnapLeft())
-                {
-                    if (!(Time.time - Var.lastSnapTime < Var.snapCooldown))
+                    if (SnapLeft())
                     {
-                        try
+                        if (!(Time.time - Var.lastSnapTime < Var.snapCooldown))
                         {
-                            Var.characterController.gameObject.transform.Rotate(0, -2, 0);
-                            //GameObject.Find("VRParent").transform.Rotate(0, -45, 0);
-                            Var.lastSnapTime = Time.time;
-                            //experimental sheath fix:
-                            BodyRotationController bodyRotationController = Var.characterController.GetComponent<BodyRotationController>();
-                            if (bodyRotationController != null)
+                            try
                             {
-                                bodyRotationController.ResetLastRotationY();
+                                Var.characterController.gameObject.transform.Rotate(0, -2, 0);
+                                //GameObject.Find("VRParent").transform.Rotate(0, -45, 0);
+                                Var.lastSnapTime = Time.time;
+                                //experimental sheath fix:
+                                BodyRotationController bodyRotationController = Var.characterController.GetComponent<BodyRotationController>();
+                                if (bodyRotationController != null)
+                                {
+                                    bodyRotationController.ResetLastRotationY();
+                                }
                             }
+                            catch (Exception e) { Debug.LogException(e); }
                         }
-                        catch (Exception e) { Debug.LogException(e); }
                     }
-                }
 
 
+                }
             }
 
         }
