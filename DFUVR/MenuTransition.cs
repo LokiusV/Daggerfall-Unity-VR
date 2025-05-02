@@ -91,9 +91,15 @@ namespace DFUVR
             //Var.SaveAxis();
             //Plugin.LoggerInstance.LogInfo(Var.lThumbStickVertical== "Axis1");
             Var.fStartMenu = false;
+            turnStyle = Var.turnOptionsText.text;
+            dominantHand = Var.handOptionsText.text;
             string filePath = Path.Combine(Paths.PluginPath, "Settings.txt");
             string[] lines = File.ReadAllLines(filePath);
             lines[5] = "false";
+            Plugin.LoggerInstance.LogInfo("Reached saving part");
+            lines[6] = string.Format(CultureInfo.InvariantCulture, dominantHand);
+            lines[7] = string.Format(CultureInfo.InvariantCulture, turnStyle);
+            Plugin.LoggerInstance.LogInfo($"Saving part ended with {dominantHand} and {turnStyle}");
             File.WriteAllLines(filePath, lines);
             Application.Quit();
         }
@@ -103,14 +109,10 @@ namespace DFUVR
             {
                 cType = GameObject.Find("CLabel").GetComponent<Text>().text;
                 refresh_rate = GameObject.Find("HzLabel").GetComponent<Text>().text;
-                turnStyle = Var.turnOptionsText.text;
-                dominantHand = Var.handOptionsText.text;
                 string filePath = Path.Combine(Paths.PluginPath, "Settings.txt");
                 string[] lines = File.ReadAllLines(filePath);
                 lines[2] = string.Format(CultureInfo.InvariantCulture, cType);
                 lines[1] = string.Format(CultureInfo.InvariantCulture, refresh_rate);
-                lines[6] = string.Format(CultureInfo.InvariantCulture, dominantHand);
-                lines[7] = string.Format(CultureInfo.InvariantCulture, turnStyle);
                 File.WriteAllLines(filePath, lines);
                 MenuTransition(currentMenu, nextMenu, mainMenuC, mainMenuM);
             }
