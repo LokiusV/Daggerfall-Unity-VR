@@ -29,6 +29,7 @@ If applicable, add screenshots to help explain your problem.
  - VR headset: [e.g. Meta Quest 3]
  - connection type: [e.g. wired, virtual desktop, airlink]
  - PC specifications
+ - Do you have additional mods installed? If yes, which? Does the bug also happen in pure vanilla DFUVR?
 
 
 
