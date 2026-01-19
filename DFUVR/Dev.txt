@@ -4,3 +4,94 @@ Popup messages: DaggerFallUI.public void PopupMessage(string text)
 HealthCamera: Position: (-0.752,0.487,1.533), rotation: (0,0,0), FOV: 23.3, Disable Eye rendering
 CompassCamera: Position:(0.745,0.485,1.509), rotation: (0,0,0), FOV:23.3, Disable Eye rendering
 NotificationCamera: Position:(0,1.294,1.556), rotation: (0,0,0), FOV:27.8, Disable Eye rendering
+
+
+TODO list:
+
+collision with some weapons from WISA not working
+
+interaction is broken
+
+able to use 2 weapons when one on each hand
+- when off hand free, show a hand to swap
+- when off hand occupied, show the other weapon
+- grabbing that swaps to that thing
+- impossible with shield (then shield equipped on off hand automatically)
+
+how to get other types of interactions working (steal, grab, info, watch?)
+- alt + right stick
+
+wearable lanterns and torches
+https://www.nexusmods.com/daggerfallunity/mods/391
+
+spell selection menu
+
+or quick menu with hand, like quick slots or like Skyrim/alyx
+
+fix skybox
+today the sky is inverted and quite wrong. fix it in Y coord and put it as far as possible to the background
+
+bow and arrow
+- bow on off hand
+- get arrow on main hand quiver
+
+hold weapons with 2 hands (if weapon is 2 handed)
+
+weight on weapons
+use weight directly from weapons
+
+better compass and health
+removing the fake blocks with actual hud
+
+proper VR hands
+still show hand when not holding weapon
+
+menu interactions by grabbing things on the body
+- book to check quests
+- map for map
+- compass for local map
+- pouch for inventory
+- travel
+- character sheet
+
+some ui screens as interactive things
+- char sheet as a piece of paper
+- map as an actual map
+- log and notebooks as notebooks
+other hand used to navigate where needed (so equipping only 1 single hand weapon could be better?)
+some screens should still be full screen to stop gameplay
+
+min speed to cause attack to trigger
+speed increases damage (increases minimum damage, do not touch max)
+
+remove self from triggering hits from weapon
+filter on the collision method
+
+better settings file
+- add "setting=value"
+
+fix keyboard numbers
+
+better death
+- disable weapons
+- maybe red tint on screen?
+
+make max attacks based on the weapon stats
+
+fix loading screen being right next to your face
+
+move scroll bar with sticks
+
+GitHub action to build
+
+improve speed of the sheath model
+
+improve joystick handling on the code
+
+show what the controls do when holding the alt button
+
+toggle run
+
+easier way to quick save and load
+
+hide weapon on menu
