@@ -31,11 +31,11 @@ jobs:
       run: |
         New-Item -ItemType Directory -Path "output" -Force
         Copy-Item -Path "DFUVR\GameFolderFiles\*" -Destination "output" -Recurse -Force
-        Copy-Item -Path "DFUVR\bin\Release\DFUVR.dll" -Destination "output" -Force
+        Copy-Item -Path "DFUVR\bin\Release\DFUVR.dll" -Destination "output\BepInEx\plugins" -Force
         Copy-Item -Path "docs\README.html" -Destination "output" -Force
 
     - name: Upload build artifacts
       uses: actions/upload-artifact@v4
       with:
-        name: build-artifacts
+        name: windows64
         path: output
