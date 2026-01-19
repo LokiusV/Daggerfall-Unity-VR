@@ -1,0 +1,38 @@
+name: Build solution
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build:
+    name: Build on Windows
+    runs-on: windows-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Setup NuGet
+      uses: NuGet/setup-nuget@v1
+
+    - name: Restore NuGet packages
+      run: nuget restore "DFUVR.sln"
+
+    - name: Build solution (Release)
+      run: msbuild "DFUVR.sln" /m /p:Configuration=Release
+
+    - name: Create output folder and copy files
+      run: |
+        New-Item -ItemType Directory -Path "output" -Force
+        Copy-Item -Path "DFUVR\GameFolderFiles\*" -Destination "output" -Recurse -Force
+        Copy-Item -Path "DFUVR\bin\Release\DFUVR.dll" -Destination "output" -Force
+        Copy-Item -Path "docs\README.html" -Destination "output" -Force
+
+    - name: Upload build artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: build-artifacts
+        path: output
