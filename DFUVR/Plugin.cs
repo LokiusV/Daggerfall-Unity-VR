@@ -129,15 +129,10 @@ namespace DFUVR
 
             //no clue why this is necessary but for some reason it always collides with these objects if I don't specifically ignore them
             Physics.IgnoreCollision(GameObject.Find("VRUI").GetComponent<Collider>(), arrowCollider);
-            Physics.IgnoreCollision(Var.mace.GetComponent<Collider>(), arrowCollider);
-            Physics.IgnoreCollision(Var.battleaxe.GetComponent<Collider>(), arrowCollider);
-            Physics.IgnoreCollision(Var.sword.GetComponent<Collider>(), arrowCollider);
-            Physics.IgnoreCollision(Var.staff.GetComponent<Collider>(), arrowCollider);
-            Physics.IgnoreCollision(Var.bow.GetComponent<Collider>(), arrowCollider);
-            Physics.IgnoreCollision(Var.hammer.GetComponent<Collider>(), arrowCollider);
-            Physics.IgnoreCollision(Var.flail.GetComponent<Collider>(), arrowCollider);
-            Physics.IgnoreCollision(Var.elseA.GetComponent<Collider>(), arrowCollider);
-            Physics.IgnoreCollision(Var.meleeHandR.GetComponent<Collider>(), arrowCollider);
+            foreach (var handObject in Var.handObjects)
+                Physics.IgnoreCollision(handObject.Value.gameObject.GetComponent<Collider>(), arrowCollider);
+            foreach (var handObject in Var.handObjectsByName)
+                Physics.IgnoreCollision(handObject.Value.gameObject.GetComponent<Collider>(), arrowCollider);
 
             //Plugin.LoggerInstance.LogInfo("Bowed");
             //Var.debugSphere = GameObject.CreatePrimitive(PrimitiveType.Sphere);
@@ -704,15 +699,11 @@ namespace DFUVR
 
             }
             #endregion
-            Var.sword.SetActive(true);
-            Var.dagger.SetActive(true);
-            Var.battleaxe.SetActive(true);
-            Var.elseA.SetActive(true);
-            Var.mace.SetActive(true);
-            Var.flail.SetActive(true);
-            Var.hammer.SetActive(true);
-            Var.staff.SetActive(true);
-            Var.bow.SetActive(true);
+
+            foreach (var handObject in Var.handObjects)
+                handObject.Value.gameObject.SetActive(true);
+            foreach (var handObject in Var.handObjectsByName)
+                handObject.Value.gameObject.SetActive(true);
         }
     }
 
@@ -1027,223 +1018,60 @@ namespace DFUVR
         [HarmonyPrefix]
         static void Prefix(WeaponManager __instance)
         {
-            
-            //Plugin.LoggerInstance.LogInfo("Entered this method");
-            if (__instance.Sheathed) 
+            if (Var.weaponObject != null)
+                Destroy(Var.weaponObject);
+
+            if (__instance.ScreenWeapon == null)
+            {
+                Var.currentWeaponName = null;
+                return;
+            }
+
+            Var.currentWeaponName = __instance.ScreenWeapon.SpecificWeapon?.LongName ?? "";
+
+            HandObject currentHandObject = null;
+            if (__instance.ScreenWeapon.WeaponType != WeaponTypes.Bow && Var.handObjectsByName.ContainsKey(Var.currentWeaponName))
+                currentHandObject = Var.handObjectsByName[Var.currentWeaponName];
+            else
+                currentHandObject = Var.handObjects[__instance.ScreenWeapon.WeaponType];
+
+            GameObject tempObject = currentHandObject.gameObject;
+
+            Var.weaponObject = Instantiate(tempObject);
+            Var.weaponObject.GetComponent<Collider>().enabled = true;
+
+            // if it is unsheathing
+            if (__instance.Sheathed)
             {
                 Var.sheathObject.GetComponent<MeshRenderer>().enabled = true;
-                Destroy(Var.weaponObject);
-                Hands.rHand.SetActive(false);
-                Hands.lHand.SetActive(false);
-                GameObject tempObject=null;
 
-                if (__instance.ScreenWeapon.WeaponType == WeaponTypes.LongBlade|| __instance.ScreenWeapon.WeaponType == WeaponTypes.LongBlade_Magic)
-                {
-                    //Plugin.LoggerInstance.LogInfo("We're here 1");
-                    tempObject = Var.sword;
-                    
-                    //
-                    //if (tempObject != null) { Plugin.LoggerInstance.LogInfo("found sword"); }
-
-
-
-
-                }
-                else if(__instance.ScreenWeapon.WeaponType==WeaponTypes.Dagger|| __instance.ScreenWeapon.WeaponType == WeaponTypes.Dagger_Magic|| __instance.ScreenWeapon.WeaponType == WeaponTypes.Dagger)
-                {
-                    //Plugin.LoggerInstance.LogInfo("We're here 2");
-                    tempObject = Var.dagger;
-                    //tempObject.transform.rotation = Quaternion.Euler(0, 90, 90);
-                    
-                    
-
-                }
-                else if(__instance.ScreenWeapon.WeaponType==WeaponTypes.Battleaxe|| __instance.ScreenWeapon.WeaponType == WeaponTypes.Battleaxe_Magic)
-                {
-                    //Plugin.LoggerInstance.LogInfo("We're here 3");
-                    tempObject = Var.battleaxe;
-                    //Var.dagger.transform.rotation = Quaternion.Euler(0, 90, -90);
-                    //Var.weaponObject.transform.localPosition = Vector3.zero;
-                    //Var.weaponObject.transform.localRotation = Quaternion.Euler(0, 180, 180);
-
-
-                }
-                else if(__instance.ScreenWeapon.WeaponType == WeaponTypes.Mace || __instance.ScreenWeapon.WeaponType == WeaponTypes.Mace_Magic||__instance.ScreenWeapon.WeaponType==WeaponTypes.Flail||__instance.ScreenWeapon.WeaponType==WeaponTypes.Flail_Magic)
-                {
-                    tempObject = Var.mace;
-
-                }
-                else if (__instance.ScreenWeapon.WeaponType == WeaponTypes.Bow)
-                {
-                    tempObject = Var.bow;
-                    //AccessTools.Method(typeof(WeaponManager), "ToggleHand").Invoke(__instance, null);
-                }
-
-                else if(__instance.ScreenWeapon.WeaponType==WeaponTypes.Warhammer|| __instance.ScreenWeapon.WeaponType == WeaponTypes.Warhammer_Magic)
-                {
-                    tempObject=Var.hammer;
-                }
-                else if(__instance.ScreenWeapon.WeaponType == WeaponTypes.Staff || __instance.ScreenWeapon.WeaponType == WeaponTypes.Staff_Magic)
-                {
-                    //Plugin.LoggerInstance.LogInfo("Staff");
-                    tempObject=Var.staff;
-                }
-                else if (__instance.ScreenWeapon.WeaponType == WeaponTypes.Melee||__instance.ScreenWeapon.WeaponType == WeaponTypes.Werecreature)
-                {
-                    tempObject = Var.meleeHandR;
-                }
-
+                if (Var.leftHanded)
+                    Var.weaponObject.transform.SetParent(Var.leftHand.transform);
                 else
-                {
-                    //Plugin.LoggerInstance.LogInfo("We're here");
-                    tempObject = Var.elseA;//If we don't find the appropriate wepaon type we give the user a placeholder weapon. This should never happen, unless I fucked up
-                }
-                //Plugin.LoggerInstance.LogInfo("Exited this method. Probably sucessfully");
-                
-                
-                Hands.rHand.SetActive(false);
-                Hands.lHand.SetActive(false);
-                Var.weaponObject = Instantiate(tempObject);
-                Var.weaponObject.GetComponent<Collider>().enabled = true;
-                //Var.weaponObject.transform.SetParent(Var.rightHand.transform);
-                if (Var.leftHanded) { Var.weaponObject.transform.SetParent(Var.leftHand.transform); }
-                else
-                {
                     Var.weaponObject.transform.SetParent(Var.rightHand.transform);
-                }
-                if (tempObject == Var.sword)
-                {
 
-                    Var.weaponObject.transform.localPosition = Vector3.zero;
-                    Var.weaponObject.transform.localRotation = Quaternion.identity;
-
-                }
-                if (tempObject == Var.hammer)
-                {
-
-                    Var.weaponObject.transform.localPosition = Vector3.zero;
-                    Var.weaponObject.transform.localRotation = Quaternion.Euler(0,0,90);
-
-                }
-                else if (tempObject == Var.dagger)
-                {
-
-                    Var.weaponObject.transform.localPosition = Vector3.zero;
-                    Var.weaponObject.transform.localRotation = Quaternion.Euler(0, 90, 90);
-                }
-                else if (tempObject == Var.mace)
-                {
-
-                    //Var.weaponObject.transform.localPosition= Vector3.zero;
-                    Var.weaponObject.transform.localPosition = new Vector3(0, 0, 0.1f);
-                    Var.weaponObject.transform.localRotation = Quaternion.Euler(90, 0, 0);
-                }
-                else if (tempObject == Var.battleaxe)
-                {
-
-                    //Var.weaponObject.transform.localPosition= Vector3.zero;
-                    Var.weaponObject.transform.localPosition = new Vector3(0, 0, 0);
-                    Var.weaponObject.transform.localRotation = Quaternion.Euler(0, -90, 90);
-                }
-                else if (tempObject == Var.staff)
-                {
-                    Var.weaponObject.transform.localPosition = Vector3.zero;
-                    Var.weaponObject.transform.localRotation = Quaternion.identity;
-                }
-                else if (tempObject == Var.bow)
-                {
-                    Var.weaponObject.transform.localPosition = Vector3.zero;
-                    Var.weaponObject.transform.localRotation = Quaternion.Euler(270, 90, 0);
-                }
-                else if (tempObject == Var.meleeHandR)
-                {
-                    Var.weaponObject.transform.localPosition = new Vector3(0,0,-0.05f);
-
-                    Var.weaponObject.transform.localRotation = Quaternion.Euler(20, 10, 270);
-                }
-                    //else if(tempObject==Var.)
-
-
-
+                Var.weaponObject.transform.localPosition = currentHandObject.unsheatedPositionOffset;
+                Var.weaponObject.transform.localRotation = currentHandObject.unsheatedRotationOffset;
                 Var.weaponObject.SetActive(true);
 
+                Hands.rHand.SetActive(false);
+                Hands.lHand.SetActive(false);
             }
-            //this sucks... but it'll do for now
             else
             {
-                //Var.weaponObject.SetActive(false);
-                //Var.weaponObject = null;
-                if (Var.weaponObject != null)
-                {
-                    Var.weaponObject.GetComponent<Collider>().enabled = false;
-                    Var.weaponObject.transform.SetParent(Var.sheathObject.transform);
-                    Var.weaponObject.transform.localPosition = Vector3.zero;
-                    if (__instance.ScreenWeapon.WeaponType == WeaponTypes.LongBlade || __instance.ScreenWeapon.WeaponType == WeaponTypes.LongBlade_Magic)
-                    {
-                        Var.sheathObject.GetComponent<MeshRenderer>().enabled = true;
-                        Var.weaponObject.transform.localRotation = Quaternion.identity;
-                    }
-                    else if (__instance.ScreenWeapon.WeaponType == WeaponTypes.Dagger || __instance.ScreenWeapon.WeaponType == WeaponTypes.Dagger_Magic || __instance.ScreenWeapon.WeaponType == WeaponTypes.Dagger)
-                    {
-                        Var.sheathObject.GetComponent<MeshRenderer>().enabled = true;
-                        Var.weaponObject.transform.localRotation = Quaternion.Euler(0, 90, 90);
+                Var.weaponObject.GetComponent<Collider>().enabled = false;
+                Var.weaponObject.transform.SetParent(Var.sheathObject.transform);
 
-                    }
-                    else if (__instance.ScreenWeapon.WeaponType == WeaponTypes.Battleaxe || __instance.ScreenWeapon.WeaponType == WeaponTypes.Battleaxe_Magic)
-                    {
-                        Var.sheathObject.GetComponent<MeshRenderer>().enabled = false;
-                        Var.weaponObject.transform.localRotation = Quaternion.Euler(0, 180, 180);
-                    }
-                    else if (__instance.ScreenWeapon.WeaponType == WeaponTypes.Mace || __instance.ScreenWeapon.WeaponType == WeaponTypes.Mace_Magic || __instance.ScreenWeapon.WeaponType == WeaponTypes.Flail_Magic || __instance.ScreenWeapon.WeaponType == WeaponTypes.Flail)
-                    {
-                        Var.sheathObject.GetComponent<MeshRenderer>().enabled = false;
-                        Var.weaponObject.transform.localRotation = Quaternion.Euler(90, 0, 0);
-                        Var.weaponObject.transform.localPosition = new Vector3(0, 0, 0.1f);
-                    }
-                    else if(__instance.ScreenWeapon.WeaponType == WeaponTypes.Warhammer || __instance.ScreenWeapon.WeaponType == WeaponTypes.Warhammer_Magic)
-                    {
-                        Var.sheathObject.GetComponent<MeshRenderer>().enabled = false;
-                        Var.weaponObject.transform.localRotation = Quaternion.identity;
+                Var.weaponObject.transform.localPosition = currentHandObject.sheatedPositionOffset;
+                Var.weaponObject.transform.localRotation = currentHandObject.sheatedRotationOffset;
+                Var.sheathObject.GetComponent<MeshRenderer>().enabled = currentHandObject.renderSheated;
 
-                    }
-                    else if (__instance.ScreenWeapon.WeaponType == WeaponTypes.Staff || __instance.ScreenWeapon.WeaponType == WeaponTypes.Staff_Magic)
-                    {
-                        Var.sheathObject.GetComponent<MeshRenderer>().enabled = false;
-                        Var.weaponObject.transform.localRotation = Quaternion.identity;
-                    }
-                    else if (__instance.ScreenWeapon.WeaponType == WeaponTypes.Bow)
-                    {
-                        Var.sheathObject.GetComponent<MeshRenderer>().enabled = false;
-                        Var.weaponObject.transform.localRotation = Quaternion.Euler(270, 90, 0);
-
-                    }
-                    
-                    //Var.weaponObject.transform.localRotation = Quaternion.identity;
-                }
                 Hands.rHand.SetActive(true);
                 Hands.lHand.SetActive(true);
-
             }
-
-            ////it didn't do for now D:
-            //else
-            //{
-            //    //Var.weaponObject.SetActive(false);
-            //    //Var.weaponObject = null;
-            //    if (Var.weaponObject != null)
-            //    {
-            //        Var.weaponObject.transform.SetParent(Var.sheathObject.transform);
-            //        Var.weaponObject.transform.localPosition = Vector3.zero;
-            //        //Var.weaponObject.transform.localRotation = Quaternion.identity;
-            //    }
-            //    Hands.rHand.SetActive(true);
-            //    Hands.lHand.SetActive(true);
-
-            //}
-
         }
-
     }
+
     //fixes the billboard orientation of enemies
     [HarmonyPatch(typeof(DaggerfallMobileUnit), "Update")]
     public class UnitOrientationPatch : MonoBehaviour

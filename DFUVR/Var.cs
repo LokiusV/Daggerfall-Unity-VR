@@ -1,15 +1,16 @@
-﻿using UnityEngine;
-using System.Collections;
-
-using System.IO;
-using BepInEx;
-using System;
-using UnityEngine.UI;
+﻿using BepInEx;
+using DaggerfallWorkshop;
 using DaggerfallWorkshop.AudioSynthesis.Synthesis;
 using DaggerfallWorkshop.Game;
+using System;
+using System.Collections;
+using System.Collections.Generic;
 using System.Globalization;
-using System.Runtime.CompilerServices;
+using System.IO;
 using System.Linq;
+using System.Runtime.CompilerServices;
+using UnityEngine;
+using UnityEngine.UI;
 
 namespace DFUVR
 {
@@ -74,18 +75,12 @@ namespace DFUVR
         public static GameObject VRParent;
         public static GameObject debugSphere;
 
+        public static Dictionary<WeaponTypes, HandObject> handObjects = new Dictionary<WeaponTypes, HandObject>();
+        public static Dictionary<string, HandObject> handObjectsByName = new Dictionary<string, HandObject>();
         public static GameObject weaponObject;
-        public static GameObject sword;
-        public static GameObject dagger;
-        public static GameObject battleaxe;
-        public static GameObject elseA;
+        public static string currentWeaponName;
+
         public static GameObject sheathObject;
-        public static GameObject mace;
-        public static GameObject flail;
-        public static GameObject hammer;
-        public static GameObject staff;
-        public static GameObject bow;
-        public static GameObject meleeHandR;
 
         public static int connectedJoysticks;
 
@@ -126,96 +121,13 @@ namespace DFUVR
         //Load weapon and other models from the Asset bundles
         public static void InitModels()
         {
-            string assetBundlePath = Path.Combine(Paths.PluginPath, "AssetBundles/weapons");
+            HandObjectLoadList.LoadAllHandObjects(handObjects, handObjectsByName);
 
+            characterController = GameObject.Find("PlayerAdvanced").GetComponent<CharacterController>();
 
-            AssetBundle assetBundle = AssetBundle.LoadFromFile(assetBundlePath);
-
-            sword = Instantiate(assetBundle.LoadAsset<GameObject>("Sword"));
-            sword.transform.position = Vector3.zero;
-            sword.transform.rotation = Quaternion.identity;
-            sword.AddComponent<WeaponCollision>();
-            sword.GetComponent<MeshCollider>().isTrigger=true;
-            //sword.AddComponent<Rigidbody>().useGravity = false;
-
-
-            dagger = Instantiate(assetBundle.LoadAsset<GameObject>("Steel_Dagger_512"));
-            
-            //dagger.transform.rotation = Quaternion.identity;
-            
-            dagger.AddComponent<WeaponCollision>();
-            dagger.GetComponent<MeshCollider>().isTrigger = true;
-
-            //dagger.AddComponent<Rigidbody>().useGravity=false;
-
-
-            battleaxe = Instantiate(assetBundle.LoadAsset<GameObject>("MM_Axe_01_01_lod2"));
-            
-            battleaxe.AddComponent<WeaponCollision>();
-            battleaxe.GetComponent<MeshCollider>().isTrigger = true;
-            //battleaxe.AddComponent<Rigidbody>().useGravity = false;
-            elseA = Instantiate(assetBundle.LoadAsset<GameObject>("Sheath"));
-            elseA.transform.position = Vector3.zero;
-            elseA.transform.rotation = Quaternion.identity;
-
-            mace = Instantiate(assetBundle.LoadAsset<GameObject>("mace"));
-            mace.AddComponent<WeaponCollision>();
-            mace.GetComponent<MeshCollider>().isTrigger = true;
-            //flail and mace are the same model for now
-            flail = Instantiate(assetBundle.LoadAsset<GameObject>("mace"));
-            flail.AddComponent<WeaponCollision>();
-            flail.GetComponent<MeshCollider>().isTrigger=true;
-
-            hammer = Instantiate(assetBundle.LoadAsset<GameObject>("Warhammer_1"));
-            hammer.AddComponent<WeaponCollision>();
-            hammer.GetComponent<BoxCollider>().isTrigger=true;
-
-            staff = Instantiate(assetBundle.LoadAsset<GameObject>("Staff_1"));
-            staff.AddComponent<WeaponCollision>();
-            staff.GetComponent<BoxCollider>().isTrigger = true;
-
-            bow = Instantiate(assetBundle.LoadAsset<GameObject>("Crossbow"));
-            bow.transform.localScale = new Vector3(0.3f,0.3f,0.3f);
-            bow.AddComponent<SphereCollider>().isTrigger=true;
-
-
-            assetBundle.Unload(false);
-            //Plugin.LoggerInstance.LogWarning("Exited Method_Init");
-            Var.characterController=GameObject.Find("PlayerAdvanced").GetComponent<CharacterController>();
-
-
-            //sword.SetActive(false);
-            dagger.SetActive(false);
-            battleaxe.SetActive(false);
-            elseA.SetActive(false);
-            mace.SetActive(false);
-            flail.SetActive(false);
-            hammer.SetActive(false);
-            bow.SetActive(false);
-            staff.SetActive(false);
-
-            string handBundlePath = Path.Combine(Paths.PluginPath, "AssetBundles/hands");
-
-
-            AssetBundle handBundle = AssetBundle.LoadFromFile(handBundlePath);
-
-            meleeHandR = Instantiate(handBundle.LoadAsset<GameObject>("rHandClosed"));
-            meleeHandR.GetComponent<SphereCollider>().isTrigger = true;
-            
-            meleeHandR.AddComponent<WeaponCollision>();
-            try
-            {
-                meleeHandR.transform.GetChild(2).GetComponent<SkinnedMeshRenderer>().material = sword.GetComponent<MeshRenderer>().material;
-            }
-            catch (Exception e)
-            {
-                Plugin.LoggerInstance.LogError(e);
-            }
-            meleeHandR.SetActive(false);
-            sword.SetActive(false);
             InitKeyboard();
-
         }
+
         //Loads the keyboard from the AssetBundle, sets actions, creates new keys. 
         public static void InitKeyboard()
         {

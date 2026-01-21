@@ -109,6 +109,8 @@
     <Compile Include="DebugSphere.cs" />
     <Compile Include="FileReader.cs" />
     <Compile Include="HandLabel.cs" />
+    <Compile Include="HandObject.cs" />
+    <Compile Include="HandObjectLoadList.cs" />
     <Compile Include="HapticsController.cs" />
     <Compile Include="HUD.cs" />
     <Compile Include="KeyboardController.cs" />
