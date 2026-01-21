@@ -90,8 +90,6 @@ improve joystick handling on the code
 
 show what the controls do when holding the alt button
 
-toggle run
-
 easier way to quick save and load
 
 hide weapon on menu

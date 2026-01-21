@@ -679,6 +679,7 @@ namespace DFUVR
             #region Bindings
             if (!Var.isNotOculus)
             {
+                GameManager.Instance.SpeedChanger.ToggleRun = true;
                 InputManager.Instance.SetBinding(Var.lStickButton, Actions.Run, true);
                 //InputManager.Instance.SetBinding(Var.acceptButton, Actions.AutoRun, true);
                 //InputManager.Instance.SetBinding(KeyCode.UpArrow, InputManager.Actions.ToggleConsole, true);
