@@ -25,7 +25,7 @@ public class DebugColliders : MonoBehaviour
         var capsule = GameObject.CreatePrimitive(PrimitiveType.Capsule);
         m_CapsuleMesh = capsule.GetComponent<MeshFilter>().sharedMesh;
 
-        m_ColliderMaterial = Var.handObjects[DaggerfallWorkshop.WeaponTypes.LongBlade].gameObject.GetComponent<Material>();
+        m_ColliderMaterial = Var.sword.GetComponent<Material>();
 
         if (Application.isPlaying)
         {
