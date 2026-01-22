@@ -1086,7 +1086,9 @@ namespace DFUVR
         [HarmonyPostfix]
         static void Postfix(WeaponManager __instance)
         {
-            CorrectWeaponPatch.Postfix(__instance);
+            DaggerfallUnityItem rightHandItem = GameManager.Instance.PlayerEntity.ItemEquipTable.GetItem(EquipSlots.RightHand);
+            if (rightHandItem == null || rightHandItem.LongName != Var.currentWeaponName)
+                CorrectWeaponPatch.Postfix(__instance);
         }
     }
 
