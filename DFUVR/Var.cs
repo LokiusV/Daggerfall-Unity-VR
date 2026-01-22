@@ -105,6 +105,7 @@ namespace DFUVR
         public static int calibrationInt;
         public static bool smoothTurn;
         public static bool noTurn;
+        public static bool toggleRun=false;
 
         public static bool rTriggerDone;
         public static bool lTriggerDone;
@@ -344,7 +345,7 @@ namespace DFUVR
                 if (lines[7].Trim() == "smooth") { Var.smoothTurn = true;}
                 Plugin.LoggerInstance.LogInfo("Smooth turn: "+Var.smoothTurn);
                 if (lines[7].Trim() == "none") { Var.noTurn = true; }
-
+                bool.TryParse(lines[8],out toggleRun);
 
 
             }
