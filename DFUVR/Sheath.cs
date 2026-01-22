@@ -62,7 +62,7 @@ namespace DFUVR
             //sheath.transform.localRotation = Quaternion.identity;
 
             assetBundle.Unload(false);
-            Var.sheathObject=sheath;
+            Var.rightSheathObject=sheath;
 
             //sphere.transform.localPosition = sphere.transform.parent.InverseTransformPoint(Var.sheathOffset);
             sphere.transform.localPosition = Var.sheathOffset;

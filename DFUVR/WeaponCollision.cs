@@ -11,6 +11,7 @@ namespace DFUVR
 {
     public class WeaponCollision : MonoBehaviour
     {
+        public DaggerfallUnityItem item = null;
         //public float velocityThreshold = 2.0f;
 
         //private Rigidbody rb;
@@ -51,14 +52,13 @@ namespace DFUVR
                 Vector3 hitDirection = other.transform.position - transform.position;
                 Transform hitTransform = other.transform;
                 WeaponManager weaponManager = GameObject.Find("PlayerAdvanced").GetComponent<WeaponManager>();
-                DaggerfallUnityItem currentRightHandWeapon = (DaggerfallUnityItem)AccessTools.Field(typeof(WeaponManager), "currentRightHandWeapon").GetValue(weaponManager);
                 hitDirection = hitDirection.normalized;
                 //Debug.Log("Hit Direction: " + hitDirection);
 
                 var playerId = GameManager.Instance.PlayerObject.GetInstanceID();
                 if (playerId != other.gameObject.GetInstanceID())
                 {
-                    weaponManager.WeaponDamage(currentRightHandWeapon, false, false, hitTransform, hitTransform.localPosition, hitDirection);
+                    weaponManager.WeaponDamage(item, false, false, hitTransform, hitTransform.localPosition, hitDirection);
                     hitSomething = true;
                 }
             }
