@@ -1077,18 +1077,6 @@ namespace DFUVR
                 Hands.rHand.SetActive(false);
                 Hands.lHand.SetActive(false);
             }
-            else
-            {
-                Var.weaponObject.GetComponent<Collider>().enabled = false;
-                Var.weaponObject.transform.SetParent(Var.sheathObject.transform);
-
-                Var.weaponObject.transform.localPosition = currentHandObject.sheatedPositionOffset;
-                Var.weaponObject.transform.localRotation = currentHandObject.sheatedRotationOffset;
-                Var.sheathObject.GetComponent<MeshRenderer>().enabled = currentHandObject.renderSheated;
-
-                Hands.rHand.SetActive(true);
-                Hands.lHand.SetActive(true);
-            }
         }
     }
 
