@@ -6,6 +6,7 @@ using DFUVR;
 using HarmonyLib;
 using DaggerfallWorkshop.Game.Items;
 using DaggerfallWorkshop.Game.Questing;
+
 namespace DFUVR
 {
     public class WeaponCollision : MonoBehaviour
@@ -31,9 +32,8 @@ namespace DFUVR
 
         private void OnTriggerEnter(Collider other)
         {
-
-
             //Plugin.LoggerInstance.LogInfo("Hit something");
+            bool hitSomething = false;
 
             if (other.GetComponent<DaggerfallEntityBehaviour>())
             {
@@ -55,41 +55,41 @@ namespace DFUVR
                 hitDirection = hitDirection.normalized;
                 //Debug.Log("Hit Direction: " + hitDirection);
 
-                weaponManager.WeaponDamage(currentRightHandWeapon, false, false, hitTransform, hitTransform.localPosition, hitDirection);
-
+                var playerId = GameManager.Instance.PlayerObject.GetInstanceID();
+                if (playerId != other.gameObject.GetInstanceID())
+                {
+                    weaponManager.WeaponDamage(currentRightHandWeapon, false, false, hitTransform, hitTransform.localPosition, hitDirection);
+                    hitSomething = true;
+                }
             }
             else if (other.GetComponent<DaggerfallAction>())
             {
                 Plugin.LoggerInstance.LogInfo("Hit action");
-                DaggerfallAction action= other.GetComponent<DaggerfallAction>();
+                DaggerfallAction action = other.GetComponent<DaggerfallAction>();
                 if (Var.weaponManager != null)
                 {
                     GameObject player = (GameObject)AccessTools.Field(typeof(WeaponManager), "player").GetValue(Var.weaponManager);
                     action.Receive(player, DaggerfallAction.TriggerTypes.Attack);
+                    hitSomething = true;
                 }
                 else
                 {
                     Plugin.LoggerInstance.LogError("null");
                 }
-
             }
-            else if (other.GetComponent<DaggerfallActionDoor>()) 
+            else if (other.GetComponent<DaggerfallActionDoor>())
             {
                 //Plugin.LoggerInstance.LogInfo("Hit door");
                 DaggerfallActionDoor actionDoor = other.GetComponent<DaggerfallActionDoor>();
                 if (actionDoor)
                 {
                     actionDoor.AttemptBash(true);
+                    hitSomething = true;
                 }
-
-
             }
 
-            Haptics.TriggerHapticFeedback(UnityEngine.XR.XRNode.RightHand, 0.6f);
-            //else if()
-
+            if (hitSomething)
+                Haptics.TriggerHapticFeedback(UnityEngine.XR.XRNode.RightHand, 0.6f);
         }
-
-
     }
 }
