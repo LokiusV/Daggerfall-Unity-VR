@@ -647,7 +647,8 @@ namespace DFUVR
 
             }
             //snap turning
-            SnapTurnProvider.Snap();
+            if (!flag)
+                SnapTurnProvider.Snap();
 
             
             GameObject exterior = GameObject.Find("Exterior");
@@ -1592,7 +1593,7 @@ namespace DFUVR
                 
                 float inputX = rThumbStick.x;
                 float inputY = rThumbStick.y;
-                if (!Var.climbingMotor.IsClimbing)
+                if (!Var.climbingMotor.IsClimbing && !ControllerPatch.flag)
                 {
                     if (inputY >= 0.8f)
                     {
@@ -1603,28 +1604,28 @@ namespace DFUVR
                     {
                         //currentActions.Add(Actions.Sneak);
                         currentActions.Add(Actions.Crouch);
-                        PlayerMotor playerMotor = null;
-                        try
-                        {
-                            playerMotor = GameObject.Find("PlayerAdvanced").GetComponent<PlayerMotor>();//Var.playerGameObject.GetComponent<PlayerMotor>();
-
-                        }
-                        catch { Plugin.LoggerInstance.LogError("PlayerMotorNotFound"); }
-                        //if (playerMotor != null)
+                        //PlayerMotor playerMotor = null;
+                        //try
                         //{
-                        //    Plugin.LoggerInstance.LogInfo(Var.playerGameObject.GetComponent<PlayerMotor>().IsCrouching);
+                        //    playerMotor = GameObject.Find("PlayerAdvanced").GetComponent<PlayerMotor>();//Var.playerGameObject.GetComponent<PlayerMotor>();
+
                         //}
-                        //else { Plugin.LoggerInstance.LogInfo("What the fuck is a player"); }
-                        if (playerMotor.IsCrouching == true)
-                        {
-                            currentActions.Add(Actions.StealMode);
+                        //catch { Plugin.LoggerInstance.LogError("PlayerMotorNotFound"); }
+                        ////if (playerMotor != null)
+                        ////{
+                        ////    Plugin.LoggerInstance.LogInfo(Var.playerGameObject.GetComponent<PlayerMotor>().IsCrouching);
+                        ////}
+                        ////else { Plugin.LoggerInstance.LogInfo("What the fuck is a player"); }
+                        //if (playerMotor.IsCrouching == true)
+                        //{
+                        //    currentActions.Add(Actions.StealMode);
 
-                        }
-                        else
-                        {
-                            currentActions.Add(Actions.GrabMode);
+                        //}
+                        //else
+                        //{
+                        //    currentActions.Add(Actions.GrabMode);
 
-                        }
+                        //}
                         Var.lastCrouchTime = Time.time;
                         //isCrouching=!isCrouching;
                         //
@@ -1728,6 +1729,15 @@ namespace DFUVR
                         currentActions.Add(Actions.CharacterSheet);
                     }
 
+                    float threshold = 0.8f;
+                    if (rThumbStick.y > threshold)
+                        currentActions.Add(Actions.InfoMode);
+                    else if (rThumbStick.y < -threshold)
+                        currentActions.Add(Actions.StealMode);
+                    else if (rThumbStick.x > threshold)
+                        currentActions.Add(Actions.GrabMode);
+                    else if (rThumbStick.x < -threshold)
+                        currentActions.Add(Actions.TalkMode);
                 }
 
                 //bool lGripButton;

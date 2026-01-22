@@ -18,9 +18,6 @@ able to use 2 weapons when one on each hand
 - grabbing that swaps to that thing
 - impossible with shield (then shield equipped on off hand automatically)
 
-how to get other types of interactions working (steal, grab, info, watch?)
-- alt + right stick
-
 wearable lanterns and torches
 https://www.nexusmods.com/daggerfallunity/mods/391
 
