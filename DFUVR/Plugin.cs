@@ -144,6 +144,21 @@ namespace DFUVR
 
         }
     }
+
+    [HarmonyPatch(typeof(PlayerDeath), "PlayerEntity_OnDeath")]
+    public class PlayerDeathPatch : MonoBehaviour
+    {
+        static void Prefix(PlayerDeath __instance)
+        {
+            if (Var.weaponObject != null)
+                Destroy(Var.weaponObject);
+
+            Var.currentWeaponName = null;
+            Hands.rHand.SetActive(true);
+            Hands.lHand.SetActive(true);
+        }
+    }
+
     //[HarmonyPatch(typeof(DaggerfallMissile), "Start")]
     //public class SpawnMissileCameraPatch : MonoBehaviour
     //{
