@@ -1018,7 +1018,7 @@ namespace DFUVR
     public class CorrectWeaponPatch : MonoBehaviour
     {
         [HarmonyPrefix]
-        static void Prefix(WeaponManager __instance)
+        internal static void Prefix(WeaponManager __instance)
         {
             if (Var.weaponObject != null)
                 Destroy(Var.weaponObject);
@@ -1071,6 +1071,18 @@ namespace DFUVR
                 Hands.rHand.SetActive(true);
                 Hands.lHand.SetActive(true);
             }
+        }
+    }
+
+    [HarmonyPatch(typeof(WeaponManager), "ApplyWeapon")]
+    public class ApplyWeaponPatch : MonoBehaviour
+    {
+        [HarmonyPostfix]
+        static void Postfix(WeaponManager __instance)
+        {
+            if (__instance.ScreenWeapon == null || __instance.ScreenWeapon.SpecificWeapon == null ||
+                __instance.ScreenWeapon.SpecificWeapon.LongName != Var.currentWeaponName)
+                CorrectWeaponPatch.Prefix(__instance);
         }
     }
 
