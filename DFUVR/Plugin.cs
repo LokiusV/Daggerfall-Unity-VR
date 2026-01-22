@@ -1017,25 +1017,32 @@ namespace DFUVR
     [HarmonyPatch(typeof(WeaponManager), "ToggleSheath")]
     public class CorrectWeaponPatch : MonoBehaviour
     {
-        [HarmonyPrefix]
-        internal static void Prefix(WeaponManager __instance)
+        [HarmonyPostfix]
+        internal static void Postfix(WeaponManager __instance)
         {
             if (Var.weaponObject != null)
                 Destroy(Var.weaponObject);
 
-            if (__instance.ScreenWeapon == null)
+            DaggerfallUnityItem rightHandItem = GameManager.Instance.PlayerEntity.ItemEquipTable.GetItem(EquipSlots.RightHand);
+            //DaggerfallUnityItem daggerfallUnityItem = playerEntity.ItemEquipTable.GetItem(EquipSlots.LeftHand);
+
+            if (rightHandItem == null)
             {
                 Var.currentWeaponName = null;
+
+                Var.sheathObject.GetComponent<MeshRenderer>().enabled = true;
+                Hands.rHand.SetActive(true);
+                Hands.lHand.SetActive(true);
                 return;
             }
 
-            Var.currentWeaponName = __instance.ScreenWeapon.SpecificWeapon?.LongName ?? "";
+            Var.currentWeaponName = rightHandItem.LongName ?? "";
 
             HandObject currentHandObject = null;
-            if (__instance.ScreenWeapon.WeaponType != WeaponTypes.Bow && Var.handObjectsByName.ContainsKey(Var.currentWeaponName))
+            if (rightHandItem.GetWeaponType() != WeaponTypes.Bow && Var.handObjectsByName.ContainsKey(Var.currentWeaponName))
                 currentHandObject = Var.handObjectsByName[Var.currentWeaponName];
             else
-                currentHandObject = Var.handObjects[__instance.ScreenWeapon.WeaponType];
+                currentHandObject = Var.handObjects[rightHandItem.GetWeaponType()];
 
             GameObject tempObject = currentHandObject.gameObject;
 
@@ -1044,6 +1051,18 @@ namespace DFUVR
 
             // if it is unsheathing
             if (__instance.Sheathed)
+            {
+                Var.weaponObject.GetComponent<Collider>().enabled = false;
+                Var.weaponObject.transform.SetParent(Var.sheathObject.transform);
+
+                Var.weaponObject.transform.localPosition = currentHandObject.sheatedPositionOffset;
+                Var.weaponObject.transform.localRotation = currentHandObject.sheatedRotationOffset;
+                Var.sheathObject.GetComponent<MeshRenderer>().enabled = currentHandObject.renderSheated;
+
+                Hands.rHand.SetActive(true);
+                Hands.lHand.SetActive(true);
+            }
+            else
             {
                 Var.sheathObject.GetComponent<MeshRenderer>().enabled = true;
 
@@ -1080,9 +1099,7 @@ namespace DFUVR
         [HarmonyPostfix]
         static void Postfix(WeaponManager __instance)
         {
-            if (__instance.ScreenWeapon == null || __instance.ScreenWeapon.SpecificWeapon == null ||
-                __instance.ScreenWeapon.SpecificWeapon.LongName != Var.currentWeaponName)
-                CorrectWeaponPatch.Prefix(__instance);
+            CorrectWeaponPatch.Postfix(__instance);
         }
     }
 
