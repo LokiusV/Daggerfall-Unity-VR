@@ -1049,7 +1049,6 @@ namespace DFUVR
             Var.weaponObject = Instantiate(tempObject);
             Var.weaponObject.GetComponent<Collider>().enabled = true;
 
-            // if it is unsheathing
             if (__instance.Sheathed)
             {
                 Var.weaponObject.GetComponent<Collider>().enabled = false;
