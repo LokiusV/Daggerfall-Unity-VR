@@ -118,6 +118,7 @@
     <Compile Include="MenuTransition.cs" />
     <Compile Include="Plugin.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Settings.cs" />
     <Compile Include="Sheath.cs" />
     <Compile Include="SheathCollision.cs" />
     <Compile Include="SnapTurnProvider.cs" />
