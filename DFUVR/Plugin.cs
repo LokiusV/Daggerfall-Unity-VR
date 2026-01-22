@@ -1696,6 +1696,15 @@ namespace DFUVR
                 //    GameObject.Find("PlayerAdvanced").GetComponent<WeaponManager>().ToggleSheath();
                 //}
                 //var leftHand = InputDevices.GetDeviceAtXRNode(XRNode.LeftHand);
+                if (Var.actionList.Count > 0)
+                {
+                    Plugin.LoggerInstance.LogInfo("Action found");
+                    foreach (Actions act in Var.actionList)
+                    {
+                        currentActions.Add(act);
+                    }
+                    Var.actionList.Clear();
+                }
                 if (ControllerPatch.flag)
                 {
                     if (Input.GetKeyDown(Var.acceptButton))

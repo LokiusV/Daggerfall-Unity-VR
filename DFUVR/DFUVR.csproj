@@ -120,6 +120,8 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Sheath.cs" />
     <Compile Include="SheathCollision.cs" />
+    <Compile Include="SlotCollision.cs" />
+    <Compile Include="Slots.cs" />
     <Compile Include="SnapTurnProvider.cs" />
     <Compile Include="SpawnHands.cs" />
     <Compile Include="SpawnUI.cs" />

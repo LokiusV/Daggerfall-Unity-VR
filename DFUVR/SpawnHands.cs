@@ -7,6 +7,7 @@ using System.Text;
 using System.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.SpatialTracking;
+using static DaggerfallWorkshop.Game.InputManager;//for slots
 
 namespace DFUVR
 {
@@ -97,6 +98,10 @@ namespace DFUVR
                 watch.transform.SetParent(Var.leftHand.transform, false);
             }
             catch (Exception ex) { Plugin.LoggerInstance.LogError(ex.ToString()); }
+            //example slot
+            //putting new slots as static objects in Var would be good
+            //Var.slot1 = Var.body.AddComponent<Slot>();
+            //Var.slot1.Init(null, Actions.Jump, 0, new Vector3(0, 0, 0), 0, 0, 0);
         }
     }
 }

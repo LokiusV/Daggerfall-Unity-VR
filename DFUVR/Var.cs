@@ -9,6 +9,7 @@ using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Runtime.CompilerServices;
+using static DaggerfallWorkshop.Game.InputManager;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -25,6 +26,10 @@ namespace DFUVR
         //Axis5: Right Stick Vertical
         //axis 11: left controller grip
         //axis 12: right controller grip
+
+        public static List<Actions> actionList = new List<Actions>();
+        public static Slot slot1;
+
         public static int activeWindowCount = 0;
         public static int debugInt2 = 0;
         public static bool isFirst = true;

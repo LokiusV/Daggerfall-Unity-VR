@@ -34,6 +34,7 @@ namespace DFUVR
             sphere.transform.localScale = new Vector3(0.25f, 0.25f, 0.25f);
             
             sphereCollider = sphere.AddComponent<SphereCollider>();
+            sphereCollider.radius = 0.25f;
             sphereCollider.isTrigger = true;
             Var.sphereObject = sphere;
             sphere.AddComponent<SheathCollision>();
