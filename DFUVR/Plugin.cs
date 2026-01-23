@@ -1017,60 +1017,128 @@ namespace DFUVR
     [HarmonyPatch(typeof(WeaponManager), "ToggleSheath")]
     public class CorrectWeaponPatch : MonoBehaviour
     {
-        [HarmonyPrefix]
-        static void Prefix(WeaponManager __instance)
+        [HarmonyPostfix]
+        internal static void Postfix(WeaponManager __instance)
         {
-            if (Var.weaponObject != null)
-                Destroy(Var.weaponObject);
+            if (Var.leftWeaponObject != null)
+                Destroy(Var.leftWeaponObject);
+            if (Var.rightWeaponObject != null)
+                Destroy(Var.rightWeaponObject);
 
-            if (__instance.ScreenWeapon == null)
+            DaggerfallUnityItem leftHandItem = GameManager.Instance.PlayerEntity.ItemEquipTable.GetItem(EquipSlots.LeftHand);
+            DaggerfallUnityItem rightHandItem = GameManager.Instance.PlayerEntity.ItemEquipTable.GetItem(EquipSlots.RightHand);
+
+            if (leftHandItem == null)
+                Var.currentLeftWeaponName = "rHandClosed";
+            else
+                Var.currentLeftWeaponName = leftHandItem.LongName;
+
+            if (rightHandItem == null)
+                Var.currentRightWeaponName = "rHandClosed";
+            else
+                Var.currentRightWeaponName = rightHandItem.LongName;
+
+            HandObject currentLeftHandObject = null;
+            if (Var.currentLeftWeaponName != null)
             {
-                Var.currentWeaponName = null;
-                return;
+                var weaponType = leftHandItem?.GetWeaponType() ?? WeaponTypes.Melee;
+
+                if (weaponType != WeaponTypes.Bow && Var.handObjectsByName.ContainsKey(Var.currentLeftWeaponName))
+                    currentLeftHandObject = Var.handObjectsByName[Var.currentLeftWeaponName];
+                else
+                    currentLeftHandObject = Var.handObjects[weaponType];
+
+                Var.leftWeaponObject = Instantiate(currentLeftHandObject.gameObject);
+                Var.leftWeaponObject.GetComponent<Collider>().enabled = true;
+
+                WeaponCollision weaponCollision = Var.leftWeaponObject.GetComponent<WeaponCollision>();
+                if (weaponCollision != null && leftHandItem != null)
+                    weaponCollision.item = leftHandItem;
             }
 
-            Var.currentWeaponName = __instance.ScreenWeapon.SpecificWeapon?.LongName ?? "";
+            HandObject currentRightHandObject = null;
+            if (Var.currentRightWeaponName != null)
+            {
+                var weaponType = rightHandItem?.GetWeaponType() ?? WeaponTypes.Melee;
 
-            HandObject currentHandObject = null;
-            if (__instance.ScreenWeapon.WeaponType != WeaponTypes.Bow && Var.handObjectsByName.ContainsKey(Var.currentWeaponName))
-                currentHandObject = Var.handObjectsByName[Var.currentWeaponName];
-            else
-                currentHandObject = Var.handObjects[__instance.ScreenWeapon.WeaponType];
+                if (weaponType != WeaponTypes.Bow && Var.handObjectsByName.ContainsKey(Var.currentRightWeaponName))
+                    currentRightHandObject = Var.handObjectsByName[Var.currentRightWeaponName];
+                else
+                    currentRightHandObject = Var.handObjects[weaponType];
 
-            GameObject tempObject = currentHandObject.gameObject;
+                Var.rightWeaponObject = Instantiate(currentRightHandObject.gameObject);
+                Var.rightWeaponObject.GetComponent<Collider>().enabled = true;
 
-            Var.weaponObject = Instantiate(tempObject);
-            Var.weaponObject.GetComponent<Collider>().enabled = true;
+                WeaponCollision weaponCollision = Var.rightWeaponObject.GetComponent<WeaponCollision>();
+                if (weaponCollision != null && rightHandItem != null)
+                    weaponCollision.item = rightHandItem;
+            }
 
-            // if it is unsheathing
             if (__instance.Sheathed)
             {
-                Var.sheathObject.GetComponent<MeshRenderer>().enabled = true;
+                if (Var.leftWeaponObject != null)
+                {
+                    Var.leftWeaponObject.GetComponent<Collider>().enabled = false;
+                    //Var.leftWeaponObject.transform.SetParent(Var.leftSheathObject.transform);
+                    //Var.leftWeaponObject.transform.localPosition = currentLeftHandObject.sheatedPositionOffset;
+                    //Var.leftWeaponObject.transform.localRotation = currentLeftHandObject.sheatedRotationOffset;
+                }
 
-                if (Var.leftHanded)
-                    Var.weaponObject.transform.SetParent(Var.leftHand.transform);
-                else
-                    Var.weaponObject.transform.SetParent(Var.rightHand.transform);
+                if (Var.rightWeaponObject != null)
+                {
+                    Var.rightWeaponObject.GetComponent<Collider>().enabled = false;
+                    Var.rightWeaponObject.transform.SetParent(Var.rightSheathObject.transform);
+                    Var.rightWeaponObject.transform.localPosition = currentRightHandObject.sheatedPositionOffset;
+                    Var.rightWeaponObject.transform.localRotation = currentRightHandObject.sheatedRotationOffset;
+                }
 
-                Var.weaponObject.transform.localPosition = currentHandObject.unsheatedPositionOffset;
-                Var.weaponObject.transform.localRotation = currentHandObject.unsheatedRotationOffset;
-                Var.weaponObject.SetActive(true);
-
-                Hands.rHand.SetActive(false);
-                Hands.lHand.SetActive(false);
-            }
-            else
-            {
-                Var.weaponObject.GetComponent<Collider>().enabled = false;
-                Var.weaponObject.transform.SetParent(Var.sheathObject.transform);
-
-                Var.weaponObject.transform.localPosition = currentHandObject.sheatedPositionOffset;
-                Var.weaponObject.transform.localRotation = currentHandObject.sheatedRotationOffset;
-                Var.sheathObject.GetComponent<MeshRenderer>().enabled = currentHandObject.renderSheated;
+                Var.rightSheathObject.GetComponent<MeshRenderer>().enabled = currentRightHandObject.renderSheated;
 
                 Hands.rHand.SetActive(true);
                 Hands.lHand.SetActive(true);
             }
+            else
+            {
+                Var.rightSheathObject.GetComponent<MeshRenderer>().enabled = true;
+
+                if (Var.leftWeaponObject != null)
+                {
+                    Var.leftWeaponObject.transform.SetParent(Var.offHand.transform);
+
+                    Var.leftWeaponObject.transform.localPosition = currentLeftHandObject.unsheatedPositionOffset;
+                    Var.leftWeaponObject.transform.localRotation = currentLeftHandObject.unsheatedRotationOffset;
+                    Var.leftWeaponObject.SetActive(true);
+                }
+
+                if (Var.rightWeaponObject != null)
+                {
+                    Var.rightWeaponObject.transform.SetParent(Var.mainHand.transform);
+
+                    Var.rightWeaponObject.transform.localPosition = currentRightHandObject.unsheatedPositionOffset;
+                    Var.rightWeaponObject.transform.localRotation = currentRightHandObject.unsheatedRotationOffset;
+                    Var.rightWeaponObject.SetActive(true);
+                }
+
+                Hands.rHand.SetActive(false);
+                Hands.lHand.SetActive(false);
+            }
+        }
+    }
+
+    [HarmonyPatch(typeof(WeaponManager), "ApplyWeapon")]
+    public class ApplyWeaponPatch : MonoBehaviour
+    {
+        [HarmonyPostfix]
+        static void Postfix(WeaponManager __instance)
+        {
+            DaggerfallUnityItem leftHandItem = GameManager.Instance.PlayerEntity.ItemEquipTable.GetItem(EquipSlots.LeftHand);
+            DaggerfallUnityItem rightHandItem = GameManager.Instance.PlayerEntity.ItemEquipTable.GetItem(EquipSlots.RightHand);
+
+            string leftName = leftHandItem?.LongName ?? "rHandClosed";
+            string rightName = rightHandItem?.LongName ?? "rHandClosed";
+
+            if (leftName != Var.currentLeftWeaponName || rightName != Var.currentRightWeaponName)
+                CorrectWeaponPatch.Postfix(__instance);
         }
     }
 
