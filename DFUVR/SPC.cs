@@ -2,6 +2,7 @@
 using UnityEngine;
 using UnityEngine.SpatialTracking;
 using UnityEngine.UI;
+using UnityEngine.XR;
 using uWindowCapture;
 
 namespace DFUVR
@@ -30,6 +31,7 @@ namespace DFUVR
 
         private const uint MOUSEEVENTF_LEFTDOWN = 0x02;
         private const uint MOUSEEVENTF_LEFTUP = 0x04;
+        private const uint MOUSEEVENTF_WHEEL = 0x0800;
 
         [DllImport("user32.dll")]
         private static extern bool SetCursorPos(int X, int Y);
@@ -156,6 +158,15 @@ namespace DFUVR
                             if (Input.GetKeyDown(Var.acceptButton) || Var.rTriggerDone || Var.lTriggerDone)
                                 hit.collider.gameObject.GetComponent<Button>()?.onClick.Invoke();
                         }
+
+                        // scroll
+                        InputDevice hand = Var.leftHanded ? InputDevices.GetDeviceAtXRNode(XRNode.LeftHand) : InputDevices.GetDeviceAtXRNode(XRNode.RightHand);
+
+                        Vector2 rThumbStick;
+                        hand.TryGetFeatureValue(UnityEngine.XR.CommonUsages.primary2DAxis, out rThumbStick);
+
+                        float inputY = rThumbStick.y;
+                        mouse_event(MOUSEEVENTF_WHEEL, 0, 0, (uint)(inputY * Var.scrollSpeed), 0);
                     }
                 }
                 else if (clicked)
