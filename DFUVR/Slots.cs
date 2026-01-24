@@ -8,28 +8,26 @@ using System;
 
 namespace DFUVR
 {
-    //slots are components that can be added to the player body. They require a model, an ID, a location and a Rotation(for the model).
-    //Right now, when you press grip while in their radius, an action gets triggered.
-    //Maybe reworking it so you grab the object instead and then trigger the action when you let go could be more immersive?
-    // A slot can be created in SpawnHands.cs
-    public class Slot:MonoBehaviour
+    public class Slot : MonoBehaviour
     {
         public GameObject model;
         public GameObject sphere;
         public SphereCollider sphereCollider;
+        Action<object[]> function = null;
+        object[] args;
         public Actions action;
         public SlotCollision slotCollision;
         public int slotID = 0;
 
         public Vector3 location;
-        public float xRot,yRot,zRot;
+        public float xRot, yRot, zRot;
 
         private bool gripFlag = false;
         private bool alreadyGripped = false;
-        private bool ready=false;
+        private bool ready = false;
 
         //Constructor
-        public void Init(GameObject model, Actions action, int slotID, Vector3 location, float xRot, float yRot, float zRot)
+        public void Init(GameObject model, Actions action, int slotID, Vector3 location, float xRot, float yRot, float zRot, object[] args, Action<object[]> function = null)
         {
             this.model = model;//TODO
             this.action = action;
@@ -38,9 +36,11 @@ namespace DFUVR
             this.xRot = xRot;
             this.yRot = yRot;
             this.zRot = zRot;
+            this.args = args;
+            this.function = function;
             Init_2();
             ready = true;
-            
+
 
         }
         void Start()
@@ -50,20 +50,14 @@ namespace DFUVR
 
         void Init_2()
         {
-            Plugin.LoggerInstance.LogInfo($"Slot {slotID} started");
-            sphere = new GameObject("Sphere"+slotID);
+            Plugin.LoggerInstance.LogInfo("SlotStarted");
+            sphere = new GameObject("Sphere" + slotID);
             sphere.transform.parent = GameObject.Find("Body").transform;
             if (GameObject.Find("Body") == null) { Plugin.LoggerInstance.LogError("Body not found. Are you a ghost?"); }
             //sphere.transform.Rotate(-231.724f, 0, 0);
             sphere.transform.Rotate(xRot, yRot, zRot);
 
             sphere.transform.localScale = new Vector3(0.25f, 0.25f, 0.25f);
-            //try
-            //{
-            //    model.transform.parent = sphere.transform;
-            //    model.transform.position = new Vector3(0, 0, 0);
-            //}
-            //catch (Exception e) { Plugin.LoggerInstance.LogWarning("No model provided. Skipping..."); }
 
             sphereCollider = sphere.AddComponent<SphereCollider>();
             sphereCollider.isTrigger = true;
@@ -113,15 +107,32 @@ namespace DFUVR
                 {
                     alreadyGripped = true;
                     //Plugin.LoggerInstance.LogInfo("Action!");
-                    try { Var.actionList.Add(action); }
-                    catch(Exception e) { Plugin.LoggerInstance.LogError(e); }
-                    Plugin.LoggerInstance.LogInfo(Var.actionList.Count);
+                    if (function != null)
+                    {
+                        function(args);
+                    }
+                    else
+                    {
+                        try { Var.actionList.Add(action); }
+                        catch (Exception e) { Plugin.LoggerInstance.LogError(e); }
+                        Plugin.LoggerInstance.LogInfo(Var.actionList.Count);
+                    }
+
 
 
                 }
             }
         }
-    
+        //Functions to better illustrate how slots work in SpawnHands.cs
+        public static void TestFuncNoParams(object[] x)
+        {
+            Plugin.LoggerInstance.LogInfo($"testFuncNoParams");
+        }
+        public static void TestFuncWithParams(string x)
+        {
+            Plugin.LoggerInstance.LogInfo(x);
+        }
+
 
     }
 }
