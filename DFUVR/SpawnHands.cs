@@ -101,9 +101,9 @@ namespace DFUVR
             //example slot
             //putting new slots as static objects in Var would be good
             //Var.slot1 = Var.body.AddComponent<Slot>();
-            //Var.slot1.Init(null, Actions.Jump, 0, new Vector3(0, 0, 0), 0, 0, 0, null);
-            //Var.slot1.Init(null, Actions.Jump, 0, new Vector3(0, 0, 0), 0, 0, 0, null,Slot.TestFuncNoParams);
-            //Var.slot1.Init(null, Actions.Jump, 0, new Vector3(0, 0, 0), 0, 0, 0,new object[] { "Test" }, args => Slot.TestFuncWithParams((string)args[0]));
+            //Var.slot1.Init(null, Actions.Jump, 0, new Vector3(0, 0, 0), 0, 0, 0, null);////No C# function->Daggerfall Action is run
+            //Var.slot1.Init(null, Actions.Jump, 0, new Vector3(0, 0, 0), 0, 0, 0, null,Slot.TestFuncNoParams);////C# function without parameters->Daggerfall Action is skipped
+            //Var.slot1.Init(null, Actions.Jump, 0, new Vector3(0, 0, 0), 0, 0, 0,new object[] { "Test" }, args => Slot.TestFuncWithParams((string)args[0]));////C#function with parameters->Daggerfall Action is skipped
         }
     }
 }
