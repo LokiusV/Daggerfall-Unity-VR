@@ -1,9 +1,9 @@
-﻿using System.IO;
-using UnityEngine;
-using BepInEx;
-using DaggerfallWorkshop.Game;
-using UnityEngine.XR;
+﻿using BepInEx;
+using DaggerfallWorkshop.Game.Items;
 using System;
+using System.IO;
+using UnityEngine;
+using UnityEngine.XR;
 
 namespace DFUVR
 {
@@ -19,6 +19,10 @@ namespace DFUVR
 
         private bool isGripPressed = false;
         private bool alreadyGripped = false;
+
+        public GameObject weaponObj;
+        public DaggerfallUnityItem weaponItem;
+        public bool isWeaponSheathed = true;
 
         void Start()
         {
@@ -76,6 +80,9 @@ namespace DFUVR
                 Var.mainHandSphereSheathObject = sphere;
                 Var.mainHandSheathObject = sheathOB;
             }
+
+            // set initial state
+            SheathWeapon(isOffHandSheath ? Hands.offHandLabel : Hands.mainHandLabel, null);
         }
 
         //this will handle all interaction with the Sheath
@@ -114,7 +121,7 @@ namespace DFUVR
                 if (isGripPressed && !alreadyGripped)
                 {
                     alreadyGripped = true;
-                    GameObject.Find("PlayerAdvanced").GetComponent<WeaponManager>().ToggleSheath();
+                    ToggleSheath(hand);
                 }
             }
         }
@@ -124,6 +131,101 @@ namespace DFUVR
             Vector3 localPos = sphere.transform.localPosition;
             localPos.x = -localPos.x;
             sphere.transform.localPosition = localPos;
+        }
+
+        private void ToggleSheath(HandLabel hand)
+        {
+            Plugin.LoggerInstance.LogInfo("ToggleSheath");
+
+            if (isWeaponSheathed)
+                UnSheathWeapon(hand);
+            else if (hand.weaponObject != null)
+                SheathWeapon(hand, hand.weaponItem);
+        }
+
+        private void UnSheathWeapon(HandLabel hand)
+        {
+            if (weaponObj != null)
+                Destroy(weaponObj);
+            weaponObj = null;
+
+            var newWeaponObj = Weapon.GetWeaponObjectForHandObject(weaponItem, out HandObject currentHandObject);
+            if (currentHandObject == null || newWeaponObj == null)
+                return;
+
+            if (newWeaponObj != null)
+            {
+                
+                hand.SetWeapon(weaponItem, newWeaponObj, currentHandObject);
+            }
+
+            if (sheathOB != null)
+            {
+                MeshRenderer meshRenderer = sheathOB.GetComponent<MeshRenderer>();
+                if (meshRenderer != null)
+                    meshRenderer.enabled = true;
+            }
+
+            isWeaponSheathed = false;
+            weaponItem = null;
+
+            hand.freeHandObject.SetActive(false);
+        }
+
+        private void SheathWeapon(HandLabel hand, DaggerfallUnityItem weaponItem)
+        {
+            // can't sheath if we have something on the sheath already
+            if (weaponObj != null)
+                return;
+
+            weaponObj = Weapon.GetWeaponObjectForHandObject(weaponItem, out HandObject currentHandObject);
+            if (currentHandObject == null || weaponObj == null)
+                return;
+
+            SetWeapon(weaponItem, currentHandObject);
+
+            hand.RemoveHeldWeapon();
+
+            hand.freeHandObject.SetActive(true);
+        }
+
+        /// <summary>
+        /// This method will replace the weapon that is currently sheathed, if any, by the one sent.
+        /// The object has to have been created already. Use SheathWeapon if not.
+        /// </summary>
+        public void ReplaceWeapon(DaggerfallUnityItem weaponItem, GameObject weaponObject, HandObject handObject)
+        {
+            if (weaponObj != null)
+                Destroy(weaponObj);
+
+            weaponObj = weaponObject;
+
+            SetWeapon(weaponItem, handObject);
+
+            weaponObj.SetActive(true);
+        }
+
+        private void SetWeapon(DaggerfallUnityItem weaponItem, HandObject currentHandObject)
+        {
+            Collider collider = weaponObj.GetComponent<Collider>();
+            if (collider != null)
+                collider.enabled = false;
+
+            if (sheathOB != null)
+                weaponObj.transform.SetParent(sheathOB.transform);
+
+            weaponObj.transform.localPosition = currentHandObject.sheatedPositionOffset;
+            weaponObj.transform.localRotation = currentHandObject.sheatedRotationOffset;
+
+            if (sheathOB != null)
+            {
+                MeshRenderer meshRenderer = sheathOB.GetComponent<MeshRenderer>();
+                if (meshRenderer != null)
+                    meshRenderer.enabled = currentHandObject.renderSheated;
+            }
+
+            isWeaponSheathed = true;
+            this.weaponItem = weaponItem;
         }
     }
 }

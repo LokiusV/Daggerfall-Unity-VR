@@ -16,6 +16,15 @@ namespace DFUVR
     {
         public static GameObject rHand;
         public static GameObject lHand;
+
+        public static SheathController mainHandSheathController;
+        public static SheathController offHandSheathController;
+
+        public static HandLabel leftHandLabel;
+        public static HandLabel rightHandLabel;
+        public static HandLabel offHandLabel { get { return Var.leftHanded ? rightHandLabel : leftHandLabel; } }
+        public static HandLabel mainHandLabel { get { return Var.leftHanded ? leftHandLabel : rightHandLabel; } }
+
         public static void Spawn()
         {
             //creating Hands
@@ -40,15 +49,17 @@ namespace DFUVR
             rCollider.isTrigger = true;
             lCollider.isTrigger = true;
 
+            leftHandLabel = Var.leftHand.AddComponent<HandLabel>();
+            rightHandLabel = Var.rightHand.AddComponent<HandLabel>();
             if (Var.leftHanded)
             {
-                Var.rightHand.AddComponent<HandLabel>().Init(false, XRNode.RightHand, InputDevices.GetDeviceAtXRNode(XRNode.RightHand), Var.gripButton);
-                Var.leftHand.AddComponent<HandLabel>().Init(true, XRNode.LeftHand, InputDevices.GetDeviceAtXRNode(XRNode.LeftHand), Var.lGripButton);
+                rightHandLabel.Init(false, XRNode.RightHand, InputDevices.GetDeviceAtXRNode(XRNode.RightHand), Var.gripButton);
+                leftHandLabel.Init(true, XRNode.LeftHand, InputDevices.GetDeviceAtXRNode(XRNode.LeftHand), Var.lGripButton);
             }
             else
             {
-                Var.rightHand.AddComponent<HandLabel>().Init(true, XRNode.RightHand, InputDevices.GetDeviceAtXRNode(XRNode.RightHand), Var.gripButton);
-                Var.leftHand.AddComponent<HandLabel>().Init(false, XRNode.LeftHand, InputDevices.GetDeviceAtXRNode(XRNode.LeftHand), Var.lGripButton);
+                rightHandLabel.Init(true, XRNode.RightHand, InputDevices.GetDeviceAtXRNode(XRNode.RightHand), Var.gripButton);
+                leftHandLabel.Init(false, XRNode.LeftHand, InputDevices.GetDeviceAtXRNode(XRNode.LeftHand), Var.lGripButton);
             }
 
             //Rigidbody rHandBody=Var.rightHand.AddComponent<Rigidbody>();
@@ -80,6 +91,8 @@ namespace DFUVR
             lHand.transform.localPosition = new Vector3(0, 0, 0);
             lHand.transform.Rotate(0, 180, 0);
 
+            rightHandLabel.freeHandObject = rHand;
+            leftHandLabel.freeHandObject = lHand;
 
             if (Var.leftHanded) { Var.handCam = Var.leftHand.AddComponent<Camera>(); }
             else { Var.handCam = Var.rightHand.AddComponent<Camera>(); }
@@ -88,8 +101,10 @@ namespace DFUVR
             Var.body = new GameObject("Body");
             Var.body.AddComponent<BodyRotationController>();
 
-            Var.body.AddComponent<SheathController>().isOffHandSheath = false;
-            Var.body.AddComponent<SheathController>().isOffHandSheath = true;
+            mainHandSheathController = Var.body.AddComponent<SheathController>();
+            mainHandSheathController.isOffHandSheath = false;
+            offHandSheathController = Var.body.AddComponent<SheathController>();
+            offHandSheathController.isOffHandSheath = true;
 
             try
             {

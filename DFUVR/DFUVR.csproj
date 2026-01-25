@@ -130,6 +130,7 @@
     <Compile Include="TriggerProvider.cs" />
     <Compile Include="Var.cs" />
     <Compile Include="WatchController.cs" />
+    <Compile Include="Weapon.cs" />
     <Compile Include="WeaponCollision.cs" />
     <Compile Include="WinAPIMonitor.cs" />
   </ItemGroup>
