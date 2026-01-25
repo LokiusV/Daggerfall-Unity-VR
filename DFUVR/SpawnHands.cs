@@ -7,6 +7,7 @@ using System.Text;
 using System.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.SpatialTracking;
+using UnityEngine.XR;
 using static DaggerfallWorkshop.Game.InputManager;//for slots
 
 namespace DFUVR
@@ -25,27 +26,31 @@ namespace DFUVR
             Var.leftHand.transform.parent = GameObject.Find("VRParent").transform;
 
 
-            TrackedPoseDriver rightTracker=Var.rightHand.AddComponent<TrackedPoseDriver>();
+            TrackedPoseDriver rightTracker = Var.rightHand.AddComponent<TrackedPoseDriver>();
             TrackedPoseDriver leftTracker = Var.leftHand.AddComponent<TrackedPoseDriver>();
 
             rightTracker.SetPoseSource(TrackedPoseDriver.DeviceType.GenericXRController, TrackedPoseDriver.TrackedPose.RightPose);
             leftTracker.SetPoseSource(TrackedPoseDriver.DeviceType.GenericXRController, TrackedPoseDriver.TrackedPose.LeftPose);
 
-            SphereCollider rCollider=Var.rightHand.AddComponent<SphereCollider>();
+            SphereCollider rCollider = Var.rightHand.AddComponent<SphereCollider>();
             SphereCollider lCollider = Var.leftHand.AddComponent<SphereCollider>();
 
             rCollider.radius = 0.0668935f;
             lCollider.radius = 0.0668935f;
             rCollider.isTrigger = true;
-            lCollider.isTrigger=true;
-            Var.rightHand.AddComponent<HandLabel>().rightHand=true;
-            Var.leftHand.AddComponent<HandLabel>().rightHand = false;
+            lCollider.isTrigger = true;
 
-            if (Var.leftHanded) {
-                Var.rightHand.GetComponent<HandLabel>().rightHand = false;
-                Var.leftHand.GetComponent<HandLabel>().rightHand = true;
+            if (Var.leftHanded)
+            {
+                Var.rightHand.AddComponent<HandLabel>().Init(false, XRNode.RightHand, InputDevices.GetDeviceAtXRNode(XRNode.RightHand), Var.gripButton);
+                Var.leftHand.AddComponent<HandLabel>().Init(true, XRNode.LeftHand, InputDevices.GetDeviceAtXRNode(XRNode.LeftHand), Var.lGripButton);
             }
-            
+            else
+            {
+                Var.rightHand.AddComponent<HandLabel>().Init(true, XRNode.RightHand, InputDevices.GetDeviceAtXRNode(XRNode.RightHand), Var.gripButton);
+                Var.leftHand.AddComponent<HandLabel>().Init(false, XRNode.LeftHand, InputDevices.GetDeviceAtXRNode(XRNode.LeftHand), Var.lGripButton);
+            }
+
             //Rigidbody rHandBody=Var.rightHand.AddComponent<Rigidbody>();
             //Rigidbody lHandBody = Var.leftHand.AddComponent<Rigidbody>();
 
@@ -59,8 +64,8 @@ namespace DFUVR
 
 
             AssetBundle assetBundle = AssetBundle.LoadFromFile(assetBundlePath);
-
             GameObject controllerPrefab = assetBundle.LoadAsset<GameObject>("vr_controller_01_mrhat");
+            assetBundle.Unload(false);
 
             rHand = Instantiate(controllerPrefab);
             lHand= Instantiate(controllerPrefab);
@@ -83,8 +88,12 @@ namespace DFUVR
             Var.body = new GameObject("Body");
             Var.body.AddComponent<BodyRotationController>();
 
-            Var.body.AddComponent<SheathController>();
-            assetBundle.Unload(false);
+            SheathController rightSheath = Var.body.AddComponent<SheathController>();
+            rightSheath.isLeftSheath = false;
+
+            SheathController leftSheath = Var.body.AddComponent<SheathController>();
+            leftSheath.isLeftSheath = true;
+
             try
             {
                 string watchBundlePath = Path.Combine(pluginFolderPath, "AssetBundles/watchandfonts");

@@ -43,9 +43,10 @@ namespace DFUVR
         public static Vector3 sheathOffset;
 
         public static bool leftHanded;
-        
 
-        public static GameObject sphereObject;
+
+        public static GameObject rightSphereSheathObject;
+        public static GameObject leftSphereSheathObject;
         //Default Bindings
         public static KeyCode gripButton = KeyCode.JoystickButton5;
         //public static KeyCode gripButton = KeyCode.JoystickButton5;
@@ -167,8 +168,8 @@ namespace DFUVR
 
             Button[]buttons=keyboard.GetComponentsInChildren<Button>();
 
-            foreach (Button button in buttons) 
-            { 
+            foreach (Button button in buttons)
+            {
                 BoxCollider boxcollider= button.gameObject.AddComponent<BoxCollider>();
                 Vector2 buttonSize = button.gameObject.GetComponent<RectTransform>().sizeDelta;
                 boxcollider.size= new Vector3(buttonSize.x, buttonSize.y, 0.1f);
@@ -201,7 +202,7 @@ namespace DFUVR
             int numKeys = 10;
             for (int i = 0; i < numKeys; i++)
             {
-                
+
                 Plugin.LoggerInstance.LogInfo("started Button " + i.ToString());
                 GameObject clonedKey = Instantiate(keysParent.GetChild(i).gameObject);
                 //clonedKey.transform.SetSiblingIndex(i);
@@ -212,7 +213,7 @@ namespace DFUVR
                 newPositio.y += (originalKeyRect.sizeDelta.y + 10);
 
                 clonedKeyRect.localPosition = newPositio;
-                
+
                 clonedKeyRect.ForceUpdateRectTransforms();
                 string number = (i + 1).ToString();
                 if (i == 9) number = "0";
@@ -244,7 +245,7 @@ namespace DFUVR
             started = false;
             Debug.Log("Reading Controller Settings");
             string filePath = Path.Combine(Paths.PluginPath, "Settings.txt");
-            
+
 
             try //to read the Settings.txt file
             {
@@ -318,7 +319,7 @@ namespace DFUVR
                 }
                 //set the refresh rate of the game to the refresh rate specified in settings.txt
                 float targetTimeStep;
-                try 
+                try
                 {
                     fileContent = FileReader.ReadFromFile(filePath);
                     //lines = fileContent.Split('\n');
@@ -386,7 +387,7 @@ namespace DFUVR
             string[] lines = File.ReadAllLines(filePath);
 
             lines[0] = string.Format(CultureInfo.InvariantCulture,"{0}", Var.heightOffset);//Var.heightOffset.ToString();
-            lines[3] = string.Format(CultureInfo.InvariantCulture, "{0},{1},{2}", Var.sphereObject.transform.localPosition.x, Var.sphereObject.transform.localPosition.y, Var.sphereObject.transform.localPosition.z);//Var.sphereObject.transform.localPosition.ToString();//Var.sheathOffset.ToString();
+            lines[3] = string.Format(CultureInfo.InvariantCulture, "{0},{1},{2}", Var.rightSphereSheathObject.transform.localPosition.x, Var.rightSphereSheathObject.transform.localPosition.y, Var.rightSphereSheathObject.transform.localPosition.z);//Var.sphereObject.transform.localPosition.ToString();//Var.sheathOffset.ToString();
             lines[4] = connectedJoysticks.ToString();
 
             File.WriteAllLines(filePath, lines);

@@ -562,28 +562,40 @@ namespace DFUVR
                 //ControllerPatch.flag = false;
                 //float input = Input.GetAxis("Axis5");
                 //float input = Input.GetAxis(Var.rThumbStickVertical);
+
+                // toggle skybox
                 if (Input.GetKeyDown(Var.acceptButton))
                 {
                     Var.skyboxToggle = !Var.skyboxToggle;
                     Plugin.LoggerInstance.LogInfo(Var.skyboxToggle);
                 }
-                var rightHand = InputDevices.GetDeviceAtXRNode(XRNode.RightHand);
 
-                Vector2 rThumbStick;
-                rightHand.TryGetFeatureValue(UnityEngine.XR.CommonUsages.primary2DAxis, out rThumbStick);
-                
+                // adjust sheath position
+                {
+                    //Var.sphereObject.transform.localPosition=Vector3.zero;
+                    if (Var.leftHand != null)
+                        Var.sheathOffset = Var.leftHand.transform.position;
 
-                float inputX1 = rThumbStick.x;
-                float inputY1 = rThumbStick.y;
+                    if (Var.rightSphereSheathObject != null)
+                        Var.rightSphereSheathObject.transform.position = Var.sheathOffset;
 
-                float input = rThumbStick.y;
+                    if (Var.leftSphereSheathObject != null)
+                        Var.leftSphereSheathObject.transform.position = new Vector3(-Var.sheathOffset.x, Var.sheathOffset.y, Var.sheathOffset.z);
+                }
 
-                Var.heightOffset += input / 100;
-                //Var.sphereObject.transform.localPosition=Vector3.zero;
-                Var.sheathOffset = Var.leftHand.transform.position;
-                Var.sphereObject.transform.position = Var.sheathOffset;
-                GameObject vrparent = GameObject.Find("VRParent");
-                vrparent.transform.localPosition = new Vector3(vrparent.transform.localPosition.x, (float)Var.heightOffset, vrparent.transform.localPosition.z);
+                // adjust height offset
+                {
+                    var rightHand = InputDevices.GetDeviceAtXRNode(XRNode.RightHand);
+
+                    Vector2 rThumbStick;
+                    rightHand.TryGetFeatureValue(UnityEngine.XR.CommonUsages.primary2DAxis, out rThumbStick);
+
+                    float input = rThumbStick.y;
+                    Var.heightOffset += input / 100;
+
+                    GameObject vrparent = GameObject.Find("VRParent");
+                    vrparent.transform.localPosition = new Vector3(vrparent.transform.localPosition.x, (float)Var.heightOffset, vrparent.transform.localPosition.z);
+                }
             }
             if (Input.GetKeyDown(Var.left2Button))
             {
@@ -1020,6 +1032,22 @@ namespace DFUVR
         [HarmonyPostfix]
         internal static void Postfix(WeaponManager __instance)
         {
+            if (GameManager.Instance == null)
+            {
+                Plugin.LoggerInstance.LogError("GameManager is null");
+                return;
+            }
+            if (GameManager.Instance.PlayerEntity == null)
+            {
+                Plugin.LoggerInstance.LogError("PlayerEntity is null");
+                return;
+            }
+            if (GameManager.Instance.PlayerEntity.ItemEquipTable == null)
+            {
+                Plugin.LoggerInstance.LogError("ItemEquipTable is null");
+                return;
+            }
+
             if (Var.leftWeaponObject != null)
                 Destroy(Var.leftWeaponObject);
             if (Var.rightWeaponObject != null)
@@ -1047,9 +1075,22 @@ namespace DFUVR
                     currentLeftHandObject = Var.handObjectsByName[Var.currentLeftWeaponName];
                 else
                     currentLeftHandObject = Var.handObjects[weaponType];
+                if (currentLeftHandObject == null)
+                {
+                    Plugin.LoggerInstance.LogError("Current left hand object is null");
+                    return;
+                }
 
                 Var.leftWeaponObject = Instantiate(currentLeftHandObject.gameObject);
-                Var.leftWeaponObject.GetComponent<Collider>().enabled = true;
+                if (Var.leftWeaponObject == null)
+                {
+                    Plugin.LoggerInstance.LogError("Left weapon object is null after instantiation");
+                    return;
+                }
+
+                Collider collider = Var.leftWeaponObject.GetComponent<Collider>();
+                if (collider != null)
+                    collider.enabled = true;
 
                 WeaponCollision weaponCollision = Var.leftWeaponObject.GetComponent<WeaponCollision>();
                 if (weaponCollision != null && leftHandItem != null)
@@ -1065,9 +1106,22 @@ namespace DFUVR
                     currentRightHandObject = Var.handObjectsByName[Var.currentRightWeaponName];
                 else
                     currentRightHandObject = Var.handObjects[weaponType];
+                if (currentRightHandObject == null)
+                {
+                    Plugin.LoggerInstance.LogError("Current right hand object is null");
+                    return;
+                }
 
                 Var.rightWeaponObject = Instantiate(currentRightHandObject.gameObject);
-                Var.rightWeaponObject.GetComponent<Collider>().enabled = true;
+                if (Var.rightWeaponObject == null)
+                {
+                    Plugin.LoggerInstance.LogError("Right weapon object is null after instantiation");
+                    return;
+                }
+
+                Collider collider = Var.rightWeaponObject.GetComponent<Collider>();
+                if (collider != null)
+                    collider.enabled = true;
 
                 WeaponCollision weaponCollision = Var.rightWeaponObject.GetComponent<WeaponCollision>();
                 if (weaponCollision != null && rightHandItem != null)
@@ -1078,35 +1132,70 @@ namespace DFUVR
             {
                 if (Var.leftWeaponObject != null)
                 {
-                    Var.leftWeaponObject.GetComponent<Collider>().enabled = false;
-                    //Var.leftWeaponObject.transform.SetParent(Var.leftSheathObject.transform);
-                    //Var.leftWeaponObject.transform.localPosition = currentLeftHandObject.sheatedPositionOffset;
-                    //Var.leftWeaponObject.transform.localRotation = currentLeftHandObject.sheatedRotationOffset;
+                    Collider collider = Var.leftWeaponObject.GetComponent<Collider>();
+                    if (collider != null)
+                        collider.enabled = false;
+
+                    if (Var.leftSheathObject != null)
+                        Var.leftWeaponObject.transform.SetParent(Var.leftSheathObject.transform);
+
+                    Var.leftWeaponObject.transform.localPosition = currentLeftHandObject.sheatedPositionOffset;
+                    Var.leftWeaponObject.transform.localRotation = currentLeftHandObject.sheatedRotationOffset;
                 }
 
                 if (Var.rightWeaponObject != null)
                 {
-                    Var.rightWeaponObject.GetComponent<Collider>().enabled = false;
-                    Var.rightWeaponObject.transform.SetParent(Var.rightSheathObject.transform);
+                    Collider collider = Var.rightWeaponObject.GetComponent<Collider>();
+                    if (collider != null)
+                        collider.enabled = false;
+
+                    if (Var.rightSheathObject != null)
+                        Var.rightWeaponObject.transform.SetParent(Var.rightSheathObject.transform);
+
                     Var.rightWeaponObject.transform.localPosition = currentRightHandObject.sheatedPositionOffset;
                     Var.rightWeaponObject.transform.localRotation = currentRightHandObject.sheatedRotationOffset;
                 }
 
-                Var.rightSheathObject.GetComponent<MeshRenderer>().enabled = currentRightHandObject.renderSheated;
+                if (Var.rightSheathObject != null)
+                {
+                    MeshRenderer meshRenderer = Var.rightSheathObject.GetComponent<MeshRenderer>();
+                    if (meshRenderer != null)
+                        meshRenderer.enabled = currentRightHandObject.renderSheated;
+                }
+                if (Var.leftSheathObject != null)
+                {
+                    MeshRenderer meshRenderer = Var.leftSheathObject.GetComponent<MeshRenderer>();
+                    if (meshRenderer != null)
+                        meshRenderer.enabled = currentLeftHandObject.renderSheated;
+                }
 
                 Hands.rHand.SetActive(true);
                 Hands.lHand.SetActive(true);
             }
             else
             {
-                Var.rightSheathObject.GetComponent<MeshRenderer>().enabled = true;
+                if (Var.rightSheathObject != null)
+                {
+                    MeshRenderer meshRenderer = Var.rightSheathObject.GetComponent<MeshRenderer>();
+                    if (meshRenderer != null)
+                        meshRenderer.enabled = true;
+                }
+                if (Var.leftSheathObject != null)
+                {
+                    MeshRenderer meshRenderer = Var.leftSheathObject.GetComponent<MeshRenderer>();
+                    if (meshRenderer != null)
+                        meshRenderer.enabled = true;
+                }
 
                 if (Var.leftWeaponObject != null)
                 {
                     Var.leftWeaponObject.transform.SetParent(Var.offHand.transform);
 
-                    Var.leftWeaponObject.transform.localPosition = currentLeftHandObject.unsheatedPositionOffset;
-                    Var.leftWeaponObject.transform.localRotation = currentLeftHandObject.unsheatedRotationOffset;
+                    if (currentLeftHandObject != null)
+                    {
+                        Var.leftWeaponObject.transform.localPosition = currentLeftHandObject.unsheatedPositionOffset;
+                        Var.leftWeaponObject.transform.localRotation = currentLeftHandObject.unsheatedRotationOffset;
+                    }
                     Var.leftWeaponObject.SetActive(true);
                 }
 
@@ -1114,8 +1203,11 @@ namespace DFUVR
                 {
                     Var.rightWeaponObject.transform.SetParent(Var.mainHand.transform);
 
-                    Var.rightWeaponObject.transform.localPosition = currentRightHandObject.unsheatedPositionOffset;
-                    Var.rightWeaponObject.transform.localRotation = currentRightHandObject.unsheatedRotationOffset;
+                    if (currentRightHandObject != null)
+                    {
+                        Var.rightWeaponObject.transform.localPosition = currentRightHandObject.unsheatedPositionOffset;
+                        Var.rightWeaponObject.transform.localRotation = currentRightHandObject.unsheatedRotationOffset;
+                    }
                     Var.rightWeaponObject.SetActive(true);
                 }
 

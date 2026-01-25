@@ -1,47 +1,30 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using UnityEngine;
-using DaggerfallWorkshop;
+﻿using UnityEngine;
+
 namespace DFUVR
 {
-    public class SheathCollision:MonoBehaviour
+    public class SheathCollision : MonoBehaviour
     {
-        public static bool flag=false;
-        public static bool rightHand=true;
+        public HandLabel handInside = null;
+
         void OnTriggerEnter(Collider other)
         {
-            if (other.gameObject.GetComponent<HandLabel>() != null) 
-            { 
-                
-                if (other.gameObject.GetComponent<HandLabel>().rightHand == false)
-                {
-                    Haptics.TriggerHapticFeedback(UnityEngine.XR.XRNode.LeftHand, 0.6f);
-                }
-                else
-                {
-                    Haptics.TriggerHapticFeedback(UnityEngine.XR.XRNode.RightHand, 0.6f);
-                    flag = true;
+            var handLabel = other.gameObject.GetComponent<HandLabel>();
+            if (handLabel == null)
+                return;
 
-                }
+            Haptics.TriggerHapticFeedback(handLabel.xrHandNode, 0.6f);
+            handInside = handLabel;
 
-                //Plugin.LoggerInstance.LogInfo("Entered Collider");
-
-            }
-
-
+            //Plugin.LoggerInstance.LogInfo("Entered Collider");
         }
-        void OnTriggerExit(Collider other) 
+
+        void OnTriggerExit(Collider other)
         {
             if (other.gameObject.GetComponent<HandLabel>() != null)
             {
-                flag = false;
+                handInside = null;
                 //Plugin.LoggerInstance.LogInfo("Exited Collider");
-
             }
-
         }
     }
 }
