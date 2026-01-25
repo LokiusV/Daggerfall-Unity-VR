@@ -81,39 +81,41 @@ namespace DFUVR
         //this will handle all interaction with the Sheath
         void Update()
         {
-            var hand = sheathCollision.handInside;
-            if (hand == null)
-                return;
-            
-            if (Var.isNotOculus)
+            foreach (var hand in sheathCollision.handsInside.Values)
             {
-                hand.inputDevice.TryGetFeatureValue(CommonUsages.gripButton, out bool gripButton);
-                if (gripButton)
+                if (hand == null)
+                    continue;
+
+                if (Var.isNotOculus)
                 {
-                    isGripPressed = true;
+                    hand.inputDevice.TryGetFeatureValue(CommonUsages.gripButton, out bool gripButton);
+                    if (gripButton)
+                    {
+                        isGripPressed = true;
+                    }
+                    else
+                    {
+                        isGripPressed = false;
+                        alreadyGripped = false;
+                    }
                 }
                 else
                 {
-                    isGripPressed = false;
-                    alreadyGripped = false;
-                }
-            }
-            else
-            {
-                if (Input.GetKeyDown(hand.grabButton))
-                    isGripPressed = true;
+                    if (Input.GetKeyDown(hand.grabButton))
+                        isGripPressed = true;
 
-                if (Input.GetKeyUp(hand.grabButton))
+                    if (Input.GetKeyUp(hand.grabButton))
+                    {
+                        isGripPressed = false;
+                        alreadyGripped = false;
+                    }
+                }
+
+                if (isGripPressed && !alreadyGripped)
                 {
-                    isGripPressed = false;
-                    alreadyGripped = false;
+                    alreadyGripped = true;
+                    GameObject.Find("PlayerAdvanced").GetComponent<WeaponManager>().ToggleSheath();
                 }
-            }
-
-            if (isGripPressed && !alreadyGripped)
-            {
-                alreadyGripped = true;
-                GameObject.Find("PlayerAdvanced").GetComponent<WeaponManager>().ToggleSheath();
             }
         }
 
