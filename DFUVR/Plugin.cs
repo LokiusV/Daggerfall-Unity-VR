@@ -577,10 +577,17 @@ namespace DFUVR
                         Var.sheathOffset = Var.leftHand.transform.position;
 
                     if (Var.mainHandSphereSheathObject != null)
+                    {
                         Var.mainHandSphereSheathObject.transform.position = Var.sheathOffset;
 
-                    if (Var.offHandSphereSheathObject != null)
-                        Var.offHandSphereSheathObject.transform.position = new Vector3(-Var.sheathOffset.x, Var.sheathOffset.y, Var.sheathOffset.z);
+                        if (Var.offHandSphereSheathObject != null)
+                        {
+                            Vector3 localPos = Var.mainHandSphereSheathObject.transform.localPosition;
+                            localPos.x = -localPos.x;
+                            Var.offHandSphereSheathObject.transform.localPosition = localPos;
+                            //Var.offHandSphereSheathObject.transform.position = Var.sheathOffset;
+                        }
+                    }
                 }
 
                 // adjust height offset
