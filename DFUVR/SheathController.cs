@@ -137,9 +137,9 @@ namespace DFUVR
         {
             Plugin.LoggerInstance.LogInfo("ToggleSheath");
 
-            if (isWeaponSheathed)
+            if (isWeaponSheathed && hand.weaponObject == null)
                 UnSheathWeapon(hand);
-            else if (hand.weaponObject != null)
+            else if (!isWeaponSheathed && hand.weaponObject != null)
                 SheathWeapon(hand, hand.weaponItem);
         }
 
