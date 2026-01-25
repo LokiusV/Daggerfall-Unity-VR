@@ -45,8 +45,11 @@ namespace DFUVR
         public static bool leftHanded;
 
 
-        public static GameObject rightSphereSheathObject;
-        public static GameObject leftSphereSheathObject;
+        public static GameObject mainHandSphereSheathObject;
+        public static GameObject offHandSphereSheathObject;
+        public static GameObject mainHandSheathObject;
+        public static GameObject offHandSheathObject;
+
         //Default Bindings
         public static KeyCode gripButton = KeyCode.JoystickButton5;
         //public static KeyCode gripButton = KeyCode.JoystickButton5;
@@ -103,9 +106,6 @@ namespace DFUVR
         public static GameObject leftWeaponObject;
         public static string currentRightWeaponName;
         public static string currentLeftWeaponName;
-
-        public static GameObject rightSheathObject;
-        public static GameObject leftSheathObject;
 
         public static int connectedJoysticks;
 
@@ -387,7 +387,7 @@ namespace DFUVR
             string[] lines = File.ReadAllLines(filePath);
 
             lines[0] = string.Format(CultureInfo.InvariantCulture,"{0}", Var.heightOffset);//Var.heightOffset.ToString();
-            lines[3] = string.Format(CultureInfo.InvariantCulture, "{0},{1},{2}", Var.rightSphereSheathObject.transform.localPosition.x, Var.rightSphereSheathObject.transform.localPosition.y, Var.rightSphereSheathObject.transform.localPosition.z);//Var.sphereObject.transform.localPosition.ToString();//Var.sheathOffset.ToString();
+            lines[3] = string.Format(CultureInfo.InvariantCulture, "{0},{1},{2}", Var.mainHandSphereSheathObject.transform.localPosition.x, Var.mainHandSphereSheathObject.transform.localPosition.y, Var.mainHandSphereSheathObject.transform.localPosition.z);//Var.sphereObject.transform.localPosition.ToString();//Var.sheathOffset.ToString();
             lines[4] = connectedJoysticks.ToString();
 
             File.WriteAllLines(filePath, lines);

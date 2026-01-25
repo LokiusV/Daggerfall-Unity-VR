@@ -88,11 +88,8 @@ namespace DFUVR
             Var.body = new GameObject("Body");
             Var.body.AddComponent<BodyRotationController>();
 
-            SheathController rightSheath = Var.body.AddComponent<SheathController>();
-            rightSheath.isLeftSheath = false;
-
-            SheathController leftSheath = Var.body.AddComponent<SheathController>();
-            leftSheath.isLeftSheath = true;
+            Var.body.AddComponent<SheathController>().isOffHandSheath = false;
+            Var.body.AddComponent<SheathController>().isOffHandSheath = true;
 
             try
             {

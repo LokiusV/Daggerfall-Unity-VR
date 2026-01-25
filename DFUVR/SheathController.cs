@@ -15,7 +15,7 @@ namespace DFUVR
         public GameObject sheathOB;
         public SheathCollision sheathCollision;
 
-        public bool isLeftSheath = false;
+        public bool isOffHandSheath = false;
 
         private bool isGripPressed = false;
         private bool alreadyGripped = false;
@@ -65,16 +65,16 @@ namespace DFUVR
             //sphere.transform.localPosition = sphere.transform.parent.InverseTransformPoint(Var.sheathOffset);
             sphere.transform.localPosition = Var.sheathOffset;
 
-            if (isLeftSheath)
+            if (isOffHandSheath)
             {
-                Var.leftSphereSheathObject = sphere;
-                Var.leftSheathObject = sheathOB;
+                Var.offHandSphereSheathObject = sphere;
+                Var.offHandSheathObject = sheathOB;
                 MirrorSheathPosition();
             }
             else
             {
-                Var.rightSphereSheathObject = sphere;
-                Var.rightSheathObject = sheathOB;
+                Var.mainHandSphereSheathObject = sphere;
+                Var.mainHandSheathObject = sheathOB;
             }
         }
 

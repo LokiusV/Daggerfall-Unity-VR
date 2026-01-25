@@ -576,11 +576,11 @@ namespace DFUVR
                     if (Var.leftHand != null)
                         Var.sheathOffset = Var.leftHand.transform.position;
 
-                    if (Var.rightSphereSheathObject != null)
-                        Var.rightSphereSheathObject.transform.position = Var.sheathOffset;
+                    if (Var.mainHandSphereSheathObject != null)
+                        Var.mainHandSphereSheathObject.transform.position = Var.sheathOffset;
 
-                    if (Var.leftSphereSheathObject != null)
-                        Var.leftSphereSheathObject.transform.position = new Vector3(-Var.sheathOffset.x, Var.sheathOffset.y, Var.sheathOffset.z);
+                    if (Var.offHandSphereSheathObject != null)
+                        Var.offHandSphereSheathObject.transform.position = new Vector3(-Var.sheathOffset.x, Var.sheathOffset.y, Var.sheathOffset.z);
                 }
 
                 // adjust height offset
@@ -1136,8 +1136,8 @@ namespace DFUVR
                     if (collider != null)
                         collider.enabled = false;
 
-                    if (Var.leftSheathObject != null)
-                        Var.leftWeaponObject.transform.SetParent(Var.leftSheathObject.transform);
+                    if (Var.offHandSheathObject != null)
+                        Var.leftWeaponObject.transform.SetParent(Var.offHandSheathObject.transform);
 
                     Var.leftWeaponObject.transform.localPosition = currentLeftHandObject.sheatedPositionOffset;
                     Var.leftWeaponObject.transform.localRotation = currentLeftHandObject.sheatedRotationOffset;
@@ -1149,22 +1149,22 @@ namespace DFUVR
                     if (collider != null)
                         collider.enabled = false;
 
-                    if (Var.rightSheathObject != null)
-                        Var.rightWeaponObject.transform.SetParent(Var.rightSheathObject.transform);
+                    if (Var.mainHandSheathObject != null)
+                        Var.rightWeaponObject.transform.SetParent(Var.mainHandSheathObject.transform);
 
                     Var.rightWeaponObject.transform.localPosition = currentRightHandObject.sheatedPositionOffset;
                     Var.rightWeaponObject.transform.localRotation = currentRightHandObject.sheatedRotationOffset;
                 }
 
-                if (Var.rightSheathObject != null)
+                if (Var.mainHandSheathObject != null)
                 {
-                    MeshRenderer meshRenderer = Var.rightSheathObject.GetComponent<MeshRenderer>();
+                    MeshRenderer meshRenderer = Var.mainHandSheathObject.GetComponent<MeshRenderer>();
                     if (meshRenderer != null)
                         meshRenderer.enabled = currentRightHandObject.renderSheated;
                 }
-                if (Var.leftSheathObject != null)
+                if (Var.offHandSheathObject != null)
                 {
-                    MeshRenderer meshRenderer = Var.leftSheathObject.GetComponent<MeshRenderer>();
+                    MeshRenderer meshRenderer = Var.offHandSheathObject.GetComponent<MeshRenderer>();
                     if (meshRenderer != null)
                         meshRenderer.enabled = currentLeftHandObject.renderSheated;
                 }
@@ -1174,15 +1174,15 @@ namespace DFUVR
             }
             else
             {
-                if (Var.rightSheathObject != null)
+                if (Var.mainHandSheathObject != null)
                 {
-                    MeshRenderer meshRenderer = Var.rightSheathObject.GetComponent<MeshRenderer>();
+                    MeshRenderer meshRenderer = Var.mainHandSheathObject.GetComponent<MeshRenderer>();
                     if (meshRenderer != null)
                         meshRenderer.enabled = true;
                 }
-                if (Var.leftSheathObject != null)
+                if (Var.offHandSheathObject != null)
                 {
-                    MeshRenderer meshRenderer = Var.leftSheathObject.GetComponent<MeshRenderer>();
+                    MeshRenderer meshRenderer = Var.offHandSheathObject.GetComponent<MeshRenderer>();
                     if (meshRenderer != null)
                         meshRenderer.enabled = true;
                 }
