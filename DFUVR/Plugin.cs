@@ -1,4 +1,21 @@
-﻿using System;
+﻿using BepInEx;
+using BepInEx.Logging;
+using DaggerfallConnect;
+using DaggerfallWorkshop;
+using DaggerfallWorkshop.Game;
+using DaggerfallWorkshop.Game.Entity;
+using DaggerfallWorkshop.Game.Formulas;
+using DaggerfallWorkshop.Game.Items;
+using DaggerfallWorkshop.Game.MagicAndEffects;
+using DaggerfallWorkshop.Game.MagicAndEffects.MagicEffects;
+using DaggerfallWorkshop.Game.Questing;
+using DaggerfallWorkshop.Game.Serialization;
+using DaggerfallWorkshop.Game.UserInterface;
+using DaggerfallWorkshop.Game.UserInterfaceWindows;
+using DaggerfallWorkshop.Utility;
+using HarmonyLib;
+using HarmonyLib.Tools;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
@@ -9,34 +26,16 @@ using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using BepInEx;
-using BepInEx.Logging;
-using DaggerfallConnect;
-using DaggerfallWorkshop;
-using DaggerfallWorkshop.Game;
-using DaggerfallWorkshop.Game.Entity;
-using DaggerfallWorkshop.Game.Formulas;
-using DaggerfallWorkshop.Game.Items;
-using DaggerfallWorkshop.Game.MagicAndEffects;
-using DaggerfallWorkshop.Game.Questing;
-using DaggerfallWorkshop.Game.Serialization;
-using DaggerfallWorkshop.Game.UserInterface;
-using DaggerfallWorkshop.Game.UserInterfaceWindows;
-using HarmonyLib;
-using HarmonyLib.Tools;
 using UnityEngine;
 using UnityEngine.EventSystems;
-using static DaggerfallWorkshop.Game.InputManager;
-using static UnityEngine.GraphicsBuffer;
 using UnityEngine.XR;
 using UnityEngine.XR.Provider;
-using DaggerfallWorkshop.Utility;
-using DaggerfallWorkshop.Game.MagicAndEffects.MagicEffects;
+using static DaggerfallWorkshop.Game.InputManager;
 
 namespace DFUVR
 {
 
-    
+
     //initialize UI
     [HarmonyPatch(typeof(DaggerfallUI), "Start")]
     public class MenuPatch : MonoBehaviour
@@ -45,10 +44,10 @@ namespace DFUVR
         static void Postfix(DaggerfallUI __instance)
         {
             __instance.gameObject.AddComponent<sTx>();
-            
+
             __instance.StartCoroutine(UI.Spawn());
-            
-            
+
+
 
         }
     }
@@ -262,7 +261,7 @@ namespace DFUVR
     [HarmonyPatch(typeof(UserInterfaceManager), "PushWindow")]
     public class PushPatch : MonoBehaviour
     {
-        private static PushPatch __pInstance; 
+        private static PushPatch __pInstance;
 
         void Awake()
         {
@@ -305,7 +304,7 @@ namespace DFUVR
             Vector3 uiPositionInFront = vrCameraTransform.position + forwardFlat * 1.5f;
             vrui.transform.localPosition = vrui.transform.parent.InverseTransformPoint(uiPositionInFront);
             Vector3 lookDirection = uiPositionInFront - vrCameraTransform.position;
-            lookDirection.y = 0; 
+            lookDirection.y = 0;
             vrui.transform.rotation = Quaternion.LookRotation(lookDirection);
             FixObstruction(vrui);
 
@@ -433,22 +432,22 @@ namespace DFUVR
 
             if (Physics.Raycast(ray, out hit, Mathf.Infinity, layerMask))
             {
-                
+
                 if (hit.transform != vrui.transform)
                 {
                     //Plugin.LoggerInstance.LogInfo($"Obstruction found: {hit.transform.name}");
 
-                    Vector3 newUIPosition = hit.point + hit.normal * 0.1f; 
+                    Vector3 newUIPosition = hit.point + hit.normal * 0.1f;
                     vrui.transform.position = newUIPosition;
                     Vector3 lookDirection = newUIPosition - vrCameraTransform.position;
-                    lookDirection.y = 0; 
+                    lookDirection.y = 0;
                     vrui.transform.rotation = Quaternion.LookRotation(lookDirection);
                 }
             }
         }
 
     }
-    
+
     //[HarmonyPatch(typeof(DaggerfallUI), "PopupMessage")]
     //public class PopuphPatch : MonoBehaviour
     //{
@@ -514,7 +513,7 @@ namespace DFUVR
         private static bool changedCam = false;
         public static bool bindingCalibrated=false;
         [HarmonyPrefix]
-        
+
         static void Prefix(InputManager __instance)
         {
             __instance.EnableController=false;
@@ -541,7 +540,7 @@ namespace DFUVR
                 {
                     CoroutineRunner.Instance.StartCoroutine(Waiter2());
                     //GameObject.Find("PLayerAdvanced").AddComponent<MeshFilter>();
-                    
+
 
 
                 }
@@ -562,28 +561,47 @@ namespace DFUVR
                 //ControllerPatch.flag = false;
                 //float input = Input.GetAxis("Axis5");
                 //float input = Input.GetAxis(Var.rThumbStickVertical);
+
+                // toggle skybox
                 if (Input.GetKeyDown(Var.acceptButton))
                 {
                     Var.skyboxToggle = !Var.skyboxToggle;
                     Plugin.LoggerInstance.LogInfo(Var.skyboxToggle);
                 }
-                var rightHand = InputDevices.GetDeviceAtXRNode(XRNode.RightHand);
 
-                Vector2 rThumbStick;
-                rightHand.TryGetFeatureValue(UnityEngine.XR.CommonUsages.primary2DAxis, out rThumbStick);
-                
+                // adjust sheath position
+                {
+                    //Var.sphereObject.transform.localPosition=Vector3.zero;
+                    if (Var.leftHand != null)
+                        Var.sheathOffset = Var.leftHand.transform.position;
 
-                float inputX1 = rThumbStick.x;
-                float inputY1 = rThumbStick.y;
+                    if (Var.mainHandSphereSheathObject != null)
+                    {
+                        Var.mainHandSphereSheathObject.transform.position = Var.sheathOffset;
 
-                float input = rThumbStick.y;
+                        if (Var.offHandSphereSheathObject != null)
+                        {
+                            Vector3 localPos = Var.mainHandSphereSheathObject.transform.localPosition;
+                            localPos.x = -localPos.x;
+                            Var.offHandSphereSheathObject.transform.localPosition = localPos;
+                            //Var.offHandSphereSheathObject.transform.position = Var.sheathOffset;
+                        }
+                    }
+                }
 
-                Var.heightOffset += input / 100;
-                //Var.sphereObject.transform.localPosition=Vector3.zero;
-                Var.sheathOffset = Var.leftHand.transform.position;
-                Var.sphereObject.transform.position = Var.sheathOffset;
-                GameObject vrparent = GameObject.Find("VRParent");
-                vrparent.transform.localPosition = new Vector3(vrparent.transform.localPosition.x, (float)Var.heightOffset, vrparent.transform.localPosition.z);
+                // adjust height offset
+                {
+                    var rightHand = InputDevices.GetDeviceAtXRNode(XRNode.RightHand);
+
+                    Vector2 rThumbStick;
+                    rightHand.TryGetFeatureValue(UnityEngine.XR.CommonUsages.primary2DAxis, out rThumbStick);
+
+                    float input = rThumbStick.y;
+                    Var.heightOffset += input / 100;
+
+                    GameObject vrparent = GameObject.Find("VRParent");
+                    vrparent.transform.localPosition = new Vector3(vrparent.transform.localPosition.x, (float)Var.heightOffset, vrparent.transform.localPosition.z);
+                }
             }
             if (Input.GetKeyDown(Var.left2Button))
             {
@@ -595,7 +613,7 @@ namespace DFUVR
 
 
             }
-            
+
             //we don't want to open the pause menu when the user just wants to recalibrate
             if (flag) { InputManager.Instance.SetBinding(KeyCode.Escape, Actions.Escape, true); }
             else if (!flag) { InputManager.Instance.SetBinding(Var.left1Button, Actions.Escape, true); }
@@ -636,7 +654,7 @@ namespace DFUVR
                 {
                     isChanging = true;
                 }
-                if ((!primaryPressed || !secondaryPressed) && flag) 
+                if ((!primaryPressed || !secondaryPressed) && flag)
                 {
                     //Debug.Log("canceled");
                     flag = false;
@@ -650,7 +668,7 @@ namespace DFUVR
             if (!flag)
                 SnapTurnProvider.Snap();
 
-            
+
             GameObject exterior = GameObject.Find("Exterior");
 
             //this atleast creates a sense of day and night
@@ -660,16 +678,16 @@ namespace DFUVR
                 Var.VRCamera.clearFlags = CameraClearFlags.Nothing;
             }
             else { Var.VRCamera.clearFlags = CameraClearFlags.Skybox; }
-            if (!bindingCalibrated) 
+            if (!bindingCalibrated)
             {
                 AccessTools.Method(typeof(InputManager), "UpdateBindingCache").Invoke(__instance, null);
                 //__instance.UpdateBindingCache();
                 bindingCalibrated = true;
 
             }
-            
+
             //Plugin.LoggerInstance.LogInfo(Time.fixedDeltaTime);
-            
+
         }
         public static IEnumerator Waiter2() {
             //Plugin.LoggerInstance.LogInfo("Coroutine 2");
@@ -773,7 +791,7 @@ namespace DFUVR
             Vector2 lThumbStick;
             rightHand.TryGetFeatureValue(UnityEngine.XR.CommonUsages.primary2DAxis, out lThumbStick);
 
-            
+
             float vertical = lThumbStick.y;
 
             __result = vertical;
@@ -785,7 +803,7 @@ namespace DFUVR
     public class LevitationPatch
     {
         [HarmonyPrefix]
-        static void Prefix(LevitateMotor __instance) 
+        static void Prefix(LevitateMotor __instance)
         {
             //float inputX1 = Input.GetAxis("Axis1");
             //float inputY1 = Input.GetAxis("Axis2");
@@ -832,7 +850,7 @@ namespace DFUVR
         [HarmonyPostfix]
         static void Postfix(DaggerfallMissile __instance, ref Vector3 __result)
         {
-            
+
             if (__instance.CustomAimDirection != Vector3.zero)
             {
                 __result = __instance.CustomAimDirection;
@@ -864,7 +882,7 @@ namespace DFUVR
                     aimDirection += Vector3.down * 0.05f;
             }
 
-           
+
             __result = aimDirection;
         }
     }
@@ -888,9 +906,9 @@ namespace DFUVR
             {
                 aimPosition = Var.rightHand.transform.position;
             }
-            
 
-            
+
+
             __result = aimPosition;
         }
     }
@@ -915,7 +933,7 @@ namespace DFUVR
 
     //makes stuff like doors interacteable
     [HarmonyPatch(typeof(PlayerActivate), "Update")]
-    public class PlayerActivatePatch : MonoBehaviour 
+    public class PlayerActivatePatch : MonoBehaviour
     {
         [HarmonyPrefix]
         static void Prefix(PlayerActivate __instance)
@@ -924,11 +942,11 @@ namespace DFUVR
             //InputManager.Instance.SetBinding(KeyCode.UpArrow, InputManager.Actions.ToggleConsole, true);
             //InputManager.Instance.SetBinding(Var.acceptButton, InputManager.Actions.ActivateCenterObject, true);
             //InputManager.Instance.SetBinding(Var.cancelButton, InputManager.Actions.Inventory, true);
-            
+
             AccessTools.Field(typeof(PlayerActivate), "mainCamera").SetValue(__instance, Var.handCam);
 
         }
-    
+
     }
     //Sets reference for later use
     [HarmonyPatch(typeof(ClimbingMotor), "Start")]
@@ -949,7 +967,7 @@ namespace DFUVR
     public class BowPatch:MonoBehaviour
     {
         [HarmonyPostfix]
-        static void Prefix(WeaponManager __instance) 
+        static void Prefix(WeaponManager __instance)
         {
             #region Fields
             PlayerEntity playerEntity =(PlayerEntity)AccessTools.Field(typeof(WeaponManager), "playerEntity").GetValue(__instance);
@@ -963,7 +981,7 @@ namespace DFUVR
                 {
                     if (Input.GetKeyDown(Var.indexButton))
                     {
-                        
+
                         DaggerfallMissile missile = Instantiate(__instance.ArrowMissilePrefab);
                         if (missile)
                         {
@@ -984,7 +1002,7 @@ namespace DFUVR
                         }
                     }
             } }
-        
+
         }
     }
     //Grants skill points whenever the player hits an enemy
@@ -994,7 +1012,7 @@ namespace DFUVR
         [HarmonyPostfix]
         static void Postfix(WeaponManager __instance)
         {
-            
+
             PlayerEntity playerEntity = (PlayerEntity)AccessTools.Field(typeof(WeaponManager), "playerEntity").GetValue(__instance);
             DaggerfallUnityItem currentRightHandWeapon = (DaggerfallUnityItem)AccessTools.Field(typeof(WeaponManager), "currentRightHandWeapon").GetValue(__instance);
             DaggerfallUnityItem currentLeftHandWeapon = (DaggerfallUnityItem)AccessTools.Field(typeof(WeaponManager), "currentLeftHandWeapon").GetValue(__instance);
@@ -1009,68 +1027,285 @@ namespace DFUVR
             playerEntity.TallySkill(DFCareer.Skills.CriticalStrike, 1);
             //Plugin.LoggerInstance.LogInfo("Experience probably granted");
         }
-    
+
     }
 
 
     //
-    [HarmonyPatch(typeof(WeaponManager), "ToggleSheath")]
-    public class CorrectWeaponPatch : MonoBehaviour
+    //[HarmonyPatch(typeof(WeaponManager), "ToggleSheath")]
+    //public class CorrectWeaponPatch : MonoBehaviour
+    //{
+    //    [HarmonyPostfix]
+    //    internal static void Postfix(WeaponManager __instance)
+    //    {
+    //        if (GameManager.Instance == null)
+    //        {
+    //            Plugin.LoggerInstance.LogError("GameManager is null");
+    //            return;
+    //        }
+    //        if (GameManager.Instance.PlayerEntity == null)
+    //        {
+    //            Plugin.LoggerInstance.LogError("PlayerEntity is null");
+    //            return;
+    //        }
+    //        if (GameManager.Instance.PlayerEntity.ItemEquipTable == null)
+    //        {
+    //            Plugin.LoggerInstance.LogError("ItemEquipTable is null");
+    //            return;
+    //        }
+
+    //        if (Var.leftWeaponObject != null)
+    //            Destroy(Var.leftWeaponObject);
+    //        if (Var.rightWeaponObject != null)
+    //            Destroy(Var.rightWeaponObject);
+
+    //        DaggerfallUnityItem leftHandItem = GameManager.Instance.PlayerEntity.ItemEquipTable.GetItem(EquipSlots.LeftHand);
+    //        DaggerfallUnityItem rightHandItem = GameManager.Instance.PlayerEntity.ItemEquipTable.GetItem(EquipSlots.RightHand);
+
+    //        if (leftHandItem == null)
+    //            Var.currentLeftWeaponName = "rHandClosed";
+    //        else
+    //            Var.currentLeftWeaponName = leftHandItem.LongName;
+
+    //        if (rightHandItem == null)
+    //            Var.currentRightWeaponName = "rHandClosed";
+    //        else
+    //            Var.currentRightWeaponName = rightHandItem.LongName;
+
+    //        HandObject currentLeftHandObject = null;
+    //        if (Var.currentLeftWeaponName != null)
+    //        {
+    //            var weaponType = leftHandItem?.GetWeaponType() ?? WeaponTypes.Melee;
+
+    //            if (weaponType != WeaponTypes.Bow && Var.handObjectsByName.ContainsKey(Var.currentLeftWeaponName))
+    //                currentLeftHandObject = Var.handObjectsByName[Var.currentLeftWeaponName];
+    //            else
+    //                currentLeftHandObject = Var.handObjects[weaponType];
+    //            if (currentLeftHandObject == null)
+    //            {
+    //                Plugin.LoggerInstance.LogError("Current left hand object is null");
+    //                return;
+    //            }
+
+    //            Var.leftWeaponObject = Instantiate(currentLeftHandObject.gameObject);
+    //            if (Var.leftWeaponObject == null)
+    //            {
+    //                Plugin.LoggerInstance.LogError("Left weapon object is null after instantiation");
+    //                return;
+    //            }
+
+    //            Collider collider = Var.leftWeaponObject.GetComponent<Collider>();
+    //            if (collider != null)
+    //                collider.enabled = true;
+
+    //            WeaponCollision weaponCollision = Var.leftWeaponObject.GetComponent<WeaponCollision>();
+    //            if (weaponCollision != null && leftHandItem != null)
+    //                weaponCollision.item = leftHandItem;
+    //        }
+
+    //        HandObject currentRightHandObject = null;
+    //        if (Var.currentRightWeaponName != null)
+    //        {
+    //            var weaponType = rightHandItem?.GetWeaponType() ?? WeaponTypes.Melee;
+
+    //            if (weaponType != WeaponTypes.Bow && Var.handObjectsByName.ContainsKey(Var.currentRightWeaponName))
+    //                currentRightHandObject = Var.handObjectsByName[Var.currentRightWeaponName];
+    //            else
+    //                currentRightHandObject = Var.handObjects[weaponType];
+    //            if (currentRightHandObject == null)
+    //            {
+    //                Plugin.LoggerInstance.LogError("Current right hand object is null");
+    //                return;
+    //            }
+
+    //            Var.rightWeaponObject = Instantiate(currentRightHandObject.gameObject);
+    //            if (Var.rightWeaponObject == null)
+    //            {
+    //                Plugin.LoggerInstance.LogError("Right weapon object is null after instantiation");
+    //                return;
+    //            }
+
+    //            Collider collider = Var.rightWeaponObject.GetComponent<Collider>();
+    //            if (collider != null)
+    //                collider.enabled = true;
+
+    //            WeaponCollision weaponCollision = Var.rightWeaponObject.GetComponent<WeaponCollision>();
+    //            if (weaponCollision != null && rightHandItem != null)
+    //                weaponCollision.item = rightHandItem;
+    //        }
+
+    //        if (__instance.Sheathed)
+    //        {
+    //            if (Var.leftWeaponObject != null)
+    //            {
+    //                Collider collider = Var.leftWeaponObject.GetComponent<Collider>();
+    //                if (collider != null)
+    //                    collider.enabled = false;
+
+    //                if (Var.offHandSheathObject != null)
+    //                    Var.leftWeaponObject.transform.SetParent(Var.offHandSheathObject.transform);
+
+    //                Var.leftWeaponObject.transform.localPosition = currentLeftHandObject.sheatedPositionOffset;
+    //                Var.leftWeaponObject.transform.localRotation = currentLeftHandObject.sheatedRotationOffset;
+    //            }
+
+    //            if (Var.rightWeaponObject != null)
+    //            {
+    //                Collider collider = Var.rightWeaponObject.GetComponent<Collider>();
+    //                if (collider != null)
+    //                    collider.enabled = false;
+
+    //                if (Var.mainHandSheathObject != null)
+    //                    Var.rightWeaponObject.transform.SetParent(Var.mainHandSheathObject.transform);
+
+    //                Var.rightWeaponObject.transform.localPosition = currentRightHandObject.sheatedPositionOffset;
+    //                Var.rightWeaponObject.transform.localRotation = currentRightHandObject.sheatedRotationOffset;
+    //            }
+
+    //            if (Var.mainHandSheathObject != null)
+    //            {
+    //                MeshRenderer meshRenderer = Var.mainHandSheathObject.GetComponent<MeshRenderer>();
+    //                if (meshRenderer != null)
+    //                    meshRenderer.enabled = currentRightHandObject.renderSheated;
+    //            }
+    //            if (Var.offHandSheathObject != null)
+    //            {
+    //                MeshRenderer meshRenderer = Var.offHandSheathObject.GetComponent<MeshRenderer>();
+    //                if (meshRenderer != null)
+    //                    meshRenderer.enabled = currentLeftHandObject.renderSheated;
+    //            }
+
+    //            Hands.rHand.SetActive(true);
+    //            Hands.lHand.SetActive(true);
+    //        }
+    //        else
+    //        {
+    //            if (Var.mainHandSheathObject != null)
+    //            {
+    //                MeshRenderer meshRenderer = Var.mainHandSheathObject.GetComponent<MeshRenderer>();
+    //                if (meshRenderer != null)
+    //                    meshRenderer.enabled = true;
+    //            }
+    //            if (Var.offHandSheathObject != null)
+    //            {
+    //                MeshRenderer meshRenderer = Var.offHandSheathObject.GetComponent<MeshRenderer>();
+    //                if (meshRenderer != null)
+    //                    meshRenderer.enabled = true;
+    //            }
+
+    //            if (Var.leftWeaponObject != null)
+    //            {
+    //                Var.leftWeaponObject.transform.SetParent(Var.offHand.transform);
+
+    //                if (currentLeftHandObject != null)
+    //                {
+    //                    Var.leftWeaponObject.transform.localPosition = currentLeftHandObject.unsheatedPositionOffset;
+    //                    Var.leftWeaponObject.transform.localRotation = currentLeftHandObject.unsheatedRotationOffset;
+    //                }
+    //                Var.leftWeaponObject.SetActive(true);
+    //            }
+
+    //            if (Var.rightWeaponObject != null)
+    //            {
+    //                Var.rightWeaponObject.transform.SetParent(Var.mainHand.transform);
+
+    //                if (currentRightHandObject != null)
+    //                {
+    //                    Var.rightWeaponObject.transform.localPosition = currentRightHandObject.unsheatedPositionOffset;
+    //                    Var.rightWeaponObject.transform.localRotation = currentRightHandObject.unsheatedRotationOffset;
+    //                }
+    //                Var.rightWeaponObject.SetActive(true);
+    //            }
+
+    //            Hands.rHand.SetActive(false);
+    //            Hands.lHand.SetActive(false);
+    //        }
+    //    }
+    //}
+
+    [HarmonyPatch(typeof(WeaponManager), "ApplyWeapon")]
+    public class ApplyWeaponPatch : MonoBehaviour
     {
-        [HarmonyPrefix]
-        static void Prefix(WeaponManager __instance)
+        [HarmonyPostfix]
+        static void Postfix(WeaponManager __instance)
         {
-            if (Var.weaponObject != null)
-                Destroy(Var.weaponObject);
+            DaggerfallUnityItem leftHandItem = GameManager.Instance.PlayerEntity.ItemEquipTable.GetItem(EquipSlots.LeftHand);
+            DaggerfallUnityItem rightHandItem = GameManager.Instance.PlayerEntity.ItemEquipTable.GetItem(EquipSlots.RightHand);
 
-            if (__instance.ScreenWeapon == null)
-            {
-                Var.currentWeaponName = null;
+            string leftItemName = Weapon.GetWeaponName(leftHandItem);
+            string rightItemName = Weapon.GetWeaponName(rightHandItem);
+
+            if (leftItemName == Var.currentLeftWeaponName && rightItemName == Var.currentRightWeaponName)
                 return;
-            }
 
-            Var.currentWeaponName = __instance.ScreenWeapon.SpecificWeapon?.LongName ?? "";
+            Plugin.LoggerInstance.LogError($"ApplyWeapon called with: '{leftItemName}' and '{rightItemName}'");
 
-            HandObject currentHandObject = null;
-            if (__instance.ScreenWeapon.WeaponType != WeaponTypes.Bow && Var.handObjectsByName.ContainsKey(Var.currentWeaponName))
-                currentHandObject = Var.handObjectsByName[Var.currentWeaponName];
-            else
-                currentHandObject = Var.handObjects[__instance.ScreenWeapon.WeaponType];
-
-            GameObject tempObject = currentHandObject.gameObject;
-
-            Var.weaponObject = Instantiate(tempObject);
-            Var.weaponObject.GetComponent<Collider>().enabled = true;
-
-            // if it is unsheathing
-            if (__instance.Sheathed)
+            if (leftItemName != Var.currentLeftWeaponName)
             {
-                Var.sheathObject.GetComponent<MeshRenderer>().enabled = true;
-
-                if (Var.leftHanded)
-                    Var.weaponObject.transform.SetParent(Var.leftHand.transform);
+                if (ChangeWeaponItem(Var.currentLeftWeaponName, leftHandItem, leftItemName, true))
+                    Var.currentLeftWeaponName = leftItemName;
                 else
-                    Var.weaponObject.transform.SetParent(Var.rightHand.transform);
-
-                Var.weaponObject.transform.localPosition = currentHandObject.unsheatedPositionOffset;
-                Var.weaponObject.transform.localRotation = currentHandObject.unsheatedRotationOffset;
-                Var.weaponObject.SetActive(true);
-
-                Hands.rHand.SetActive(false);
-                Hands.lHand.SetActive(false);
+                    Plugin.LoggerInstance.LogError("Failed to change left weapon item");
             }
+
+            if (rightItemName != Var.currentRightWeaponName)
+            {
+                if (ChangeWeaponItem(Var.currentRightWeaponName, rightHandItem, rightItemName, false))
+                    Var.currentRightWeaponName = rightItemName;
+                else
+                    Plugin.LoggerInstance.LogError("Failed to change right weapon item");
+            }
+        }
+
+        private static bool ChangeWeaponItem(string lastWeaponName, DaggerfallUnityItem handItem, string itemName, bool offHandPreffered)
+        {
+            var currentOffHandItemName = Weapon.GetWeaponName(Hands.offHandLabel.weaponItem);
+            var currentMainHandItemName = Weapon.GetWeaponName(Hands.mainHandLabel.weaponItem);
+            var currentMainSheathedItemName = Weapon.GetWeaponName(Hands.mainHandSheathController.weaponItem);
+            var currentOffSheathedItemName = Weapon.GetWeaponName(Hands.offHandSheathController.weaponItem);
+
+            var newWeaponObject = Weapon.GetWeaponObjectForHandObject(handItem, out HandObject newHandObject);
+            if (newHandObject == null || newWeaponObject == null)
+                return false;
+
+            if (Hands.mainHandSheathController.isWeaponSheathed && currentMainSheathedItemName == lastWeaponName)
+            {
+                Hands.mainHandSheathController.ReplaceWeapon(handItem, newWeaponObject, newHandObject);
+            }
+            else if (Hands.mainHandLabel.weaponObject != null && currentMainHandItemName == lastWeaponName)
+            {
+                Hands.mainHandLabel.SetWeapon(handItem, newWeaponObject, newHandObject);
+            }
+            else if (Hands.offHandSheathController.isWeaponSheathed && currentOffSheathedItemName == lastWeaponName)
+            {
+                Hands.offHandSheathController.ReplaceWeapon(handItem, newWeaponObject, newHandObject);
+            }
+            else if (Hands.offHandLabel.weaponObject != null && currentOffHandItemName == lastWeaponName)
+            {
+                Hands.offHandLabel.SetWeapon(handItem, newWeaponObject, newHandObject);
+            }
+            // here is if we couldn't find the weapon anywhere
+            // this can happen when starting the game
             else
             {
-                Var.weaponObject.GetComponent<Collider>().enabled = false;
-                Var.weaponObject.transform.SetParent(Var.sheathObject.transform);
-
-                Var.weaponObject.transform.localPosition = currentHandObject.sheatedPositionOffset;
-                Var.weaponObject.transform.localRotation = currentHandObject.sheatedRotationOffset;
-                Var.sheathObject.GetComponent<MeshRenderer>().enabled = currentHandObject.renderSheated;
-
-                Hands.rHand.SetActive(true);
-                Hands.lHand.SetActive(true);
+                Plugin.LoggerInstance.LogInfo("Couldn't find Weapon to replace. Sheath it is!");
+                if (offHandPreffered && Hands.offHandSheathController.weaponItem == null)
+                {
+                    Plugin.LoggerInstance.LogInfo("Used offhand sheath");
+                    Hands.offHandSheathController.ReplaceWeapon(handItem, newWeaponObject, newHandObject);
+                }
+                else if (!offHandPreffered && Hands.mainHandSheathController.weaponItem == null)
+                {
+                    Plugin.LoggerInstance.LogInfo("Used mainhand sheath");
+                    Hands.mainHandSheathController.ReplaceWeapon(handItem, newWeaponObject, newHandObject);
+                }
+                else
+                {
+                    Plugin.LoggerInstance.LogInfo("No sheath used!");
+                }
             }
+
+            return true;
         }
     }
 
@@ -1081,7 +1316,7 @@ namespace DFUVR
         [HarmonyPrefix]
         static void Prefix(DaggerfallMobileUnit __instance)
         {
-            
+
             AccessTools.Field(typeof(DaggerfallMobileUnit), "mainCamera").SetValue(__instance, Var.VRCamera);
 
         }
@@ -1096,7 +1331,7 @@ namespace DFUVR
     public class GroundedMovementPatch : MonoBehaviour
     {
         [HarmonyPrefix]
-        static bool Prefix(FrictionMotor __instance, ref Vector3 moveDirection) 
+        static bool Prefix(FrictionMotor __instance, ref Vector3 moveDirection)
         {
             #region Fields
             bool sliding = (bool)AccessTools.Field(typeof(FrictionMotor), "sliding").GetValue(__instance);
@@ -1107,7 +1342,7 @@ namespace DFUVR
             //SetSliding();
             AccessTools.Method(typeof(FrictionMotor), "SetSliding").Invoke(__instance, null);
 
-            
+
             if ((sliding && __instance.slideWhenOverSlopeLimit) || (__instance.slideOnTaggedObjects && hit.collider.tag == "Slide"))
             {
                 Vector3 hitNormal = hit.normal;
@@ -1117,7 +1352,7 @@ namespace DFUVR
                 AccessTools.Field(typeof(FrictionMotor), "playerControl").SetValue(__instance, false);
                 playerControl = false;
             }
-            
+
             else
             {
 
@@ -1157,7 +1392,7 @@ namespace DFUVR
             }
             //Plugin.LoggerInstance.LogInfo($"sliding: {sliding}, hit: {hit}, playerControl: {playerControl}, moveDirection: {moveDirection}");
             return false;
-            
+
 
         }
     }
@@ -1169,7 +1404,7 @@ namespace DFUVR
         public static float cooldown = 0.1f;
         private static float lastStepTime=0;
         [HarmonyPrefix]
-        static bool Prefix(PlayerFootsteps __instance) 
+        static bool Prefix(PlayerFootsteps __instance)
         {
             if (Time.time - lastStepTime < cooldown)
             {
@@ -1178,15 +1413,15 @@ namespace DFUVR
             lastStepTime = Time.time;
             return true;
 
-        
+
         }
     }
     //fixes the automap orientation. Automap is currently not bound to any key though
     [HarmonyPatch(typeof(Automap), "UpdateAutomapStateOnWindowPush")]
-    public class AutomapPatch : MonoBehaviour 
+    public class AutomapPatch : MonoBehaviour
     {
         [HarmonyPrefix]
-        static void Prefix(Automap __instance) 
+        static void Prefix(Automap __instance)
         {
             #region Fields
             GameObject gameObjectPlayerAdvanced = (GameObject)AccessTools.Field(typeof(Automap), "gameObjectPlayerAdvanced").GetValue(__instance);
@@ -1220,8 +1455,8 @@ namespace DFUVR
             //UpdateSlicingPositionY();
 
         }
-        
-    
+
+
     }
 
     [HarmonyPatch(typeof(HUDCompass),"Update")]
@@ -1566,7 +1801,7 @@ namespace DFUVR
         static bool Prefix(PlayerMouseLook __instance)
         {
             return false;
-        
+
         }
     }
     //extra bindings because VR controllers don't have a lot of buttons
@@ -1576,7 +1811,7 @@ namespace DFUVR
 
         //private static bool isCrouching = false;
         [HarmonyPrefix]
-        
+
         static void Prefix(InputManager __instance)
         {
             if (!ControllerPatch.isChanging)
@@ -1587,11 +1822,11 @@ namespace DFUVR
                 //float inputY = Input.GetAxis(Var.rThumbStickVertical);
                 var rightHand = InputDevices.GetDeviceAtXRNode(XRNode.RightHand);
                 //if (Var.leftHanded) { rightHand = InputDevices.GetDeviceAtXRNode(XRNode.LeftHand); }
-                
+
 
                 Vector2 rThumbStick;
                 rightHand.TryGetFeatureValue(UnityEngine.XR.CommonUsages.primary2DAxis, out rThumbStick);
-                
+
                 float inputX = rThumbStick.x;
                 float inputY = rThumbStick.y;
                 if (!Var.climbingMotor.IsClimbing && !ControllerPatch.flag)
@@ -1664,12 +1899,12 @@ namespace DFUVR
                 //if (Var.leftHanded) { leftHand = InputDevices.GetDeviceAtXRNode(XRNode.RightHand); }
                 //else
                 //{
-                    //leftHand = InputDevices.GetDeviceAtXRNode(XRNode.LeftHand);
+                //leftHand = InputDevices.GetDeviceAtXRNode(XRNode.LeftHand);
                 //}
                 bool gripButton;
                 if (Var.leftHanded) { leftHand.TryGetFeatureValue(CommonUsages.gripButton, out gripButton); }
                 else
-                {  
+                {
                     rightHand.TryGetFeatureValue(CommonUsages.gripButton, out gripButton);
                 }
                 if (gripButton && !ControllerPatch.flag&&!Var.climbingMotor.IsClimbing)
@@ -1817,7 +2052,7 @@ namespace DFUVR
                             currentActions.Add(Actions.Transport);
                         }
                         else if (leftTrigger) { 
-                            currentActions.Add(Actions.CharacterSheet); 
+                            currentActions.Add(Actions.CharacterSheet);
                         }
 
 
@@ -1836,7 +2071,7 @@ namespace DFUVR
                             {
                                 currentActions.Add(Actions.Inventory);
                             }
-                            if (secondaryButton && !ControllerPatch.flag) 
+                            if (secondaryButton && !ControllerPatch.flag)
                             {
                                 currentActions.Add(Actions.Escape);
                             }
@@ -1867,7 +2102,7 @@ namespace DFUVR
         static void Prefix(UserInterfaceRenderTarget __instance)
         {
             #region Fields
-            
+
             int customWidth = (int)AccessTools.Field(typeof(UserInterfaceRenderTarget), "customWidth").GetValue(__instance);
             int customHeight = (int)AccessTools.Field(typeof(UserInterfaceRenderTarget), "customHeight").GetValue(__instance);
             Vector2 targetSize = (Vector2)AccessTools.Field(typeof(UserInterfaceRenderTarget), "targetSize").GetValue(__instance);
@@ -1880,40 +2115,40 @@ namespace DFUVR
             int height = (customHeight == 0) ? Screen.height : customHeight;
             targetSize = new Vector2(width, height);
 
-            
+
             float scaleX = (float)Screen.width / (float)customWidth;
             float scaleY = (float)Screen.height / (float)customHeight;
             parentPanel.RootSize = targetSize;
             parentPanel.Scale = new Vector2(scaleX, scaleY);
             parentPanel.AutoSize = AutoSizeModes.None;
 
-            
+
             bool isReady = (bool)AccessTools.Method(typeof(UserInterfaceRenderTarget), "IsReady").Invoke(__instance, null);
 
-            
+
             if (!isReady || targetTexture.width != width || targetTexture.height != height)
             {
-                
+
                 RenderTexture rTexture = GameObject.Find("DaggerfallUI").GetComponent<sTx>().sTxx;
 
-                
+
                 targetTexture = rTexture;
                 targetTexture.filterMode = filterMode;
                 targetTexture.name = string.Format("DaggerfallUI RenderTexture {0}", createCount++);
                 targetTexture.Create();
 
-                
+
                 AccessTools.Field(typeof(UserInterfaceRenderTarget), "targetTexture").SetValue(__instance, targetTexture);
                 AccessTools.Field(typeof(UserInterfaceRenderTarget), "createCount").SetValue(__instance, createCount);
 
-                
+
                 //Plugin.LoggerInstance.LogInfo($"Created UI RenderTexture with dimensions {width}, {height}");
 
-                
+
                 if (__instance.OutputImage)
                     __instance.OutputImage.texture = targetTexture;
 
-                
+
                 AccessTools.Method(typeof(UserInterfaceRenderTarget), "RaiseOnCreateTargetTexture").Invoke(__instance, null);
             }
         }
@@ -1954,7 +2189,7 @@ namespace DFUVR
             //Plugin.LoggerInstance.LogInfo("Joysticks:"+joystickNames.Length);
 
             Var.Initialize();
-            
+
 
 
             //Time.fixedDeltaTime = 1f / 80f;
@@ -1962,7 +2197,7 @@ namespace DFUVR
 
 
         }
-        
+
 
 
     }

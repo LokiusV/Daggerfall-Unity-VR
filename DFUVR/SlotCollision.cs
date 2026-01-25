@@ -17,7 +17,7 @@ namespace DFUVR
             {
                 //Plugin.LoggerInstance.LogInfo("Collision detected");
 
-                if (other.gameObject.GetComponent<HandLabel>().rightHand == false)
+                if (other.gameObject.GetComponent<HandLabel>().isMainHand == false)
                 {
                     Haptics.TriggerHapticFeedback(UnityEngine.XR.XRNode.LeftHand, 0.6f);
                 }

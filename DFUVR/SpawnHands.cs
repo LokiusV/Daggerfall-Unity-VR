@@ -7,6 +7,7 @@ using System.Text;
 using System.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.SpatialTracking;
+using UnityEngine.XR;
 using static DaggerfallWorkshop.Game.InputManager;//for slots
 
 namespace DFUVR
@@ -15,6 +16,15 @@ namespace DFUVR
     {
         public static GameObject rHand;
         public static GameObject lHand;
+
+        public static SheathController mainHandSheathController;
+        public static SheathController offHandSheathController;
+
+        public static HandLabel leftHandLabel;
+        public static HandLabel rightHandLabel;
+        public static HandLabel offHandLabel { get { return Var.leftHanded ? rightHandLabel : leftHandLabel; } }
+        public static HandLabel mainHandLabel { get { return Var.leftHanded ? leftHandLabel : rightHandLabel; } }
+
         public static void Spawn()
         {
             //creating Hands
@@ -25,27 +35,33 @@ namespace DFUVR
             Var.leftHand.transform.parent = GameObject.Find("VRParent").transform;
 
 
-            TrackedPoseDriver rightTracker=Var.rightHand.AddComponent<TrackedPoseDriver>();
+            TrackedPoseDriver rightTracker = Var.rightHand.AddComponent<TrackedPoseDriver>();
             TrackedPoseDriver leftTracker = Var.leftHand.AddComponent<TrackedPoseDriver>();
 
             rightTracker.SetPoseSource(TrackedPoseDriver.DeviceType.GenericXRController, TrackedPoseDriver.TrackedPose.RightPose);
             leftTracker.SetPoseSource(TrackedPoseDriver.DeviceType.GenericXRController, TrackedPoseDriver.TrackedPose.LeftPose);
 
-            SphereCollider rCollider=Var.rightHand.AddComponent<SphereCollider>();
+            SphereCollider rCollider = Var.rightHand.AddComponent<SphereCollider>();
             SphereCollider lCollider = Var.leftHand.AddComponent<SphereCollider>();
 
             rCollider.radius = 0.0668935f;
             lCollider.radius = 0.0668935f;
             rCollider.isTrigger = true;
-            lCollider.isTrigger=true;
-            Var.rightHand.AddComponent<HandLabel>().rightHand=true;
-            Var.leftHand.AddComponent<HandLabel>().rightHand = false;
+            lCollider.isTrigger = true;
 
-            if (Var.leftHanded) {
-                Var.rightHand.GetComponent<HandLabel>().rightHand = false;
-                Var.leftHand.GetComponent<HandLabel>().rightHand = true;
+            leftHandLabel = Var.leftHand.AddComponent<HandLabel>();
+            rightHandLabel = Var.rightHand.AddComponent<HandLabel>();
+            if (Var.leftHanded)
+            {
+                rightHandLabel.Init(false, XRNode.RightHand, InputDevices.GetDeviceAtXRNode(XRNode.RightHand), Var.gripButton);
+                leftHandLabel.Init(true, XRNode.LeftHand, InputDevices.GetDeviceAtXRNode(XRNode.LeftHand), Var.lGripButton);
             }
-            
+            else
+            {
+                rightHandLabel.Init(true, XRNode.RightHand, InputDevices.GetDeviceAtXRNode(XRNode.RightHand), Var.gripButton);
+                leftHandLabel.Init(false, XRNode.LeftHand, InputDevices.GetDeviceAtXRNode(XRNode.LeftHand), Var.lGripButton);
+            }
+
             //Rigidbody rHandBody=Var.rightHand.AddComponent<Rigidbody>();
             //Rigidbody lHandBody = Var.leftHand.AddComponent<Rigidbody>();
 
@@ -59,8 +75,8 @@ namespace DFUVR
 
 
             AssetBundle assetBundle = AssetBundle.LoadFromFile(assetBundlePath);
-
             GameObject controllerPrefab = assetBundle.LoadAsset<GameObject>("vr_controller_01_mrhat");
+            assetBundle.Unload(false);
 
             rHand = Instantiate(controllerPrefab);
             lHand= Instantiate(controllerPrefab);
@@ -75,6 +91,8 @@ namespace DFUVR
             lHand.transform.localPosition = new Vector3(0, 0, 0);
             lHand.transform.Rotate(0, 180, 0);
 
+            rightHandLabel.freeHandObject = rHand;
+            leftHandLabel.freeHandObject = lHand;
 
             if (Var.leftHanded) { Var.handCam = Var.leftHand.AddComponent<Camera>(); }
             else { Var.handCam = Var.rightHand.AddComponent<Camera>(); }
@@ -83,8 +101,11 @@ namespace DFUVR
             Var.body = new GameObject("Body");
             Var.body.AddComponent<BodyRotationController>();
 
-            Var.body.AddComponent<SheathController>();
-            assetBundle.Unload(false);
+            mainHandSheathController = Var.body.AddComponent<SheathController>();
+            mainHandSheathController.isOffHandSheath = false;
+            offHandSheathController = Var.body.AddComponent<SheathController>();
+            offHandSheathController.isOffHandSheath = true;
+
             try
             {
                 string watchBundlePath = Path.Combine(pluginFolderPath, "AssetBundles/watchandfonts");
