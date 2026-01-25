@@ -446,7 +446,6 @@ namespace DFUVR
             new HandObjectLoadList("AssetBundles/weapons", null, typeof(WeaponCollision), typeof(MeshCollider), new[] { WeaponTypes.LongBlade, WeaponTypes.LongBlade_Magic }, "Sword", Vector3.zero, Quaternion.identity, Vector3.zero, Quaternion.identity, true, true, true),
             new HandObjectLoadList("AssetBundles/weapons", null, typeof(WeaponCollision), typeof(MeshCollider), new[] { WeaponTypes.Dagger, WeaponTypes.Dagger_Magic }, "Steel_Dagger_512", Vector3.zero, Quaternion.Euler(0, 90, 90), Vector3.zero, Quaternion.Euler(0, 90, 90), true),
             new HandObjectLoadList("AssetBundles/weapons", null, typeof(WeaponCollision), typeof(MeshCollider), new[] { WeaponTypes.Battleaxe, WeaponTypes.Battleaxe_Magic }, "MM_Axe_01_01_lod2", Vector3.zero, Quaternion.Euler(0, -90, 90), Vector3.zero, Quaternion.Euler(0, 180, 180)),
-            new HandObjectLoadList("AssetBundles/weapons", null, null, null, new[] { WeaponTypes.None }, "Sheath", Vector3.zero, Quaternion.identity, Vector3.zero, Quaternion.identity, true),
             new HandObjectLoadList("AssetBundles/weapons", null, typeof(WeaponCollision), typeof(MeshCollider), new[] { WeaponTypes.Mace, WeaponTypes.Mace_Magic }, "mace", new Vector3(0, 0, 0.1f), Quaternion.Euler(90, 0, 0), new Vector3(0, 0, 0.1f), Quaternion.Euler(90, 0, 0)),
             new HandObjectLoadList("AssetBundles/weapons", null, typeof(WeaponCollision), typeof(MeshCollider), new[] { WeaponTypes.Flail, WeaponTypes.Flail_Magic }, "mace", new Vector3(0, 0, 0.1f), Quaternion.Euler(90, 0, 0), new Vector3(0, 0, 0.1f), Quaternion.Euler(90, 0, 0)),
             new HandObjectLoadList("AssetBundles/weapons", null, typeof(WeaponCollision), typeof(BoxCollider), new[] { WeaponTypes.Warhammer, WeaponTypes.Warhammer_Magic }, "Warhammer_1", Vector3.zero, Quaternion.Euler(0, 0, 90), Vector3.zero, Quaternion.identity),
@@ -575,9 +574,10 @@ namespace DFUVR
                     }
                 }
                 // this is for accessing by name later
-                else if (!string.IsNullOrEmpty(handObjectLoad.assetName))
+                if (!string.IsNullOrEmpty(handObjectLoad.assetName))
                 {
-                    handObjectDictionaryByName.Add(handObjectLoad.assetName, new HandObject(handObjectLoad, gameObject));
+                    if (!handObjectDictionaryByName.ContainsKey(handObjectLoad.assetName))
+                        handObjectDictionaryByName.Add(handObjectLoad.assetName, new HandObject(handObjectLoad, gameObject));
                 }
 
                 handObjectLoad.postAction?.Invoke(gameObject);
