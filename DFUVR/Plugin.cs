@@ -1017,33 +1017,51 @@ namespace DFUVR
     [HarmonyPatch(typeof(WeaponManager), "ToggleSheath")]
     public class CorrectWeaponPatch : MonoBehaviour
     {
-        [HarmonyPrefix]
-        static void Prefix(WeaponManager __instance)
+        [HarmonyPostfix]
+        internal static void Postfix(WeaponManager __instance)
         {
             if (Var.weaponObject != null)
                 Destroy(Var.weaponObject);
 
-            if (__instance.ScreenWeapon == null)
+            DaggerfallUnityItem rightHandItem = GameManager.Instance.PlayerEntity.ItemEquipTable.GetItem(EquipSlots.RightHand);
+            //DaggerfallUnityItem daggerfallUnityItem = playerEntity.ItemEquipTable.GetItem(EquipSlots.LeftHand);
+
+            if (rightHandItem == null)
             {
                 Var.currentWeaponName = null;
+
+                Var.sheathObject.GetComponent<MeshRenderer>().enabled = true;
+                Hands.rHand.SetActive(true);
+                Hands.lHand.SetActive(true);
                 return;
             }
 
-            Var.currentWeaponName = __instance.ScreenWeapon.SpecificWeapon?.LongName ?? "";
+            Var.currentWeaponName = rightHandItem.LongName ?? "";
 
             HandObject currentHandObject = null;
-            if (__instance.ScreenWeapon.WeaponType != WeaponTypes.Bow && Var.handObjectsByName.ContainsKey(Var.currentWeaponName))
+            if (rightHandItem.GetWeaponType() != WeaponTypes.Bow && Var.handObjectsByName.ContainsKey(Var.currentWeaponName))
                 currentHandObject = Var.handObjectsByName[Var.currentWeaponName];
             else
-                currentHandObject = Var.handObjects[__instance.ScreenWeapon.WeaponType];
+                currentHandObject = Var.handObjects[rightHandItem.GetWeaponType()];
 
             GameObject tempObject = currentHandObject.gameObject;
 
             Var.weaponObject = Instantiate(tempObject);
             Var.weaponObject.GetComponent<Collider>().enabled = true;
 
-            // if it is unsheathing
             if (__instance.Sheathed)
+            {
+                Var.weaponObject.GetComponent<Collider>().enabled = false;
+                Var.weaponObject.transform.SetParent(Var.sheathObject.transform);
+
+                Var.weaponObject.transform.localPosition = currentHandObject.sheatedPositionOffset;
+                Var.weaponObject.transform.localRotation = currentHandObject.sheatedRotationOffset;
+                Var.sheathObject.GetComponent<MeshRenderer>().enabled = currentHandObject.renderSheated;
+
+                Hands.rHand.SetActive(true);
+                Hands.lHand.SetActive(true);
+            }
+            else
             {
                 Var.sheathObject.GetComponent<MeshRenderer>().enabled = true;
 
@@ -1059,18 +1077,18 @@ namespace DFUVR
                 Hands.rHand.SetActive(false);
                 Hands.lHand.SetActive(false);
             }
-            else
-            {
-                Var.weaponObject.GetComponent<Collider>().enabled = false;
-                Var.weaponObject.transform.SetParent(Var.sheathObject.transform);
+        }
+    }
 
-                Var.weaponObject.transform.localPosition = currentHandObject.sheatedPositionOffset;
-                Var.weaponObject.transform.localRotation = currentHandObject.sheatedRotationOffset;
-                Var.sheathObject.GetComponent<MeshRenderer>().enabled = currentHandObject.renderSheated;
-
-                Hands.rHand.SetActive(true);
-                Hands.lHand.SetActive(true);
-            }
+    [HarmonyPatch(typeof(WeaponManager), "ApplyWeapon")]
+    public class ApplyWeaponPatch : MonoBehaviour
+    {
+        [HarmonyPostfix]
+        static void Postfix(WeaponManager __instance)
+        {
+            DaggerfallUnityItem rightHandItem = GameManager.Instance.PlayerEntity.ItemEquipTable.GetItem(EquipSlots.RightHand);
+            if (rightHandItem == null || rightHandItem.LongName != Var.currentWeaponName)
+                CorrectWeaponPatch.Postfix(__instance);
         }
     }
 
