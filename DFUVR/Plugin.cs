@@ -150,10 +150,14 @@ namespace DFUVR
     {
         static void Prefix(PlayerDeath __instance)
         {
-            if (Var.weaponObject != null)
-                Destroy(Var.weaponObject);
+            if (Var.leftWeaponObject != null)
+                Destroy(Var.leftWeaponObject);
+            if (Var.rightWeaponObject != null)
+                Destroy(Var.rightWeaponObject);
 
-            Var.currentWeaponName = null;
+            Var.currentLeftWeaponName = null;
+            Var.currentRightWeaponName = null;
+
             Hands.rHand.SetActive(true);
             Hands.lHand.SetActive(true);
         }
