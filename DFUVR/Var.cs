@@ -80,12 +80,31 @@ namespace DFUVR
         public static GameObject VRParent;
         public static GameObject debugSphere;
 
+        public static GameObject mainHand
+        {
+            get
+            {
+                return leftHanded ? leftHand : rightHand;
+            }
+        }
+        public static GameObject offHand
+        {
+            get
+            {
+                return leftHanded ? rightHand : leftHand;
+            }
+        }
+
         public static Dictionary<WeaponTypes, HandObject> handObjects = new Dictionary<WeaponTypes, HandObject>();
         public static Dictionary<string, HandObject> handObjectsByName = new Dictionary<string, HandObject>();
-        public static GameObject weaponObject;
-        public static string currentWeaponName;
 
-        public static GameObject sheathObject;
+        public static GameObject rightWeaponObject;
+        public static GameObject leftWeaponObject;
+        public static string currentRightWeaponName;
+        public static string currentLeftWeaponName;
+
+        public static GameObject rightSheathObject;
+        public static GameObject leftSheathObject;
 
         public static int connectedJoysticks;
 
