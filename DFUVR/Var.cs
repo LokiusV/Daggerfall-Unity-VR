@@ -110,6 +110,7 @@ namespace DFUVR
 
 
         public static GameObject keyboard;
+        public static float scrollSpeed = 2;
 
         public static float active;
 

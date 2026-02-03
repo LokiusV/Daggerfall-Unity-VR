@@ -12,6 +12,7 @@ collision with some weapons from WISA not working
 
 interaction is broken
 
+//Maybe just 2 sheaths instead?
 able to use 2 weapons when one on each hand
 - when off hand free, show a hand to swap
 - when off hand occupied, show the other weapon
@@ -23,12 +24,12 @@ https://www.nexusmods.com/daggerfallunity/mods/391
 
 spell selection menu
 
-or quick menu with hand, like quick slots or like Skyrim/alyx
+or quick menu with hand, like quick slots or like Skyrim/alyx -- Assigned: LokiusV //Maybe just last 4 casted spells? Would be easy to implement. Otherwise I'd add a menu entry in the VR settings menu
 
 fix skybox
-today the sky is inverted and quite wrong. fix it in Y coord and put it as far as possible to the background
+today the sky is inverted and quite wrong. fix it in Y coord and put it as far as possible to the background //Dynamic Skies(https://www.nexusmods.com/daggerfallunity/mods/376) support would be better! 
 
-bow and arrow
+bow and arrow -- Assigned: LokiusV (low prio)
 - bow on off hand
 - get arrow on main hand quiver
 
@@ -43,13 +44,15 @@ removing the fake blocks with actual hud
 proper VR hands
 still show hand when not holding weapon
 
-menu interactions by grabbing things on the body
+menu interactions by grabbing things on the body --Assigned: LokiusV
 - book to check quests
 - map for map
 - compass for local map
 - pouch for inventory
 - travel
 - character sheet
+
+Fallout4VR/SkyrimVR-like looting menu --Assigned: LokiusV
 
 some ui screens as interactive things
 - char sheet as a piece of paper
@@ -58,8 +61,20 @@ some ui screens as interactive things
 other hand used to navigate where needed (so equipping only 1 single hand weapon could be better?)
 some screens should still be full screen to stop gameplay
 
+In-game VR settings menu: --Assigned: LokiusV(very high prio)
+  - Basic settings:
+    - Controller type
+    - refresh rate
+  - Calibration settings:
+    - Sheath position
+    - Height
+    - Body slots
+  - Comfort settings:
+    - turn style
+    - toggle run
+
 min speed to cause attack to trigger
-speed increases damage (increases minimum damage, do not touch max)
+speed increases damage (increases minimum damage, do not touch max) //optional setting? Could be bad when playing seated.
 
 remove self from triggering hits from weapon
 filter on the collision method
@@ -79,16 +94,12 @@ fix loading screen being right next to your face
 
 move scroll bar with sticks
 
-GitHub action to build
-
 improve speed of the sheath model
 
-improve joystick handling on the code
+improve joystick handling on the code //? Already uses mostly new input system. All occurences of old one are to keep compatibility with the DFU binding menu
 
 show what the controls do when holding the alt button
 
-toggle run
-
-easier way to quick save and load
+easier way to quick save and load -- Assigned: LokiusV//Button in the VR settings menu
 
 hide weapon on menu
