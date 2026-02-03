@@ -230,17 +230,18 @@ namespace DFUVR
 
             try //to read the Settings.txt file
             {
-                string fileContent = FileReader.ReadFromFile(filePath);
-                string[] lines = fileContent.Split('\n');
-                Debug.Log(lines[2].Trim());
+                var settings = Settings.LoadFromFile();
+                Debug.Log(settings.headsetType);
+                
                 //using only a bool makes the settings file too hard to understand for most people
                 //bool.TryParse(lines[6], out leftHanded);
-                if (lines[6].Trim() == "left") { Var.leftHanded = true; }
+                if (settings.dominantHand == "left") { Var.leftHanded = true; }
 
                 //Set the bindings to the default Oculus Touch bindings
                 //This is not necessary. The default values are already set up for the Touch Controllers
                 //only if the player ist left handed, change the grip buttons
-                if (lines[2].Trim() == "Oculus/Meta")
+                string headset = settings.headsetType;
+                if (headset == "Oculus/Meta")
                 {
                     if (Var.leftHanded)
                     {
@@ -262,7 +263,7 @@ namespace DFUVR
 
                 }
                 //Set the bindings to the default HTC Vive Wand bindings
-                if (lines[2].Trim() == "HTC Vive Wands")
+                if (headset == "HTC Vive Wands")
                 {
                     left2Button = KeyCode.JoystickButton4;
                     left1Button = KeyCode.JoystickButton2;
@@ -279,7 +280,7 @@ namespace DFUVR
 
                 }
                 //FOr everything else, we try to let Unity figure it out. Doesn't work very well though and manual controller profiles are necessary for a playable experience
-                else if (lines[2].Trim() == "Other")
+                else if (headset == "Other")
                 {
                     isNotOculus = true;
 
@@ -302,19 +303,18 @@ namespace DFUVR
                 float targetTimeStep;
                 try 
                 {
-                    fileContent = FileReader.ReadFromFile(filePath);
                     //lines = fileContent.Split('\n');
-                    Debug.Log("Line1:" + lines[0].Trim());
-                    Debug.Log("Line2:" + lines[1].Trim());
-                    Var.heightOffset = float.Parse(lines[0].Trim(),CultureInfo.InvariantCulture);
-                    Plugin.LoggerInstance.LogInfo(Var.heightOffset);
-                    targetTimeStep = 1f / float.Parse(lines[1].Trim());
+                    Debug.Log("Line1:" + settings.heightOffset.ToString(CultureInfo.InvariantCulture));
+                    Debug.Log("Line2:" + settings.headsetRefreshRate);
+                    heightOffset = settings.heightOffset;
+                    Plugin.LoggerInstance.LogInfo(heightOffset);
+                    targetTimeStep = 1f / settings.headsetRefreshRate;
                     Plugin.LoggerInstance.LogInfo(targetTimeStep);
 
                 }
                 catch (Exception e)//if it doesn't work, set it to an emergency default value
                 {
-                    Plugin.LoggerInstance.LogError("Made a fucky wucky while reading the file, oopsie! Error: " + e);
+                    Plugin.LoggerInstance.LogError("Made a fucky wucky while reading the file, oopsie! Error: " + e.Message);
                     targetTimeStep = 1f / 90f;
                 }
                 try
@@ -337,21 +337,20 @@ namespace DFUVR
                 Time.fixedDeltaTime = targetTimeStep;
                 Plugin.LoggerInstance.LogInfo(Time.fixedDeltaTime);
 
-                string rawLine3 = lines[3].Trim();
-                Plugin.LoggerInstance.LogInfo(rawLine3);
-                string[] sheathVector = rawLine3.Split(',');
+                Plugin.LoggerInstance.LogInfo(settings.sheathOffset);
+                string[] sheathVector = settings.sheathOffset.Split(',');
                 float x = float.Parse(sheathVector[0], CultureInfo.InvariantCulture);
                 float y = float.Parse(sheathVector[1], CultureInfo.InvariantCulture);
                 float z = float.Parse(sheathVector[2], CultureInfo.InvariantCulture);
                 Plugin.LoggerInstance.LogInfo(x);
                 Var.sheathOffset=new Vector3(x,y,z);
-                bool.TryParse(lines[5], out fStartMenu);
+                fStartMenu = settings.showStartMenu;
                 //bool.TryParse(lines[6],out leftHanded);
                 Plugin.LoggerInstance.LogInfo("Offsett: "+Var.sheathOffset.ToString());
-                if (lines[7].Trim() == "smooth") { Var.smoothTurn = true;}
+                if (settings.turnStyle == "smooth") { Var.smoothTurn = true;}
                 Plugin.LoggerInstance.LogInfo("Smooth turn: "+Var.smoothTurn);
-                if (lines[7].Trim() == "none") { Var.noTurn = true; }
-                bool.TryParse(lines[8],out toggleRun);
+                if (settings.turnStyle == "none") { Var.noTurn = true; }
+                toggleRun = settings.toggleRun;
 
 
             }
@@ -364,14 +363,12 @@ namespace DFUVR
         //THis saves the players height in Settings.txt. Gets called after exiting calibration mode
         public static void SaveHeight()
         {
-            string filePath = Path.Combine(Paths.PluginPath, "Settings.txt");
-            string[] lines = File.ReadAllLines(filePath);
+            Settings settings = Settings.LoadFromFile();
+            settings.heightOffset = heightOffset;//Var.heightOffset.ToString();
+            settings.sheathOffset = string.Format(CultureInfo.InvariantCulture, "{0},{1},{2}", sphereObject.transform.localPosition.x, sphereObject.transform.localPosition.y, sphereObject.transform.localPosition.z);//Var.sphereObject.transform.localPosition.ToString();//Var.sheathOffset.ToString();
+            settings.connectedJoysticks = connectedJoysticks;
 
-            lines[0] = string.Format(CultureInfo.InvariantCulture,"{0}", Var.heightOffset);//Var.heightOffset.ToString();
-            lines[3] = string.Format(CultureInfo.InvariantCulture, "{0},{1},{2}", Var.sphereObject.transform.localPosition.x, Var.sphereObject.transform.localPosition.y, Var.sphereObject.transform.localPosition.z);//Var.sphereObject.transform.localPosition.ToString();//Var.sheathOffset.ToString();
-            lines[4] = connectedJoysticks.ToString();
-
-            File.WriteAllLines(filePath, lines);
+            settings.SaveToFile();
         }
         //deprecated. Ignore.
         public static void SaveAxis()
