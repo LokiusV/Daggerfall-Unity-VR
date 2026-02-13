@@ -104,7 +104,7 @@ All my beta testers! Including but not limited to:
 - Dexrexx Media
 
 ## Custom Assets
-The [WISA(3D Weapons Items And Shields Array)](https://www.nexusmods.com/daggerfallunity/mods/1058) Mod is made by [WestingTyler](https://www.nexusmods.com/profile/westingtyler?gameId=2927). The newest version can always be found on Nexus Mods.
+The [WISA(3D Weapons Items And Shields Array)](https://www.nexusmods.com/daggerfallunity/mods/1058) Mod is made by [WestingTyler](https://westingtyler.com/). The newest version can always be found on Nexus Mods.
 DFUVR includes fallback models, but using the WISA mod is highly recommended!!!
 ## Additional Assets used
 I have used the following Unity Asset Store Standard License Assets as weapon models for this project:
